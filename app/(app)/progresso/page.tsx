@@ -46,6 +46,11 @@ export default async function PaginaProgresso(props: PageProps<"/progresso">) {
         <span className="block text-sm text-suave">Calorias, treinos, peso e gasto da semana, com um texto-resumo</span>
       </Link>
 
+      <Link href="/progresso/fotos" className="block rounded-2xl border-2 border-linha p-4 active:bg-superficie">
+        <span className="block text-lg font-bold">Fotos de progresso</span>
+        <span className="block text-sm text-suave">Frente, lado e costas ao longo do tempo. Só você vê</span>
+      </Link>
+
       <Link href="/progresso/meta" className="block rounded-2xl border-2 border-marca p-4 active:bg-superficie">
         <span className="block text-lg font-bold">Meta e plano</span>
         <span className="block text-sm text-suave">Seu gasto estimado, quanto comer por dia e a projeção do peso</span>

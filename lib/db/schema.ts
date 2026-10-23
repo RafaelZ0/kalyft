@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   check,
+  customType,
   date,
   foreignKey,
   index,
@@ -933,3 +934,39 @@ export const receitaItens = pgTable(
 
 export type Receita = typeof receitas.$inferSelect;
 export type ReceitaItem = typeof receitaItens.$inferSelect;
+
+// ───────────────────────── Fase 8: fotos de progresso do corpo ─────────────────────────
+
+// bytea: o driver HTTP do Neon entrega o valor como Buffer ou como texto "\\x…" (hexadecimal); na ida mandamos
+// o texto hexadecimal, que o Postgres converte.
+const bytea = customType<{ data: Uint8Array; driverData: string | Uint8Array }>({
+  dataType: () => "bytea",
+  toDriver: (v) => "\\x" + Buffer.from(v).toString("hex"),
+  fromDriver: (v) => (typeof v === "string" ? new Uint8Array(Buffer.from(v.replace(/^\\x/, ""), "hex")) : new Uint8Array(v)),
+});
+
+// A foto fica no próprio banco (JPEG reduzido, sem metadados), do próprio usuário. Nunca vai para a IA e só é
+// servida por uma rota que confere a sessão. O limite de 60 por pessoa é aplicado atomicamente na inserção.
+export const fotosCorpo = pgTable(
+  "fotos_corpo",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: dono(),
+    data: date("data").notNull(),
+    posicao: text("posicao").notNull(),
+    nota: text("nota"),
+    bytes: bytea("bytes").notNull(),
+    tamanho: integer("tamanho").notNull(),
+    criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("fotos_corpo_id_user_unique").on(t.id, t.userId),
+    index("fotos_corpo_user_data_idx").on(t.userId, t.data.desc()),
+    check("fotos_corpo_posicao_check", sql`${t.posicao} in ('frente', 'lado', 'costas')`),
+    check("fotos_corpo_nota_check", sql`char_length(${t.nota}) <= 200`),
+    check("fotos_corpo_data_check", sql`${t.data} >= date '2000-01-01'`),
+    check("fotos_corpo_tamanho_check", sql`${t.tamanho} between 1024 and 512000 and octet_length(${t.bytes}) = ${t.tamanho}`),
+  ],
+);
+
+export type FotoCorpoRow = typeof fotosCorpo.$inferSelect;

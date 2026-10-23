@@ -125,7 +125,7 @@ O plano tem:
 
 - Pesagens (idealmente diárias, em jejum), massa magra e cintura.
 - Gráfico com o peso bruto e a linha de tendência.
-- Fotos de progresso opcionais, em armazenamento privado (serviço a definir).
+- Fotos de progresso opcionais (frente, lado, costas), **implementadas na Fase 8**: JPEG reduzido (~1080 px, sem EXIF) guardado numa coluna `bytea` do próprio Postgres, com `user_id` e as mesmas regras de isolamento; limite de 60 por pessoa; servidas só por `/api/fotos-corpo/[id]` com sessão (sem URL pública); nunca enviadas à IA; comparação lado a lado e exclusão pelo usuário.
 - Lembrete opcional da aplicação semanal do Ozempic (só um registro de "feito" no dia escolhido; o app não dá orientação sobre a medicação).
 
 ### 3.9 Passos

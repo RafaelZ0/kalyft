@@ -95,14 +95,10 @@ export function IconeKalyft({ tamanho = 40, simples = false, id }: { tamanho?: n
   );
 }
 
-/** Logotipo escrito, pesado e chapado, com o detalhe de pino no K (estilo em globals.css, classe `logotipo`). */
+/** Logotipo escrito, pesado e chapado, (estilo em globals.css, classe `logotipo`). */
 export function Logotipo({ className = "" }: { className?: string }) {
   return (
     <span className={`logotipo ${className}`} aria-label="Kalyft">
-      <svg className="logotipo-pino" viewBox="0 0 30 40" aria-hidden="true" fill="currentColor">
-        <rect x="0" y="18" width="30" height="4" />
-        <rect x="0" y="6" width="5" height="28" />
-      </svg>
       <span aria-hidden="true">Kaly</span>
       <span aria-hidden="true" className="logotipo-ft">ft</span>
     </span>

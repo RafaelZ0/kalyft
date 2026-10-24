@@ -92,24 +92,17 @@ textarea {
   outline-offset: 2px;
 }
 
-/* Logotipo: letras pesadas e chapadas; o "ft" leva a cor da marca. O pino é o detalhe à esquerda do K. */
+/* Logotipo: letras pesadas e chapadas; o "ft" leva a cor da marca. */
 .logotipo {
   position: relative;
   display: inline-block;
   font-weight: 900;
   font-stretch: 112%;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.03em;
   line-height: 1;
   color: var(--c-texto);
 }
 .logotipo-ft {
+  margin-left: 0.04em;
   color: var(--c-destaque);
-}
-.logotipo-pino {
-  position: absolute;
-  left: 0.02em;
-  top: 0.24em;
-  width: 0.34em;
-  height: 0.45em;
-  color: var(--c-fundo);
 }

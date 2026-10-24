@@ -8,7 +8,7 @@ export default async function PaginaEntrar() {
   if (await obterSessao()) redirect("/hoje");
   return (
     <>
-      <h1 className="mb-10 text-3xl font-bold">Entrar</h1>
+      <h1 className="sr-only">Entrar</h1>
       <FormEntrar />
     </>
   );

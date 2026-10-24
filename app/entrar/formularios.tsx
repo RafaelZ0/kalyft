@@ -30,14 +30,12 @@ export function FormEntrar() {
         </Link>
       ) : null}
       <BotaoEnviar pendente="Entrando…">Entrar</BotaoEnviar>
-      <div className="flex justify-between gap-4">
-        <Link href="/entrar/esqueci" className="flex min-h-12 items-center font-semibold text-suave underline">
-          Esqueci a senha
-        </Link>
-        <Link href="/entrar/cadastro" className="flex min-h-12 items-center font-semibold text-suave underline">
-          Criar conta
-        </Link>
-      </div>
+      <Link href="/entrar/cadastro" className="flex min-h-14 w-full items-center justify-center rounded-full border-2 border-borda bg-superficie text-lg font-bold">
+        Criar conta
+      </Link>
+      <Link href="/entrar/esqueci" className="flex min-h-12 items-center justify-center font-semibold text-suave underline">
+        Esqueci a senha
+      </Link>
     </form>
   );
 }

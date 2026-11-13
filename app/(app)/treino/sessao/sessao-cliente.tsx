@@ -1,4 +1,6 @@
 "use client";
+import { FormDados, useContextoDados } from "@/components/contexto-dados";
+
 
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { Aviso, BotaoEnviar, Campo } from "@/components/ui";
@@ -184,6 +186,7 @@ export function SessaoCliente({
   feitas: Feita[];
   observacao: string;
 }) {
+  const contexto = useContextoDados();
   const { desbloquear, avisar } = useAviso();
   useTelaAcesa();
 
@@ -229,6 +232,7 @@ export function SessaoCliente({
     const atual = { ...valorInicial(item, op, n), ...series[chave(op.id, n)] };
     mudar(item, op, n, { salvando: true, erro: undefined });
     const r = await salvarSerieDoDia({
+      contextoId: contexto.contextoId,
       data,
       treinoId,
       exercicioId: op.id,
@@ -247,12 +251,12 @@ export function SessaoCliente({
   }
 
   async function desfazer(item: ItemTela, op: OpcaoTela, n: number) {
-    const r = await apagarSerieDoDia(data, op.id, n);
+    const r = await apagarSerieDoDia(data, op.id, n, contexto.contextoId);
     if (r.ok) mudar(item, op, n, { feita: false });
   }
 
   return (
-    <div className="space-y-10 pb-28">
+      <fieldset disabled={!contexto.podeEditar} className="min-w-0 space-y-10 pb-28">
       {itens.map((item, idx) => {
         const op = item.opcoes.find((o) => o.id === escolha[item.id]) ?? item.opcoes[0];
         const dica = dicas[`${item.id}:${op.id}`];
@@ -350,17 +354,17 @@ export function SessaoCliente({
         );
       })}
 
-      <form action={concluir} className="space-y-4 border-t border-linha pt-8" noValidate>
+      <FormDados action={concluir} className="space-y-4 border-t border-linha pt-8" noValidate>
         <input type="hidden" name="data" value={data} />
         <input type="hidden" name="treinoId" value={treinoId} />
         <Campo nome="observacao" rotulo="Observação do treino (opcional)" maxLength={500} valor={observacao} erro={estado.erros?.observacao} />
         {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
         <BotaoEnviar pendente="Salvando…">Concluir treino</BotaoEnviar>
-      </form>
+      </FormDados>
 
       {fimMs !== null ? (
         <Cronometro fimMs={fimMs} aoAcabar={aoAcabar} onMais={() => setFimMs((f) => adicionarSegundos(f ?? Date.now(), Date.now(), 15))} onPular={() => setFimMs(null)} />
       ) : null}
-    </div>
+    </fieldset>
   );
 }

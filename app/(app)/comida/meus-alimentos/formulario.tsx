@@ -1,4 +1,6 @@
 "use client";
+import { FormDados, SomenteContaPropria } from "@/components/contexto-dados";
+
 
 import { useActionState, useRef } from "react";
 import { Aviso, BotaoEnviar, Campo } from "@/components/ui";
@@ -38,8 +40,8 @@ export function FormAlimento({
   const formRef = useRef<HTMLFormElement>(null);
   return (
     <div className="space-y-8">
-    {alimentoId ? null : <LerRotulo formRef={formRef} />}
-    <form ref={formRef} action={acao} className="space-y-8" noValidate>
+    {alimentoId ? null : <SomenteContaPropria><LerRotulo formRef={formRef} /></SomenteContaPropria>}
+    <FormDados ref={formRef} action={acao} className="space-y-8" noValidate>
       {alimentoId ? <input type="hidden" name="alimentoId" value={alimentoId} /> : null}
       {data ? <input type="hidden" name="data" value={data} /> : null}
       {refeicao ? <input type="hidden" name="refeicao" value={refeicao} /> : null}
@@ -73,7 +75,7 @@ export function FormAlimento({
       ) : null}
       {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
       <BotaoEnviar>{alimentoId ? "Salvar alterações" : "Cadastrar alimento"}</BotaoEnviar>
-    </form>
+    </FormDados>
     </div>
   );
 }

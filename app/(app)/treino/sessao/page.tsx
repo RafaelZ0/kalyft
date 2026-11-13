@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import {
   listarItensDoTreino,
   listarSeriesDoDia,

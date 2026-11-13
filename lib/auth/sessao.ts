@@ -2,6 +2,7 @@ import "server-only";
 
 import { redirect, unstable_rethrow } from "next/navigation";
 import { cache } from "react";
+import { createHash } from "node:crypto";
 import { registrarAcesso, sessoesValidasDesde, type Administrador } from "@/lib/dal/acessos";
 import { garantirPerfil } from "@/lib/dal/perfil";
 import { registrarErro } from "@/lib/log";
@@ -19,7 +20,7 @@ export type UsuarioSessao = { id: string; email: string; emailVerificado: boolea
  * Handlers). Nesse caso, e em qualquer outra falha, a sessão é tratada como
  * inexistente: a tela de login abre e o próximo login substitui os cookies.
  */
-export const obterSessao = cache(async (): Promise<UsuarioSessao | null> => {
+const obterSessaoValidada = cache(async (): Promise<{ usuario: UsuarioSessao; sessaoHash: string } | null> => {
   let data;
   try {
     ({ data } = await auth.getSession());
@@ -31,8 +32,21 @@ export const obterSessao = cache(async (): Promise<UsuarioSessao | null> => {
   const user = data?.user;
   if (!user?.id || !data?.session) return null;
   if (!sessaoAindaValida(data.session.createdAt, await sessoesValidasDesde(user.id))) return null;
-  return { id: user.id, email: user.email, emailVerificado: user.emailVerified === true };
+  // O SDK instalado expõe session.id; nunca persistimos session.token.
+  if (!data.session.id) return null;
+  return {
+    usuario: { id: user.id, email: user.email, emailVerificado: user.emailVerified === true },
+    sessaoHash: createHash("sha256").update(`acompanhamento:${data.session.id}`).digest("hex"),
+  };
 });
+
+export const obterSessao = cache(async (): Promise<UsuarioSessao | null> => (await obterSessaoValidada())?.usuario ?? null);
+
+export async function obterVinculoSessao(): Promise<string> {
+  const sessao = await obterSessaoValidada();
+  if (!sessao) redirect("/entrar");
+  return sessao.sessaoHash;
+}
 
 function ehAdmin(usuario: UsuarioSessao): boolean {
   if (!usuario.emailVerificado) return false;

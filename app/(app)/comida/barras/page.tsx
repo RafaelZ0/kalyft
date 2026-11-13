@@ -1,4 +1,4 @@
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { hojeSaoPaulo } from "@/lib/datas";
 import { dataDiario, refeicao as refeicaoSchema } from "@/lib/validacao/comida";
 import { Voltar, voltaQuery } from "../comum";

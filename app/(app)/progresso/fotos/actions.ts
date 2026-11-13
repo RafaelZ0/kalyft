@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { excluirFotoCorpo, inserirFotoCorpo } from "@/lib/dal/fotos-corpo";
 import { ehUuid } from "@/lib/dal/util";
 import { hojeSaoPaulo } from "@/lib/datas";

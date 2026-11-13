@@ -19,7 +19,7 @@ export type RelatorioCompleto = { relatorio: RelatorioSemanal; textoIa: string |
  * Calcula o relatório da semana com os dados do próprio usuário, guarda o resumo (um por semana) e devolve
  * o texto da IA só se ele foi escrito com exatamente estes números.
  */
-export async function carregarRelatorio(userId: string, inicio: string, hoje: string): Promise<RelatorioCompleto> {
+export async function carregarRelatorio(userId: string, inicio: string, hoje: string, guardar = true): Promise<RelatorioCompleto> {
   exigirId(userId);
   const fim = fimDaSemana(inicio);
   const ate = hoje < fim ? hoje : fim;
@@ -51,7 +51,7 @@ export async function carregarRelatorio(userId: string, inicio: string, hoje: st
     .from(relatoriosSemanais)
     .where(and(eq(relatoriosSemanais.userId, userId), eq(relatoriosSemanais.inicio, inicio)))
     .limit(1);
-  await db
+  if (guardar) await db
     .insert(relatoriosSemanais)
     .values({ userId, inicio, dados: relatorio as unknown as Record<string, unknown> })
     .onConflictDoUpdate({ target: [relatoriosSemanais.userId, relatoriosSemanais.inicio], set: { dados: relatorio as unknown as Record<string, unknown>, atualizadoEm: new Date() } });

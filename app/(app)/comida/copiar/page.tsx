@@ -1,4 +1,4 @@
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { hojeSaoPaulo, somarDias } from "@/lib/datas";
 import { comArtigo, dataDiario, refeicao as refeicaoSchema, REFEICOES, ROTULOS_REFEICAO } from "@/lib/validacao/comida";
 import { Voltar } from "../comum";

@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState } from "react";
 import { Aviso, BotaoEnviar } from "@/components/ui";
@@ -7,7 +9,7 @@ import { aceitarUsoIa, type EstadoIa } from "./actions";
 export function FormAceite({ gratuito }: { gratuito: boolean }) {
   const [estado, acao] = useActionState<EstadoIa, FormData>(aceitarUsoIa, {});
   return (
-    <form action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="space-y-6" noValidate>
       <ul className="list-disc space-y-3 pl-5 text-lg">
         <li>
           A IA monta um <strong>rascunho</strong>. Nada é salvo sem você conferir e confirmar.
@@ -34,6 +36,6 @@ export function FormAceite({ gratuito }: { gratuito: boolean }) {
       </label>
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       <BotaoEnviar>Aceitar e continuar</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }

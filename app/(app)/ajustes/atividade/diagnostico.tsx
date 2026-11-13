@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
@@ -15,7 +17,7 @@ export function Diagnostico({ treinosPorSemana, iaDisponivel }: { treinosPorSema
   if (!iaDisponivel) return <p className="text-suave">A IA não está ativada aqui. Escolha o seu nível na lista abaixo.</p>;
   return (
     <div className="space-y-6">
-      <form action={acao} className="space-y-5" noValidate>
+      <FormDados action={acao} className="space-y-5" noValidate>
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-suave">Como é a sua semana? (trabalho, deslocamento, exercícios)</span>
           <textarea
@@ -47,7 +49,7 @@ export function Diagnostico({ treinosPorSemana, iaDisponivel }: { treinosPorSema
         {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
         {estado.precisaAceite ? <Link href="/treino/ia" className="block font-semibold underline">Ler e aceitar o aviso da IA</Link> : null}
         <BotaoEnviar pendente="A IA está avaliando…">Descobrir meu nível</BotaoEnviar>
-      </form>
+      </FormDados>
 
       {estado.resultado ? (
         <div className="space-y-3 rounded-2xl border-2 border-marca p-4" aria-live="polite">
@@ -55,10 +57,10 @@ export function Diagnostico({ treinosPorSemana, iaDisponivel }: { treinosPorSema
           <p className="text-xl font-bold">{ROTULOS_ATIVIDADE[estado.resultado.nivel]}</p>
           <p>{estado.resultado.justificativa}</p>
           <p className="text-sm text-suave">Fator de atividade usado no cálculo: {String(FATORES_ATIVIDADE[estado.resultado.nivel]).replace(".", ",")}.</p>
-          <form action={confirmarAtividade}>
+          <FormDados action={confirmarAtividade}>
             <input type="hidden" name="nivel" value={estado.resultado.nivel} />
             <button type="submit" className="min-h-12 w-full rounded-full bg-destaque font-bold text-sobre-destaque">Usar este nível</button>
-          </form>
+          </FormDados>
         </div>
       ) : null}
     </div>

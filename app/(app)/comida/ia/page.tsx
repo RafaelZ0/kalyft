@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { usoDoDia } from "@/lib/dal/ia";
 import { hojeSaoPaulo } from "@/lib/datas";
 import { verificarAcessoIa } from "@/lib/ia/acesso";

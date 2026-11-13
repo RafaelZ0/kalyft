@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Aviso, BotaoSecundario } from "@/components/ui";
@@ -92,7 +94,7 @@ export function Leitor({ data, refeicao }: { data?: string; refeicao?: string })
         )}
       </div>
 
-      <form
+      <FormDados
         onSubmit={(ev) => {
           ev.preventDefault();
           setAviso(null);
@@ -113,7 +115,7 @@ export function Leitor({ data, refeicao }: { data?: string; refeicao?: string })
           />
         </label>
         <BotaoSecundario type="submit">Buscar produto</BotaoSecundario>
-      </form>
+      </FormDados>
 
       {aviso ? <Aviso>{aviso}</Aviso> : null}
       <p className="text-sm text-suave">

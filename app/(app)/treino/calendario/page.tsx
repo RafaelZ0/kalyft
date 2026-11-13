@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { listarSessoes, obterAgenda, obterTrocas, planoAtivo, ultimasSessoes } from "@/lib/dal/treino";
 import { hojeSaoPaulo } from "@/lib/datas";
 import { calendarioDoMes, diaDaSemana, estatisticasDoMes, sequenciaAtual, treinoDoDia, type StatusDia } from "@/lib/treino";

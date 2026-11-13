@@ -1,5 +1,6 @@
+import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { obterPerfil } from "@/lib/dal/perfil";
 import { obterAgenda } from "@/lib/dal/treino";
 import { FATORES_ATIVIDADE, NIVEIS_ATIVIDADE, ROTULOS_ATIVIDADE } from "@/lib/energia";
@@ -32,10 +33,10 @@ export default async function PaginaAtividade(props: PageProps<"/ajustes/ativida
                 <p className="font-semibold">{ROTULOS_ATIVIDADE[n]}</p>
                 <p className="text-sm text-suave">Fator {String(FATORES_ATIVIDADE[n]).replace(".", ",")}{atual === n ? " · atual" : ""}</p>
               </div>
-              <form action={confirmarAtividade}>
+              <FormDados action={confirmarAtividade}>
                 <input type="hidden" name="nivel" value={n} />
                 <button type="submit" className="min-h-12 rounded-full border-2 border-borda px-5 font-semibold">{atual === n ? "Atual" : "Usar"}</button>
-              </form>
+              </FormDados>
             </li>
           ))}
         </ul>

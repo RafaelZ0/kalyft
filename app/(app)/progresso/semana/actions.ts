@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { consumirUsoIa, devolverUsoIa } from "@/lib/dal/ia";
 import { carregarRelatorio, guardarTextoIa } from "@/lib/dal/relatorio";
 import { hojeSaoPaulo } from "@/lib/datas";

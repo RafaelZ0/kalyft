@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { criarTokenApi, MAX_TOKENS_ATIVOS, revogarTokenApi } from "@/lib/dal/passos";
 import { registrarErro } from "@/lib/log";
 import { gerarToken, hashDoToken } from "@/lib/token-api";

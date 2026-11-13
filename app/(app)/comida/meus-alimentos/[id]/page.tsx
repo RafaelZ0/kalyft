@@ -1,6 +1,7 @@
+import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { obterAlimento } from "@/lib/dal/alimentos";
 import { id as idSchema } from "@/lib/validacao/comida";
 import { apagarAlimento } from "../../actions";
@@ -40,12 +41,12 @@ export default async function PaginaEditarAlimento(props: PageProps<"/comida/meu
           sodioMg: txt(a.sodioMg),
         }}
       />
-      <form action={apagarAlimento} className="border-t border-linha pt-8">
+      <FormDados action={apagarAlimento} className="border-t border-linha pt-8">
         <input type="hidden" name="alimentoId" value={a.id} />
         <button type="submit" className="min-h-12 w-full rounded-full border-2 border-erro font-semibold text-erro">
           Apagar alimento
         </button>
-      </form>
+      </FormDados>
     </div>
   );
 }

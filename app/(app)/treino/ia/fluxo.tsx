@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState, useRef, useState, useTransition } from "react";
 import { Aviso, BotaoEnviar } from "@/components/ui";
@@ -120,7 +122,7 @@ function FormCriar({ corpo, restante, aoGerar }: { corpo: CorpoPerfil; restante:
   ];
 
   return (
-    <form action={acao} className="space-y-8" noValidate>
+    <FormDados action={acao} className="space-y-8" noValidate>
       <input type="hidden" name="objetivo" value={objetivo} />
       <input type="hidden" name="nivel" value={nivel} />
       <input type="hidden" name="dias" value={dias} />
@@ -199,7 +201,7 @@ function FormCriar({ corpo, restante, aoGerar }: { corpo: CorpoPerfil; restante:
       <p className="text-sm text-suave">Restam {restante} gerações hoje.</p>
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       <BotaoEnviar pendente="A IA está montando…">Montar rascunho</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }
 
@@ -255,7 +257,7 @@ function FormImportar({ restante, aoGerar }: { restante: number; aoGerar: (e: Es
   }
 
   return (
-    <form onSubmit={enviar} className="space-y-8" noValidate>
+    <FormDados onSubmit={enviar} className="space-y-8" noValidate>
       <p className="text-lg text-suave">Envie prints, fotos ou PDF do seu treino. A IA monta um rascunho e você confere antes de salvar.</p>
       <div className="space-y-3">
         <input
@@ -293,6 +295,6 @@ function FormImportar({ restante, aoGerar }: { restante: number; aoGerar: (e: Es
       >
         {pendente ? "A IA está lendo…" : "Montar rascunho"}
       </button>
-    </form>
+    </FormDados>
   );
 }

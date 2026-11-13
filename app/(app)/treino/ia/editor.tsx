@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState, useState } from "react";
 import { Aviso, BotaoEnviar, BotaoSecundario } from "@/components/ui";
@@ -36,7 +38,7 @@ export function EditorRascunho({ inicial, descartados, onCancelar }: { inicial: 
   const removerTreino = (ti: number) => setR((a) => ({ ...a, treinos: a.treinos.filter((_, i) => i !== ti) }));
 
   return (
-    <form action={acao} className="space-y-10" noValidate>
+    <FormDados action={acao} className="space-y-10" noValidate>
       <input type="hidden" name="rascunho" value={JSON.stringify(r)} />
       <p className="rounded-2xl border-2 border-aviso p-4 font-medium text-aviso">
         <span aria-hidden="true">! </span>
@@ -95,6 +97,6 @@ export function EditorRascunho({ inicial, descartados, onCancelar }: { inicial: 
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       <BotaoEnviar>Confirmar e salvar plano</BotaoEnviar>
       <BotaoSecundario onClick={onCancelar}>Descartar rascunho</BotaoSecundario>
-    </form>
+    </FormDados>
   );
 }

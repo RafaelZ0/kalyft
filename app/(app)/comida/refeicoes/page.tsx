@@ -1,4 +1,5 @@
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { FormDados } from "@/components/contexto-dados";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { listarRefeicoesSalvas } from "@/lib/dal/refeicoes-salvas";
 import { hojeSaoPaulo } from "@/lib/datas";
 import { comArtigo, dataDiario, refeicao as refeicaoSchema } from "@/lib/validacao/comida";
@@ -33,12 +34,12 @@ export default async function PaginaRefeicoes(props: PageProps<"/comida/refeicoe
             {ref ? (
               <UsarRefeicao refeicaoSalvaId={s.id} data={data} refeicao={ref} rotulo={`Usar ${comArtigo(ref, "em")}`} />
             ) : null}
-            <form action={apagarRefeicaoSalva}>
+            <FormDados action={apagarRefeicaoSalva}>
               <input type="hidden" name="refeicaoSalvaId" value={s.id} />
               <button type="submit" className="min-h-11 text-sm font-semibold text-suave underline">
                 Apagar
               </button>
-            </form>
+            </FormDados>
           </li>
         ))}
       </ul>

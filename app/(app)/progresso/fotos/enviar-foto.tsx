@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState, useRef } from "react";
 import { Aviso, BotaoEnviar, Campo } from "@/components/ui";
@@ -35,7 +37,7 @@ export function EnviarFoto({ hoje, cheio }: { hoje: string; cheio: boolean }) {
   if (cheio) return <Aviso>Você chegou ao limite de {LIMITES_FOTO_CORPO.maximo} fotos. Exclua alguma antiga para enviar outra.</Aviso>;
 
   return (
-    <form ref={formRef} action={acao} className="space-y-6" noValidate>
+    <FormDados ref={formRef} action={acao} className="space-y-6" noValidate>
       <label className="block space-y-2">
         <span className="block font-semibold">Foto</span>
         <input name="foto" type="file" accept="image/jpeg,image/png,image/webp" className="block min-h-12 w-full text-base" required />
@@ -57,6 +59,6 @@ export function EnviarFoto({ hoje, cheio }: { hoje: string; cheio: boolean }) {
       {estado.ok ? <Aviso tipo="ok">Foto salva.</Aviso> : null}
       <BotaoEnviar>Salvar foto</BotaoEnviar>
       <p className="text-sm text-suave">A foto é reduzida no seu aparelho, guardada só na sua conta e nunca é enviada à IA.</p>
-    </form>
+    </FormDados>
   );
 }

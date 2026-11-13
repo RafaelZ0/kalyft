@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { listarExercicios } from "@/lib/dal/treino";
 import { CREDITO_FOTOS } from "@/lib/fotos";
 import { FormExercicio } from "./form-exercicio";

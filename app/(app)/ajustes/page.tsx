@@ -1,4 +1,5 @@
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { FormDados } from "@/components/contexto-dados";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { listarPendentes } from "@/lib/dal/acessos";
 import { historicoMetas, metaVigente } from "@/lib/dal/metas";
 import { obterPerfil } from "@/lib/dal/perfil";
@@ -27,7 +28,7 @@ function paraTela(m: Meta): MetaTela {
 }
 
 export default async function PaginaAjustes() {
-  const { userId, admin } = await exigirUsuario();
+  const { userId, admin, modo } = await exigirUsuario();
   const [perfil, meta, historico, pendentes] = await Promise.all([
     obterPerfil(userId),
     metaVigente(userId, hojeSaoPaulo()),
@@ -38,6 +39,10 @@ export default async function PaginaAjustes() {
   return (
     <div className="space-y-14">
       <h1 className="text-4xl font-black tracking-tight">Ajustes</h1>
+      {modo === "proprio" ? <section className="space-y-3" aria-label="Acompanhamento">
+        {admin ? <Link href="/ajustes/alunos" className="block rounded-2xl border-2 border-marca p-4 font-bold">Alunos <span className="block text-sm font-normal text-suave">Acompanhar alimentação, treino e evolução</span></Link> : null}
+        <Link href="/ajustes/acompanhamento" className="block rounded-2xl border-2 border-linha p-4 font-bold">Acompanhamento <span className="block text-sm font-normal text-suave">Solicitações, autorizações e histórico de alterações</span></Link>
+      </section> : null}
 
       <PainelPerfil
         perfil={{
@@ -58,7 +63,7 @@ export default async function PaginaAjustes() {
           ["/progresso/meta", "Meta e plano", "Gasto estimado, opções de calorias e projeção do peso"],
           ["/ajustes/atividade", "Nível de atividade", "Conte sua rotina e a IA sugere o nível"],
           ["/ajustes/passos", "Passos do iPhone", "Chave e automação do app Atalhos"],
-        ].map(([href, titulo, texto]) => (
+        ].filter(([href]) => modo === "proprio" || href === "/progresso/meta").map(([href, titulo, texto]) => (
           <Link key={href} href={href} className="block rounded-2xl border-2 border-linha p-4 active:border-marca">
             <span className="block text-lg font-bold">{titulo}</span>
             <span className="block text-sm text-suave">{texto}</span>
@@ -77,7 +82,7 @@ export default async function PaginaAjustes() {
                 <li key={p.userId} className="border-b border-linha py-4">
                   <p className="font-semibold break-all">{p.email}</p>
                   <p className="text-sm text-suave">pedido em {formatarDataBr(p.criadoEm.toISOString().slice(0, 10))}</p>
-                  <form action={decidirCadastro} className="mt-3 flex gap-3">
+                  <FormDados action={decidirCadastro} className="mt-3 flex gap-3">
                     <input type="hidden" name="alvo" value={p.userId} />
                     <button name="decisao" value="aprovar" className="min-h-12 flex-1 rounded-full bg-destaque font-bold text-sobre-destaque">
                       Aprovar
@@ -85,7 +90,7 @@ export default async function PaginaAjustes() {
                     <button name="decisao" value="recusar" className="min-h-12 flex-1 rounded-full border-2 border-borda font-semibold">
                       Recusar
                     </button>
-                  </form>
+                  </FormDados>
                 </li>
               ))}
             </ul>
@@ -93,11 +98,11 @@ export default async function PaginaAjustes() {
         </section>
       ) : null}
 
-      <form action={sair}>
+      {modo === "proprio" ? <FormDados action={sair}>
         <button type="submit" className="min-h-12 w-full rounded-full border-2 border-borda font-semibold text-suave">
           Sair da conta
         </button>
-      </form>
+      </FormDados> : null}
     </div>
   );
 }

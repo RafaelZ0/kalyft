@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState } from "react";
 import { Aviso, BotaoEnviar, Campo } from "@/components/ui";
@@ -10,7 +12,7 @@ export function FormPlano({ hoje, valores }: { hoje: string; valores?: ValoresPl
   const [estado, acao] = useActionState<EstadoTreino, FormData>(salvarPlano, {});
   const e = estado.erros ?? {};
   return (
-    <form action={acao} className="space-y-8" noValidate>
+    <FormDados action={acao} className="space-y-8" noValidate>
       {valores ? <input type="hidden" name="planoId" value={valores.id} /> : null}
       <Campo nome="nome" rotulo="Nome do plano" maxLength={80} valor={valores?.nome} erro={e.nome} />
       <Campo nome="inicio" rotulo="Início do plano" tipo="date" valor={valores?.inicio ?? hoje} erro={e.inicio} />
@@ -23,7 +25,7 @@ export function FormPlano({ hoje, valores }: { hoje: string; valores?: ValoresPl
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
       <BotaoEnviar>{valores ? "Salvar plano" : "Criar plano"}</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }
 
@@ -31,14 +33,14 @@ export function FormTreino({ treinoId, nome, foco }: { treinoId?: string; nome?:
   const [estado, acao] = useActionState<EstadoTreino, FormData>(salvarTreino, {});
   const e = estado.erros ?? {};
   return (
-    <form action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="space-y-6" noValidate>
       {treinoId ? <input type="hidden" name="treinoId" value={treinoId} /> : null}
       <Campo nome="nome" rotulo="Nome do treino" maxLength={60} valor={nome} erro={e.nome} dica="Ex.: Dia 1 – superiores (empurrar)" />
       <Campo nome="foco" rotulo="Foco (opcional)" maxLength={120} valor={foco} erro={e.foco} />
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
       <BotaoEnviar>{treinoId ? "Salvar treino" : "Adicionar treino"}</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }
 
@@ -47,7 +49,7 @@ export function FormItem({ treinoId, exercicios }: { treinoId: string; exercicio
   const e = estado.erros ?? {};
   if (exercicios.length === 0) return <p className="text-sm text-suave">Cadastre exercícios primeiro (botão &quot;Exercícios&quot; na aba Treino).</p>;
   return (
-    <form action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="space-y-6" noValidate>
       <input type="hidden" name="treinoId" value={treinoId} />
       <label className="block">
         <span className="mb-2 block text-sm font-medium text-suave">Exercício</span>
@@ -70,6 +72,6 @@ export function FormItem({ treinoId, exercicios }: { treinoId: string; exercicio
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
       <BotaoEnviar>Adicionar exercício</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }

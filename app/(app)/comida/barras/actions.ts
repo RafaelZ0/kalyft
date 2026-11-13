@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { cacheValido, destinoDe, normalizarCodigo } from "@/lib/barras";
 import { alimentoDoCodigo, copiarProdutoParaUsuario, guardarProdutoEmCache, obterProdutoEmCache } from "@/lib/dal/produtos";
 import { dentroDoLimite } from "@/lib/limites";

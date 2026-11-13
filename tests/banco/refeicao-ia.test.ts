@@ -1,3 +1,5 @@
+// Simula uma requisição pessoal; mantém o resolvedor real de acompanhamento.
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }) }));
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -40,7 +42,7 @@ const falso: ProvedorIa = {
 
 const item = (extra: Record<string, unknown> = {}) => ({ nome: "arroz integral cozido", quantidade: 3, unidade: "colheres", gramas: 75, confianca: "media", ...extra });
 const formTexto = (texto: string) => {
-  const f = new FormData();
+  const f = new FormData(); f.set("contextoId", "proprio");
   f.set("texto", texto);
   return f;
 };
@@ -160,7 +162,7 @@ describe("estimativa de alimento fora do banco", () => {
   it("estima sob demanda e não grava nada", async () => {
     resposta = async () => boa;
     const antes = await db.select().from(alimentosUsuario).where(eq(alimentosUsuario.userId, A));
-    const r = await estimarAlimento({}, (() => { const f = new FormData(); f.set("nome", "pastel de feira"); return f; })());
+    const r = await estimarAlimento({}, (() => { const f = new FormData(); f.set("contextoId", "proprio"); f.set("nome", "pastel de feira"); return f; })());
     expect(r.estimativa).toMatchObject({ nome: "Pastel de feira", inconsistente: false });
     expect((await db.select().from(alimentosUsuario).where(eq(alimentosUsuario.userId, A))).length).toBe(antes.length);
     expect(chamadas[0].texto).toContain("pastel de feira");
@@ -168,7 +170,7 @@ describe("estimativa de alimento fora do banco", () => {
 
   it("estimativa fora dos limites é recusada", async () => {
     resposta = async () => ({ nome: "x", kcal: 5000 });
-    const f = new FormData();
+    const f = new FormData(); f.set("contextoId", "proprio");
     f.set("nome", "alimento estranho");
     expect((await estimarAlimento({}, f)).erro).toMatch(/não conseguiu estimar/);
   });
@@ -195,7 +197,7 @@ describe("estimativa de alimento fora do banco", () => {
 
 describe("salvar a refeição confirmada", () => {
   const form = (itens: unknown, extra: Record<string, string> = {}) => {
-    const f = new FormData();
+    const f = new FormData(); f.set("contextoId", "proprio");
     f.set("data", "2026-01-15");
     f.set("refeicao", "almoco");
     f.set("itens", typeof itens === "string" ? itens : JSON.stringify(itens));

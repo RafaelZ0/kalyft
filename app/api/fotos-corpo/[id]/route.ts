@@ -1,4 +1,5 @@
-import { exigirUsuario, obterSessao } from "@/lib/auth/sessao";
+import { obterSessao } from "@/lib/auth/sessao";
+import { exigirContextoDados } from "@/lib/auth/acompanhamento";
 import { obterBytesFotoCorpo } from "@/lib/dal/fotos-corpo";
 import { ehUuid } from "@/lib/dal/util";
 
@@ -14,11 +15,14 @@ const CABECALHOS = {
   "Content-Disposition": "inline",
 } as const;
 
-export async function GET(_: Request, ctx: RouteContext<"/api/fotos-corpo/[id]">): Promise<Response> {
+export async function GET(req: Request, ctx: RouteContext<"/api/fotos-corpo/[id]">): Promise<Response> {
   if (!(await obterSessao())) return new Response(null, { status: 401, headers: { "Cache-Control": "no-store" } });
-  const { userId } = await exigirUsuario();
+  const contexto = await exigirContextoDados();
+  const { userId } = contexto;
   const { id } = await ctx.params;
   const naoAchou = () => new Response(null, { status: 404, headers: { "Cache-Control": "no-store" } });
+  const marcador = new URL(req.url).searchParams.get("contextoId");
+  if (!contexto.podeVerFotos || (marcador ?? "proprio") !== contexto.contextoId) return naoAchou();
   if (!ehUuid(id)) return naoAchou();
   const bytes = await obterBytesFotoCorpo(userId, id);
   if (!bytes) return naoAchou();

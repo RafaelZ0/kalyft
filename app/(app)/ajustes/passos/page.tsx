@@ -1,6 +1,7 @@
+import { FormDados } from "@/components/contexto-dados";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { listarTokens, passosDoPeriodo } from "@/lib/dal/passos";
 import { formatarDataBr, hojeSaoPaulo, somarDias } from "@/lib/datas";
 import { revogarTokenPassos } from "./actions";
@@ -61,10 +62,10 @@ export default async function PaginaPassos() {
                 </p>
               </div>
               {!t.revogadoEm ? (
-                <form action={revogarTokenPassos}>
+                <FormDados action={revogarTokenPassos}>
                   <input type="hidden" name="tokenId" value={t.id} />
                   <button type="submit" className="min-h-12 rounded-full border-2 border-erro px-4 font-semibold text-erro">Revogar</button>
-                </form>
+                </FormDados>
               ) : null}
             </li>
           ))}

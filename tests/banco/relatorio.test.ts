@@ -1,3 +1,5 @@
+// Simula uma requisição pessoal; mantém o resolvedor real de acompanhamento.
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }) }));
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -35,7 +37,7 @@ const falso: ProvedorIa = {
   },
 };
 const form = (campos: Record<string, string> = {}) => {
-  const f = new FormData();
+  const f = new FormData(); f.set("contextoId", "proprio");
   for (const [k, v] of Object.entries(campos)) f.set(k, v);
   return f;
 };

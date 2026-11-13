@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { obterRegistro } from "@/lib/dal/registros";
 import { formatarGramas, formatarKcal } from "@/lib/nutricao";
 import { id as idSchema, REFEICOES, ROTULOS_REFEICAO } from "@/lib/validacao/comida";

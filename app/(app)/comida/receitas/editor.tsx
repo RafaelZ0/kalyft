@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
@@ -103,7 +105,7 @@ export function EditorReceita({
   });
 
   return (
-    <form
+    <FormDados
       action={acao}
       className="space-y-10"
       noValidate
@@ -218,6 +220,6 @@ export function EditorReceita({
 
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       <BotaoEnviar>{receitaId ? "Salvar alterações" : "Salvar receita"}</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }

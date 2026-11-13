@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState, useState } from "react";
 import { Aviso, BotaoEnviar, BotaoSecundario, Campo } from "@/components/ui";
@@ -19,11 +21,11 @@ export function NovoToken() {
 
   return (
     <div className="space-y-5">
-      <form action={acao} className="space-y-5" noValidate>
+      <FormDados action={acao} className="space-y-5" noValidate>
         <Campo nome="nome" rotulo="Nome da chave" maxLength={40} valor="iPhone" dica="Só para você reconhecer depois." />
         {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
         <BotaoEnviar pendente="Criando…">Criar chave</BotaoEnviar>
-      </form>
+      </FormDados>
       {estado.token ? (
         <div className="space-y-3 rounded-2xl border-2 border-marca p-4" aria-live="polite">
           <p className="font-bold">Chave &quot;{estado.nome}&quot; criada. Copie agora: ela não aparece de novo.</p>

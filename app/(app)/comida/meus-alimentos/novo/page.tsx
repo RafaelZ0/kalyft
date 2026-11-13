@@ -1,4 +1,4 @@
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { normalizarCodigo } from "@/lib/barras";
 import { obterProdutoEmCache } from "@/lib/dal/produtos";
 import { dataDiario, refeicao as refeicaoSchema } from "@/lib/validacao/comida";

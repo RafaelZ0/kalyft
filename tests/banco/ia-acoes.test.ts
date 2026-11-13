@@ -1,3 +1,5 @@
+// Simula uma requisição pessoal; mantém o resolvedor real de acompanhamento.
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }) }));
 import { randomUUID } from "node:crypto";
 import { eq, inArray } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -41,13 +43,13 @@ const falso: ProvedorIa = {
 };
 
 function formPlano(extra: Record<string, string | string[]> = {}) {
-  const f = new FormData();
+  const f = new FormData(); f.set("contextoId", "proprio");
   const base: Record<string, string | string[]> = { objetivo: "hipertrofia", nivel: "iniciante", dias: "3", minutos: "60", equipamentos: ["academia"], limitacoes: "", ...extra };
   for (const [k, v] of Object.entries(base)) for (const x of Array.isArray(v) ? v : [v]) f.append(k, x);
   return f;
 }
 const aceite = () => {
-  const f = new FormData();
+  const f = new FormData(); f.set("contextoId", "proprio");
   f.set("regiao", "on");
   f.set("dados", "on");
   return f;
@@ -83,7 +85,7 @@ describe("aceite da IA", () => {
   });
 
   it("exige as duas confirmações", async () => {
-    const f = new FormData();
+    const f = new FormData(); f.set("contextoId", "proprio");
     f.set("regiao", "on");
     expect((await aceitarUsoIa({}, f)).erro).toMatch(/duas confirmações/);
     expect(await obterAceiteIa(A)).toBeNull();
@@ -173,7 +175,7 @@ describe("gerar plano", () => {
 
 describe("importar arquivo", () => {
   const form = (arquivos: File[], nota = "") => {
-    const f = new FormData();
+    const f = new FormData(); f.set("contextoId", "proprio");
     for (const a of arquivos) f.append("arquivos", a);
     f.set("nota", nota);
     return f;
@@ -219,7 +221,7 @@ describe("salvar rascunho", () => {
     treinos: [{ nome: "A", foco: null, diaSugerido: 2, exercicios: [{ nomePt: "Supino", nomeEn: "x", grupo: null, series: 3, repsMin: 8, repsMax: 12, descansoS: 60, unilateral: false, cargaPorHalter: false, medida: "repeticoes", observacao: null, fotoId: null, fotoNome: null }] }],
   };
   const form = (r: unknown) => {
-    const f = new FormData();
+    const f = new FormData(); f.set("contextoId", "proprio");
     f.set("rascunho", typeof r === "string" ? r : JSON.stringify(r));
     return f;
   };

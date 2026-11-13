@@ -1,6 +1,6 @@
 "use server";
 
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { consumirUsoIa, devolverUsoIa, obterAceiteIa } from "@/lib/dal/ia";
 import { hojeSaoPaulo } from "@/lib/datas";
 import { disponibilidadeIa, LIMITE_DIARIO, LIMITES_ARQUIVO, tipoPeloConteudo } from "@/lib/ia/config";

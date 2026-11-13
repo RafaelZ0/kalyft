@@ -1,3 +1,5 @@
+// Simula uma requisição pessoal; mantém o resolvedor real de acompanhamento.
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }) }));
 import { randomUUID } from "node:crypto";
 import { eq, inArray, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
@@ -42,7 +44,7 @@ function jpeg(opcoes: { exif?: boolean; dados?: number } = {}) {
   return concat(u8(0xff, 0xd8), seg(0xe0, texto("JFIF\0\x01\x01\0\0\x01\0\x01\0\0")), ...exif, sof, sos, dados, u8(0xff, 0xd9));
 }
 const form = (campos: Record<string, string | File>) => {
-  const f = new FormData();
+  const f = new FormData(); f.set("contextoId", "proprio");
   for (const [k, v] of Object.entries(campos)) f.set(k, v);
   return f;
 };

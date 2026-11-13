@@ -82,3 +82,7 @@ Antes de eu fazer o deploy, entregar um relatório com:
 3. Resultado do `npm audit`.
 4. Busca por segredos no código e no histórico do git.
 5. Qualquer item deste documento que não foi cumprido, com o motivo.
+
+## Acompanhamento administrativo
+
+A identidade autenticada continua em exigirUsuario. O titular acompanhado é resolvido no servidor por contexto opaco vinculado à sessão e a administrador atual. Leitura geral é liberada para alunos aprovados; fotos requerem concessão independente. Escritas exigem marcador do formulário, concessão de edição vigente e validação transacional no Postgres. Triggers registram autor/recurso/operação sem copiar valores de saúde; falha de auditoria reverte a mutação. IA, aplicação semanal, fotos gravadas e tokens continuam pessoais.

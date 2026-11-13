@@ -1,5 +1,6 @@
+import { SomenteContaPropria } from "@/components/contexto-dados";
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { citacaoTaco, listarFavoritos, listarRecentes } from "@/lib/dal/alimentos";
 import { hojeSaoPaulo } from "@/lib/datas";
 import { dataDiario, refeicao as refeicaoSchema, ROTULOS_REFEICAO } from "@/lib/validacao/comida";
@@ -42,18 +43,18 @@ export default async function PaginaAdicionar(props: PageProps<"/comida/adiciona
           <p className="text-suave">Digite o nome do alimento. Ex.: arroz, feijão, frango.</p>
         ) : null}
       </Busca>
-      <Link
+      <SomenteContaPropria><Link
         href={`/comida/ia${volta}`}
         className="flex min-h-12 items-center justify-center rounded-full border-2 border-marca font-bold"
       >
         Registrar com IA (escrevendo)
-      </Link>
-      <Link
+      </Link></SomenteContaPropria>
+      <SomenteContaPropria><Link
         href={`/comida/barras${volta}`}
         className="flex min-h-12 items-center justify-center rounded-full bg-destaque font-bold text-sobre-destaque"
       >
         Ler código de barras
-      </Link>
+      </Link></SomenteContaPropria>
       <Link
         href={`/comida/meus-alimentos/novo${volta}`}
         className="flex min-h-12 items-center justify-center rounded-full border-2 border-borda font-semibold"

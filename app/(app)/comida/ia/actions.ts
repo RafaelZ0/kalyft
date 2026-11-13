@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { conferirEnergia, problemasDeSanidade } from "@/lib/barras";
 import { criarAlimentoUsuario, obterAlimento } from "@/lib/dal/alimentos";
 import { consumirUsoIa, devolverUsoIa } from "@/lib/dal/ia";

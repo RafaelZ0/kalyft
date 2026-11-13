@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { GraficoLinhas } from "@/components/graficos";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { carregarEnergia, listarProjecoes } from "@/lib/dal/energia";
 import { formatarDataBr, hojeSaoPaulo } from "@/lib/datas";
 import { verificarAcessoIa } from "@/lib/ia/acesso";
@@ -23,12 +23,12 @@ const FALTA: Record<string, string> = {
 };
 
 export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
-  const { userId, admin } = await exigirUsuario();
+  const { userId, admin, modo } = await exigirUsuario();
   const sp = await props.searchParams;
   const hoje = hojeSaoPaulo();
   const dados = await carregarEnergia(userId, hoje);
   const p = dados.painel;
-  const [projecoes, acesso] = await Promise.all([listarProjecoes(userId, 1), verificarAcessoIa(userId, admin !== null)]);
+  const [projecoes, acesso] = await Promise.all([listarProjecoes(userId, 1), modo === "proprio" ? verificarAcessoIa(userId, admin !== null) : Promise.resolve({ ok: false })]);
 
   const pesoMeta = dados.meta?.pesoMetaKg ?? null;
   const plan = p.planejamento;

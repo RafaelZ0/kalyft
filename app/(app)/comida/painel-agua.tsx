@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState } from "react";
 import { Aviso, BotaoEnviar, Campo } from "@/components/ui";
@@ -22,15 +24,15 @@ export function PainelAgua({ data, totalMl, metaMl, editavel }: { data: string; 
       {metaMl ? <Barra percentual={pct} /> : <p className="text-sm text-suave">Defina a meta de água em Ajustes.</p>}
       {editavel ? (
         <>
-          <form action={adicionarAgua} className="grid grid-cols-3 gap-3">
+          <FormDados action={adicionarAgua} className="grid grid-cols-3 gap-3">
             <input type="hidden" name="data" value={data} />
             {BOTOES_AGUA.map((ml) => (
               <button key={ml} type="submit" name="ml" value={ml} className="min-h-14 rounded-full border-2 border-borda text-lg font-bold active:border-marca">
                 +{ml}
               </button>
             ))}
-          </form>
-          <form action={acaoLivre} className="flex items-end gap-3" noValidate>
+          </FormDados>
+          <FormDados action={acaoLivre} className="flex items-end gap-3" noValidate>
             <input type="hidden" name="data" value={data} />
             <div className="flex-1">
               <Campo nome="ml" rotulo="Outro valor" teclado="numeric" sufixo="ml" maxLength={4} erro={estado.erros?.ml} />
@@ -38,15 +40,15 @@ export function PainelAgua({ data, totalMl, metaMl, editavel }: { data: string; 
             <div className="w-32">
               <BotaoEnviar pendente="…">Somar</BotaoEnviar>
             </div>
-          </form>
+          </FormDados>
           {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
           {totalMl > 0 ? (
-            <form action={desfazerAgua}>
+            <FormDados action={desfazerAgua}>
               <input type="hidden" name="data" value={data} />
               <button type="submit" className="min-h-11 text-sm font-semibold text-suave underline">
                 Desfazer o último
               </button>
-            </form>
+            </FormDados>
           ) : null}
         </>
       ) : null}

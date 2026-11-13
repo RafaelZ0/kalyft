@@ -1,3 +1,5 @@
+// Simula uma requisição pessoal; mantém o resolvedor real de acompanhamento.
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }) }));
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import { neon } from "@neondatabase/serverless";
@@ -223,7 +225,7 @@ describe("leitura do código (Server Action)", () => {
 
 describe("cadastro pelo rótulo com código e conta do rótulo (salvarAlimento)", () => {
   const form = (extra: Record<string, string> = {}) => {
-    const f = new FormData();
+    const f = new FormData(); f.set("contextoId", "proprio");
     const base: Record<string, string> = { nome: "Biscoito teste", marca: "", porcaoG: "100", kcal: "450", proteinaG: "6", carboG: "70", gorduraG: "16", fibraG: "2", sodioMg: "", ...extra };
     for (const [k, v] of Object.entries(base)) f.set(k, v);
     return f;
@@ -258,7 +260,7 @@ describe("cadastro pelo rótulo com código e conta do rótulo (salvarAlimento)"
 
   it("registrar um alimento de código de barras grava origem codigo_barras", async () => {
     const meu = (await alimentoDoCodigo(A, COD.velho))!;
-    const f = new FormData();
+    const f = new FormData(); f.set("contextoId", "proprio");
     for (const [k, v] of Object.entries({ data: "2026-02-10", refeicao: "lanche", tipo: "usuario", alimentoId: meu, modo: "gramas", gramas: "30" })) f.set(k, v);
     await expect(adicionar({}, f)).rejects.toThrow("REDIRECT");
     const [r] = await db.select().from(registrosAlimentares).where(and(eq(registrosAlimentares.userId, A), eq(registrosAlimentares.alimentoUsuarioId, meu)));

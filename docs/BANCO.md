@@ -97,3 +97,7 @@ Os três são idempotentes, conferem o SHA-256 do arquivo e gravam tudo numa tra
 npm test             # validação e datas (sem banco)
 npm run test:banco   # isolamento entre usuários e CHECKs, no branch test
 ```
+
+## Migration 0016 — acompanhamento
+
+Cria contextos, autorizações e eventos, função transacional de validação e triggers de auditoria. Aplicar primeiro em dev/test; build não aplica migrations. Produção precisa também da migration 0015 de fotos. Não publicar código na main antes de validar schema e testes.

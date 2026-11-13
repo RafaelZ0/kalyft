@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState } from "react";
 import { Aviso, BotaoEnviar, Campo } from "@/components/ui";
@@ -15,13 +17,13 @@ export function FormPesoMeta({ pesoMeta, dataMeta }: { pesoMeta: string; dataMet
   const [estado, acao] = useActionState<EstadoMeta, FormData>(salvarPesoMeta, {});
   const e = estado.erros ?? {};
   return (
-    <form action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="space-y-6" noValidate>
       <Campo nome="pesoMetaKg" rotulo="Peso desejado" teclado="decimal" sufixo="kg" maxLength={6} valor={pesoMeta} erro={e.pesoMetaKg} />
       <Campo nome="dataMeta" rotulo="Data desejada (opcional)" tipo="date" valor={dataMeta} erro={e.dataMeta} dica="Se informar, o app calcula o ritmo que essa data exigiria." />
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
       <BotaoEnviar>Salvar peso desejado</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }
 
@@ -35,7 +37,7 @@ const OPCOES_RITMO = [
 export function FormRitmoMax({ atual }: { atual: number }) {
   const [estado, acao] = useActionState<EstadoMeta, FormData>(salvarRitmoMax, {});
   return (
-    <form action={acao} className="space-y-4" noValidate>
+    <FormDados action={acao} className="space-y-4" noValidate>
       <label className="block">
         <span className="mb-2 block text-sm font-medium text-suave">Ritmo máximo que aceito (do meu peso)</span>
         <select name="ritmo" defaultValue={String(atual)} className="min-h-12 w-full rounded-xl border-2 border-borda bg-superficie px-3 text-lg font-semibold">
@@ -48,7 +50,7 @@ export function FormRitmoMax({ atual }: { atual: number }) {
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
       <BotaoEnviar>Salvar ritmo máximo</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }
 
@@ -108,18 +110,18 @@ export function CartaoOpcao({ o, tipo, ia }: { o: OpcaoTela; tipo: "perder" | "m
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
 
       <div className="flex flex-col gap-2">
-        <form action={explicar}>
+        <FormDados action={explicar}>
           <input type="hidden" name="opcao" value={o.id} />
           <button type="submit" className="min-h-12 w-full rounded-full border-2 border-borda font-semibold">
             {ia ? "Explicar com a IA" : "Explicar esta opção"}
           </button>
-        </form>
-        <form action={aplicarOpcaoMeta}>
+        </FormDados>
+        <FormDados action={aplicarOpcaoMeta}>
           <input type="hidden" name="opcao" value={o.id} />
           <button type="submit" className="min-h-12 w-full rounded-full bg-destaque font-bold text-sobre-destaque">
             {o.ehMetaAtual ? "Esta já é a sua meta (aplicar de novo)" : "Usar como minha meta"}
           </button>
-        </form>
+        </FormDados>
       </div>
     </li>
   );

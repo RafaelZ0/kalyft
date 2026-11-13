@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { listarMeusAlimentos } from "@/lib/dal/alimentos";
 import { formatarKcal } from "@/lib/nutricao";
 import { Voltar } from "../comum";

@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import Link from "next/link";
 import { useActionState, useRef, useState, useTransition } from "react";
@@ -75,7 +77,7 @@ function Entrada({ gratuito, restanteTexto, aoInterpretar }: { gratuito: boolean
   }, {});
   const entrada = montarEntradaRefeicao(texto);
   return (
-    <form action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="space-y-6" noValidate>
       <label className="block">
         <span className="mb-2 block text-sm font-medium text-suave">O que você comeu?</span>
         <textarea
@@ -98,7 +100,7 @@ function Entrada({ gratuito, restanteTexto, aoInterpretar }: { gratuito: boolean
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       {estado.precisaAceite ? <Link href="/treino/ia" className="block font-semibold underline">Ler e aceitar o aviso da IA</Link> : null}
       <BotaoEnviar pendente="A IA está lendo…">Interpretar</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }
 
@@ -151,7 +153,7 @@ function EntradaFoto({ gratuito, aoInterpretar }: { gratuito: boolean; aoInterpr
 
   const ocupado = preparando || pendente;
   return (
-    <form onSubmit={enviar} className="space-y-6" noValidate>
+    <FormDados onSubmit={enviar} className="space-y-6" noValidate>
       <p className="text-lg text-suave">Fotografe o prato de cima, com tudo à vista. A IA lista o que vê e estima as porções; você confere antes de salvar.</p>
       <input ref={entrada} id="foto-prato" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" className="sr-only" onChange={(ev) => void escolher(ev.target.files?.[0])} />
       <label htmlFor="foto-prato" className="flex min-h-14 cursor-pointer items-center justify-center rounded-full border-2 border-borda text-lg font-semibold">
@@ -185,7 +187,7 @@ function EntradaFoto({ gratuito, aoInterpretar }: { gratuito: boolean; aoInterpr
       <button type="submit" disabled={!arquivo || ocupado} className="min-h-14 w-full rounded-full bg-destaque px-6 text-lg font-bold text-sobre-destaque disabled:opacity-60">
         {ocupado ? "A IA está olhando o prato…" : "Interpretar a foto"}
       </button>
-    </form>
+    </FormDados>
   );
 }
 
@@ -214,7 +216,7 @@ function Revisao({ data, refeicao, rotuloRefeicao, restanteEstimativa, origem, i
   const payload = JSON.stringify(itens.filter((i) => i.escolhido).map((i) => ({ tipo: i.escolhido!.tipo, alimentoId: i.escolhido!.id, gramas: i.gramas })));
 
   return (
-    <form
+    <FormDados
       action={acao}
       className="space-y-8"
       noValidate
@@ -264,7 +266,7 @@ function Revisao({ data, refeicao, rotuloRefeicao, restanteEstimativa, origem, i
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       <SalvarBotao desabilitado={itens.length === 0 || faltam > 0} rotulo={`Salvar no ${rotuloRefeicao.toLowerCase()}`} />
       <BotaoSecundario onClick={aoVoltar}>Voltar e escrever de novo</BotaoSecundario>
-    </form>
+    </FormDados>
   );
 }
 
@@ -362,7 +364,7 @@ const num = (v: string): number | null => {
 const texto = (n: number | null) => (n === null ? "" : String(n).replace(".", ","));
 
 function PainelEstimativa({ nome, restante, aoConfirmar }: { nome: string; restante: number; aoConfirmar: (c: Cand) => void }) {
-  // Sem <form> aqui: este painel fica dentro do formulário de salvar, e formulário dentro de formulário é inválido.
+  // Sem <FormDados> aqui: este painel fica dentro do formulário de salvar, e formulário dentro de formulário é inválido.
   const [estado, setEstado] = useState<EstadoEstimativa>({});
   const [pendente, iniciar] = useTransition();
   function pedir() {

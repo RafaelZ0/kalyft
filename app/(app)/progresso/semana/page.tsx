@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { carregarRelatorio } from "@/lib/dal/relatorio";
 import { formatarDataBr, hojeSaoPaulo } from "@/lib/datas";
 import { verificarAcessoIa } from "@/lib/ia/acesso";
@@ -22,11 +22,11 @@ function Cartao({ titulo, grande, texto }: { titulo: string; grande: string; tex
 }
 
 export default async function PaginaSemana(props: PageProps<"/progresso/semana">) {
-  const { userId, admin } = await exigirUsuario();
+  const { userId, admin, modo } = await exigirUsuario();
   const hoje = hojeSaoPaulo();
   const sp = await props.searchParams;
   const inicio = semanaValida(sp.inicio, hoje);
-  const [{ relatorio: r, textoIa }, acesso] = await Promise.all([carregarRelatorio(userId, inicio, hoje), verificarAcessoIa(userId, admin !== null)]);
+  const [{ relatorio: r, textoIa }, acesso] = await Promise.all([carregarRelatorio(userId, inicio, hoje, modo === "proprio"), modo === "proprio" ? verificarAcessoIa(userId, admin !== null) : Promise.resolve({ ok: false, precisaAceite: false })]);
   const ehAtual = semanaSeguinte(inicio) > hoje;
 
   return (

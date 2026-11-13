@@ -1,8 +1,9 @@
+import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FotoExercicio } from "@/components/foto-exercicio";
 import { GraficoLinhas } from "@/components/graficos";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { evolucaoDoExercicio, obterExercicio } from "@/lib/dal/treino";
 import { diasEntre } from "@/lib/treino";
 import { formatarDataBr } from "@/lib/datas";
@@ -60,12 +61,12 @@ export default async function PaginaExercicio(props: PageProps<"/treino/exercici
         <FormExercicio
           valores={{ id: ex.id, nome: ex.nome, grupo: ex.grupo ?? "", unilateral: ex.unilateral, cargaPorHalter: ex.cargaPorHalter, medida: ex.medida, fotoId: ex.fotoId ?? "" }}
         />
-        <form action={apagarExercicio} className="pt-4">
+        <FormDados action={apagarExercicio} className="pt-4">
           <input type="hidden" name="exercicioId" value={ex.id} />
           <button type="submit" className="min-h-12 w-full rounded-full border-2 border-erro font-semibold text-erro">
             Apagar exercício (apaga também as séries registradas)
           </button>
-        </form>
+        </FormDados>
       </section>
     </div>
   );

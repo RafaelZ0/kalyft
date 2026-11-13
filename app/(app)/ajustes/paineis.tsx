@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState, useState } from "react";
 import { Aviso, BotaoEnviar, BotaoSecundario, Campo, Opcoes } from "@/components/ui";
@@ -99,7 +101,7 @@ export function PainelPerfil({ perfil }: { perfil: PerfilTela }) {
           <Linha rotulo="Início do plano" valor={formatarDataBr(perfil.inicioPlano)} />
         </dl>
       ) : (
-        <form action={p.enviar} className="mt-6 space-y-8" noValidate>
+        <FormDados action={p.enviar} className="mt-6 space-y-8" noValidate>
           <Campo nome="nome" rotulo="Nome" maxLength={80} valor={perfil.nome} erro={erros.nome} />
           <Campo nome="dataNascimento" rotulo="Data de nascimento" tipo="date" valor={perfil.dataNascimento} erro={erros.dataNascimento} />
           <Opcoes nome="sexo" rotulo="Sexo" valor={perfil.sexo} erro={erros.sexo}
@@ -114,7 +116,7 @@ export function PainelPerfil({ perfil }: { perfil: PerfilTela }) {
             <div className="flex-1"><BotaoEnviar>Salvar</BotaoEnviar></div>
             <BotaoSecundario onClick={p.cancelar}>Cancelar</BotaoSecundario>
           </div>
-        </form>
+        </FormDados>
       )}
     </section>
   );
@@ -148,7 +150,7 @@ export function PainelMetas({ meta, historico }: { meta: MetaTela | null; histor
           {m ? <p className="mt-3 text-sm text-suave">Em vigor desde {formatarDataBr(m.vigenteDesde)}.</p> : null}
         </>
       ) : (
-        <form action={p.enviar} className="mt-6 space-y-8" noValidate>
+        <FormDados action={p.enviar} className="mt-6 space-y-8" noValidate>
           <p className="text-sm text-suave">
             As novas metas valem a partir de hoje. Os dias anteriores continuam com as metas antigas.
           </p>
@@ -166,7 +168,7 @@ export function PainelMetas({ meta, historico }: { meta: MetaTela | null; histor
             <div className="flex-1"><BotaoEnviar>Salvar</BotaoEnviar></div>
             <BotaoSecundario onClick={p.cancelar}>Cancelar</BotaoSecundario>
           </div>
-        </form>
+        </FormDados>
       )}
       {historico.length > 1 ? (
         <details className="mt-6">

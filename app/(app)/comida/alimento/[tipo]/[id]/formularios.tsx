@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState, useState } from "react";
 import { Aviso, BotaoEnviar, Campo } from "@/components/ui";
@@ -55,7 +57,7 @@ export function FormAdicionar({
   const previa = gramas > 0 ? calcularNutrientes(alimento, gramas) : null;
 
   return (
-    <form action={acao} className="space-y-6 rounded-2xl border-2 border-borda p-4" noValidate>
+    <FormDados action={acao} className="space-y-6 rounded-2xl border-2 border-borda p-4" noValidate>
       <input type="hidden" name="data" value={data} />
       <input type="hidden" name="refeicao" value={refeicao} />
       <input type="hidden" name="tipo" value={alimento.tipo} />
@@ -164,7 +166,7 @@ export function FormAdicionar({
 
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       <BotaoEnviar pendente="Adicionando…">Adicionar {rotuloRefeicao}</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }
 
@@ -195,12 +197,12 @@ export function Medidas({
               {x.nome} · <span className="text-suave">{formatarGramas(x.gramas)} g</span>
               {x.origem === "ibge" ? <SeloIbge /> : null}
             </span>
-            <form action={apagarMedida}>
+            <FormDados action={apagarMedida}>
               <input type="hidden" name="medidaId" value={x.id} />
               <button type="submit" className="min-h-11 px-3 text-sm font-semibold text-suave underline">
                 Apagar
               </button>
-            </form>
+            </FormDados>
           </li>
         ))}
       </ul>
@@ -218,21 +220,21 @@ export function Medidas({
                   </span>
                   <span className="text-xs text-suave">IBGE: {x.refAlimento}</span>
                 </span>
-                <form action={fixarMedidaIbge}>
+                <FormDados action={fixarMedidaIbge}>
                   <input type="hidden" name="tipo" value={tipo} />
                   <input type="hidden" name="alimentoId" value={alimentoId} />
                   <input type="hidden" name="medidaIbgeId" value={x.id} />
                   <button type="submit" className="min-h-11 shrink-0 rounded-full border-2 border-borda px-3 text-sm font-semibold">
                     Fixar
                   </button>
-                </form>
+                </FormDados>
               </li>
             ))}
           </ul>
         </div>
       ) : null}
 
-      <form action={acao} className="space-y-4" noValidate>
+      <FormDados action={acao} className="space-y-4" noValidate>
         <input type="hidden" name="tipo" value={tipo} />
         <input type="hidden" name="alimentoId" value={alimentoId} />
         <div className="grid grid-cols-[1fr_7rem] gap-4">
@@ -242,7 +244,7 @@ export function Medidas({
         {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
         {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
         <BotaoEnviar>Salvar medida</BotaoEnviar>
-      </form>
+      </FormDados>
     </section>
   );
 }

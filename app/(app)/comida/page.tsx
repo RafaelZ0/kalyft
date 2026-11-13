@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { totalAguaDoDia } from "@/lib/dal/agua";
 import { metaVigente } from "@/lib/dal/metas";
 import { listarDia } from "@/lib/dal/registros";

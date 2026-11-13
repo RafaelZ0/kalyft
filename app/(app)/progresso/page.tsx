@@ -1,7 +1,8 @@
+import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
 import { EmBreve } from "@/components/em-breve";
 import { GraficoLinhas } from "@/components/graficos";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { datasDeAplicacao, listarPesagens, obterDiaAplicacao } from "@/lib/dal/corpo";
 import { metaVigente } from "@/lib/dal/metas";
 import { formatarDataBr, hojeSaoPaulo, somarDias } from "@/lib/datas";
@@ -17,14 +18,14 @@ export const metadata = { title: "Progresso · Kalyft" };
 const txt = (n: number | null) => (n === null ? "" : String(n).replace(".", ","));
 
 export default async function PaginaProgresso(props: PageProps<"/progresso">) {
-  const { userId } = await exigirUsuario();
+  const { userId, modo } = await exigirUsuario();
   const hoje = hojeSaoPaulo();
   const periodo = periodoValido((await props.searchParams).periodo);
   const [lista, meta, diaAplic, aplicacoes] = await Promise.all([
     listarPesagens(userId, somarDias(hoje, -120), 400),
     metaVigente(userId, hoje),
-    obterDiaAplicacao(userId),
-    datasDeAplicacao(userId, somarDias(hoje, -30)),
+    modo === "proprio" ? obterDiaAplicacao(userId) : Promise.resolve(null),
+    modo === "proprio" ? datasDeAplicacao(userId, somarDias(hoje, -30)) : Promise.resolve([]),
   ]);
 
   const crescente = [...lista].reverse();
@@ -48,7 +49,7 @@ export default async function PaginaProgresso(props: PageProps<"/progresso">) {
 
       <Link href="/progresso/fotos" className="block rounded-2xl border-2 border-linha p-4 active:bg-superficie">
         <span className="block text-lg font-bold">Fotos de progresso</span>
-        <span className="block text-sm text-suave">Frente, lado e costas ao longo do tempo. Só você vê</span>
+        <span className="block text-sm text-suave">Frente, lado e costas. Compartilhamento somente com autorização</span>
       </Link>
 
       <Link href="/progresso/meta" className="block rounded-2xl border-2 border-marca p-4 active:bg-superficie">
@@ -107,12 +108,12 @@ export default async function PaginaProgresso(props: PageProps<"/progresso">) {
                     {formatarDataBr(p.data)} · <span className="font-semibold">{formatarGramas(p.pesoKg)} kg</span>
                     {p.cinturaCm ? <span className="text-suave"> · cintura {formatarGramas(p.cinturaCm)} cm</span> : null}
                   </span>
-                  <form action={apagarPesagem}>
+                  <FormDados action={apagarPesagem}>
                     <input type="hidden" name="pesagemId" value={p.id} />
                     <button type="submit" className="min-h-11 px-3 font-semibold text-suave underline">
                       Apagar
                     </button>
-                  </form>
+                  </FormDados>
                 </li>
               ))}
             </ul>
@@ -122,10 +123,10 @@ export default async function PaginaProgresso(props: PageProps<"/progresso">) {
 
       <GraficosProgresso userId={userId} hoje={hoje} periodo={periodo} />
 
-      <section aria-labelledby="aplicacao" className="space-y-4">
+      {modo === "proprio" ? <section aria-labelledby="aplicacao" className="space-y-4">
         <h2 id="aplicacao" className="text-2xl font-bold">Aplicação semanal</h2>
         <p className="text-sm text-suave">Só um registro de &quot;feito&quot; no dia que você escolher. O app não dá orientação sobre medicação.</p>
-        <form action={salvarDiaAplicacao} className="flex items-end gap-3">
+        <FormDados action={salvarDiaAplicacao} className="flex items-end gap-3">
           <label className="flex-1">
             <span className="mb-2 block text-sm font-medium text-suave">Lembrete aos</span>
             <select
@@ -144,30 +145,30 @@ export default async function PaginaProgresso(props: PageProps<"/progresso">) {
           <button type="submit" className="min-h-12 rounded-full border-2 border-borda px-5 font-semibold">
             Salvar
           </button>
-        </form>
+        </FormDados>
         {pendente ? (
-          <form action={marcarAplicacao} className="space-y-2 rounded-2xl border-2 border-marca p-4">
+          <FormDados action={marcarAplicacao} className="space-y-2 rounded-2xl border-2 border-marca p-4">
             <p className="font-semibold">Hoje é o dia da aplicação.</p>
             <input type="hidden" name="data" value={hoje} />
             <button type="submit" className="min-h-12 w-full rounded-full bg-destaque font-bold text-sobre-destaque">
               Marcar como feita
             </button>
-          </form>
+          </FormDados>
         ) : null}
         {aplicacoes.length > 0 ? (
           <div className="text-sm text-suave">
             Última: {formatarDataBr(aplicacoes[0])}
             {aplicacoes[0] === hoje ? (
-              <form action={desfazerAplicacao} className="inline">
+              <FormDados action={desfazerAplicacao} className="inline">
                 <input type="hidden" name="data" value={hoje} />
                 <button type="submit" className="ml-2 min-h-11 font-semibold underline">
                   Desfazer
                 </button>
-              </form>
+              </FormDados>
             ) : null}
           </div>
         ) : null}
-      </section>
+      </section> : null}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import "server-only";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "./schema";
+import { protegerClienteAcompanhamento } from "./cliente-acompanhamento";
 
 const url = process.env.DATABASE_URL;
 if (!url) {
@@ -11,5 +12,5 @@ if (!url) {
 
 // Driver HTTP do Neon, recomendado para funções serverless (Vercel).
 // DATABASE_URL usa o papel do app (só SELECT/INSERT/UPDATE/DELETE).
-export const db = drizzle(neon(url), { schema });
+export const db = drizzle(protegerClienteAcompanhamento(neon(url)), { schema });
 export type Db = typeof db;

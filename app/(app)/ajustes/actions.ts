@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { exigirAdmin, exigirUsuario } from "@/lib/auth/sessao";
+import { exigirAdmin } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario, executarAcaoAcompanhada, exigirContaPropria } from "@/lib/auth/acompanhamento";
 import { decidirAcesso } from "@/lib/dal/acessos";
 import { carregarEnergia } from "@/lib/dal/energia";
 import { salvarMeta } from "@/lib/dal/metas";
@@ -22,40 +23,46 @@ export type EstadoForm = { ok?: boolean; erro?: string; erros?: ErrosCampos; avi
 const FALHA = "Não foi possível salvar agora. Tente de novo.";
 
 export async function salvarPerfil(_: EstadoForm, form: FormData): Promise<EstadoForm> {
-  const { userId } = await exigirUsuario();
-  const r = perfilSchema.safeParse(formParaObjeto(form, CAMPOS_PERFIL));
-  if (!r.success) return { erros: errosPorCampo(r.error) };
+  return executarAcaoAcompanhada(form.get("contextoId"), "salvarPerfil", async () => {
+    const { userId } = await exigirUsuario();
+    const r = perfilSchema.safeParse(formParaObjeto(form, CAMPOS_PERFIL));
+    if (!r.success) return { erros: errosPorCampo(r.error) };
 
-  try {
-    if (!(await atualizarPerfil(userId, r.data))) return { erro: FALHA };
-  } catch (e) {
-    registrarErro("salvarPerfil", e);
-    return { erro: FALHA };
-  }
-  revalidatePath("/ajustes");
-  return { ok: true };
+    try {
+      if (!(await atualizarPerfil(userId, r.data))) return { erro: FALHA };
+    } catch (e) {
+      registrarErro("salvarPerfil", e);
+      return { erro: FALHA };
+    }
+    revalidatePath("/ajustes");
+    return { ok: true };
+
+  });
 }
 
 export async function salvarMetas(_: EstadoForm, form: FormData): Promise<EstadoForm> {
-  const { userId } = await exigirUsuario();
-  const r = metaSchema.safeParse(formParaObjeto(form, CAMPOS_META));
-  if (!r.success) return { erros: errosPorCampo(r.error) };
+  return executarAcaoAcompanhada(form.get("contextoId"), "salvarMetas", async () => {
+    const { userId } = await exigirUsuario();
+    const r = metaSchema.safeParse(formParaObjeto(form, CAMPOS_META));
+    if (!r.success) return { erros: errosPorCampo(r.error) };
 
-  let aviso: string | undefined;
-  try {
-    await salvarMeta(userId, r.data, hojeSaoPaulo());
-    // A meta digitada (por exemplo, combinada com o nutricionista) é salva do jeito que foi digitada;
-    // se passar das travas de segurança, o app só avisa.
-    if (r.data.kcal !== null) {
-      const { painel, perfil } = await carregarEnergia(userId, hojeSaoPaulo(), 60);
-      aviso = avisoDeMetaDigitada({ kcal: r.data.kcal, tmb: painel.tmb, gasto: painel.gasto?.valor ?? null, pesoAtual: painel.pesoAtualKg, ritmoMaxPct: perfil.ritmoMaxPct }) ?? undefined;
+    let aviso: string | undefined;
+    try {
+      await salvarMeta(userId, r.data, hojeSaoPaulo());
+      // A meta digitada (por exemplo, combinada com o nutricionista) é salva do jeito que foi digitada;
+      // se passar das travas de segurança, o app só avisa.
+      if (r.data.kcal !== null) {
+        const { painel, perfil } = await carregarEnergia(userId, hojeSaoPaulo(), 60);
+        aviso = avisoDeMetaDigitada({ kcal: r.data.kcal, tmb: painel.tmb, gasto: painel.gasto?.valor ?? null, pesoAtual: painel.pesoAtualKg, ritmoMaxPct: perfil.ritmoMaxPct }) ?? undefined;
+      }
+    } catch (e) {
+      registrarErro("salvarMetas", e);
+      return { erro: FALHA };
     }
-  } catch (e) {
-    registrarErro("salvarMetas", e);
-    return { erro: FALHA };
-  }
-  revalidatePath("/ajustes");
-  return { ok: true, aviso };
+    revalidatePath("/ajustes");
+    return { ok: true, aviso };
+
+  });
 }
 
 const decisaoSchema = z.object({
@@ -64,6 +71,7 @@ const decisaoSchema = z.object({
 });
 
 export async function decidirCadastro(form: FormData): Promise<void> {
+  await exigirContaPropria();
   const admin = await exigirAdmin();
   const r = decisaoSchema.safeParse(formParaObjeto(form, ["alvo", "decisao"]));
   if (!r.success) return;

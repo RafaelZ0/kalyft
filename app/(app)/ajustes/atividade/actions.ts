@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario, executarAcaoAcompanhada, exigirContaPropria } from "@/lib/auth/acompanhamento";
 import { definirNivelAtividade } from "@/lib/dal/energia";
 import { consumirUsoIa, devolverUsoIa } from "@/lib/dal/ia";
 import { obterAgenda } from "@/lib/dal/treino";
@@ -32,6 +32,7 @@ const MSG = {
 } as const;
 
 export async function diagnosticarAtividade(_: EstadoAtividade, form: FormData): Promise<EstadoAtividade> {
+  await exigirContaPropria();
   const { userId, admin } = await exigirUsuario();
   const acesso = await verificarAcessoIa(userId, admin !== null);
   if (!acesso.ok) return { erro: acesso.erro, precisaAceite: acesso.precisaAceite };
@@ -67,18 +68,21 @@ const nivelSchema = z.enum(NIVEIS_ATIVIDADE);
 
 /** Salva o nível (vindo da IA ou escolhido na lista). O fator é sempre o da tabela do app. */
 export async function confirmarAtividade(form: FormData): Promise<void> {
-  const { userId } = await exigirUsuario();
-  const r = nivelSchema.safeParse(form.get("nivel"));
-  if (!r.success) return;
-  try {
-    await definirNivelAtividade(userId, r.data);
-  } catch (e) {
-    registrarErro("confirmarAtividade", e);
-    return;
-  }
-  revalidatePath("/ajustes");
-  revalidatePath("/ajustes/atividade");
-  revalidatePath("/progresso/meta");
-  revalidatePath("/hoje");
-  redirect("/ajustes/atividade?salvo=1");
+  return executarAcaoAcompanhada(form.get("contextoId"), "confirmarAtividade", async () => {
+    const { userId } = await exigirUsuario();
+    const r = nivelSchema.safeParse(form.get("nivel"));
+    if (!r.success) return;
+    try {
+      await definirNivelAtividade(userId, r.data);
+    } catch (e) {
+      registrarErro("confirmarAtividade", e);
+      return;
+    }
+    revalidatePath("/ajustes");
+    revalidatePath("/ajustes/atividade");
+    revalidatePath("/progresso/meta");
+    revalidatePath("/hoje");
+    redirect("/ajustes/atividade?salvo=1");
+
+  });
 }

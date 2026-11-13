@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario, executarAcaoAcompanhada, exigirContaPropria } from "@/lib/auth/acompanhamento";
 import { consumirUsoIa, devolverUsoIa } from "@/lib/dal/ia";
 import { carregarEnergia, definirRitmoMax, guardarProjecao } from "@/lib/dal/energia";
 import { salvarMeta } from "@/lib/dal/metas";
@@ -36,33 +36,36 @@ const pesoMetaSchema = () =>
   });
 
 export async function salvarPesoMeta(_: EstadoMeta, form: FormData): Promise<EstadoMeta> {
-  const { userId } = await exigirUsuario();
-  const r = pesoMetaSchema().safeParse(formParaObjeto(form, ["pesoMetaKg", "dataMeta"]));
-  if (!r.success) return { erros: errosPorCampo(r.error) };
-  if (r.data.dataMeta && r.data.pesoMetaKg === null) return { erros: { pesoMetaKg: "Informe o peso desejado para usar uma data." } };
-  try {
-    const hoje = hojeSaoPaulo();
-    const { meta } = await carregarEnergia(userId, hoje);
-    await salvarMeta(
-      userId,
-      {
-        kcal: meta?.kcal ?? null,
-        proteinaG: meta?.proteinaG ?? null,
-        carboG: meta?.carboG ?? null,
-        gorduraG: meta?.gorduraG ?? null,
-        aguaMl: meta?.aguaMl ?? null,
-        pesoMetaKg: r.data.pesoMetaKg,
-        dataMeta: r.data.dataMeta,
-        observacao: meta?.observacao ?? null,
-      },
-      hoje,
-    );
-  } catch (e) {
-    registrarErro("salvarPesoMeta", e);
-    return { erro: FALHA };
-  }
-  revalidatePath("/progresso/meta");
-  return { ok: "Salvo." };
+  return executarAcaoAcompanhada(form.get("contextoId"), "salvarPesoMeta", async () => {
+    const { userId } = await exigirUsuario();
+    const r = pesoMetaSchema().safeParse(formParaObjeto(form, ["pesoMetaKg", "dataMeta"]));
+    if (!r.success) return { erros: errosPorCampo(r.error) };
+    if (r.data.dataMeta && r.data.pesoMetaKg === null) return { erros: { pesoMetaKg: "Informe o peso desejado para usar uma data." } };
+    try {
+      const hoje = hojeSaoPaulo();
+      const { meta } = await carregarEnergia(userId, hoje);
+      await salvarMeta(
+        userId,
+        {
+          kcal: meta?.kcal ?? null,
+          proteinaG: meta?.proteinaG ?? null,
+          carboG: meta?.carboG ?? null,
+          gorduraG: meta?.gorduraG ?? null,
+          aguaMl: meta?.aguaMl ?? null,
+          pesoMetaKg: r.data.pesoMetaKg,
+          dataMeta: r.data.dataMeta,
+          observacao: meta?.observacao ?? null,
+        },
+        hoje,
+      );
+    } catch (e) {
+      registrarErro("salvarPesoMeta", e);
+      return { erro: FALHA };
+    }
+    revalidatePath("/progresso/meta");
+    return { ok: "Salvo." };
+
+  });
 }
 
 // ─── Ritmo máximo (só para MENOS: o teto de 1% por semana não muda) ───
@@ -70,17 +73,20 @@ export async function salvarPesoMeta(_: EstadoMeta, form: FormData): Promise<Est
 const ritmoSchema = z.object({ ritmo: z.enum(["0.25", "0.5", "0.75", "1"]).transform(Number) });
 
 export async function salvarRitmoMax(_: EstadoMeta, form: FormData): Promise<EstadoMeta> {
-  const { userId } = await exigirUsuario();
-  const r = ritmoSchema.safeParse({ ritmo: form.get("ritmo") });
-  if (!r.success) return { erro: "Escolha um ritmo da lista." };
-  try {
-    await definirRitmoMax(userId, r.data.ritmo);
-  } catch (e) {
-    registrarErro("salvarRitmoMax", e);
-    return { erro: FALHA };
-  }
-  revalidatePath("/progresso/meta");
-  return { ok: "Ritmo máximo salvo." };
+  return executarAcaoAcompanhada(form.get("contextoId"), "salvarRitmoMax", async () => {
+    const { userId } = await exigirUsuario();
+    const r = ritmoSchema.safeParse({ ritmo: form.get("ritmo") });
+    if (!r.success) return { erro: "Escolha um ritmo da lista." };
+    try {
+      await definirRitmoMax(userId, r.data.ritmo);
+    } catch (e) {
+      registrarErro("salvarRitmoMax", e);
+      return { erro: FALHA };
+    }
+    revalidatePath("/progresso/meta");
+    return { ok: "Ritmo máximo salvo." };
+
+  });
 }
 
 // ─── Opções recalculadas no servidor ───
@@ -101,6 +107,7 @@ async function opcaoDoServidor(userId: string, id: z.infer<typeof opcaoSchema>) 
 // ─── Explicar a opção (IA só explica; números fixos do app) ───
 
 export async function explicarOpcaoMeta(_: EstadoExplicacao, form: FormData): Promise<EstadoExplicacao> {
+  await exigirContaPropria();
   const { userId, admin } = await exigirUsuario();
   const id = opcaoSchema.safeParse(form.get("opcao"));
   if (!id.success) return { erro: "Opção inválida." };
@@ -148,45 +155,48 @@ function pick(o: OpcaoRitmo): DadosExplicacao["opcao"] {
 // ─── Usar a opção como meta (só depois do clique do usuário) ───
 
 export async function aplicarOpcaoMeta(form: FormData): Promise<void> {
-  const { userId } = await exigirUsuario();
-  const id = opcaoSchema.safeParse(form.get("opcao"));
-  if (!id.success) return;
-  const o = await opcaoDoServidor(userId, id.data);
-  if ("erro" in o) return;
-  const { dados, painel, opcao, macros, hoje } = o;
-  try {
-    const m = dados.meta;
-    await salvarMeta(
-      userId,
-      {
-        kcal: opcao.kcal,
-        proteinaG: macros.proteinaG,
-        carboG: macros.carboG,
-        gorduraG: macros.gorduraG,
-        aguaMl: m?.aguaMl ?? null,
-        pesoMetaKg: m?.pesoMetaKg ?? null,
-        dataMeta: m?.dataMeta ?? null,
-        observacao: `Opção "${opcao.rotulo}" sugerida pelo app (estimativa), confirmada por você em ${hoje.split("-").reverse().join("/")}.`,
-      },
-      hoje,
-    );
-    if (m?.pesoMetaKg != null && painel.pesoAtualKg !== null && painel.gasto && painel.fatorAtividade !== null) {
-      const proj = projetarPeso({ pesoInicial: painel.pesoAtualKg, gastoInicial: painel.gasto.valor, consumoDiario: opcao.kcal, fatorAtividade: painel.fatorAtividade, pesoMeta: m.pesoMetaKg });
-      await guardarProjecao(userId, {
-        pesoInicialKg: painel.pesoAtualKg,
-        pesoMetaKg: m.pesoMetaKg,
-        consumoKcal: opcao.kcal,
-        gastoKcal: painel.gasto.valor,
-        semanasParaMeta: proj.semanasParaMeta,
-        pontos: proj.pontos.map((p) => ({ semana: p.semana, peso: p.peso })),
-      });
+  return executarAcaoAcompanhada(form.get("contextoId"), "aplicarOpcaoMeta", async () => {
+    const { userId } = await exigirUsuario();
+    const id = opcaoSchema.safeParse(form.get("opcao"));
+    if (!id.success) return;
+    const o = await opcaoDoServidor(userId, id.data);
+    if ("erro" in o) return;
+    const { dados, painel, opcao, macros, hoje } = o;
+    try {
+      const m = dados.meta;
+      await salvarMeta(
+        userId,
+        {
+          kcal: opcao.kcal,
+          proteinaG: macros.proteinaG,
+          carboG: macros.carboG,
+          gorduraG: macros.gorduraG,
+          aguaMl: m?.aguaMl ?? null,
+          pesoMetaKg: m?.pesoMetaKg ?? null,
+          dataMeta: m?.dataMeta ?? null,
+          observacao: `Opção "${opcao.rotulo}" sugerida pelo app (estimativa), confirmada por você em ${hoje.split("-").reverse().join("/")}.`,
+        },
+        hoje,
+      );
+      if (m?.pesoMetaKg != null && painel.pesoAtualKg !== null && painel.gasto && painel.fatorAtividade !== null) {
+        const proj = projetarPeso({ pesoInicial: painel.pesoAtualKg, gastoInicial: painel.gasto.valor, consumoDiario: opcao.kcal, fatorAtividade: painel.fatorAtividade, pesoMeta: m.pesoMetaKg });
+        await guardarProjecao(userId, {
+          pesoInicialKg: painel.pesoAtualKg,
+          pesoMetaKg: m.pesoMetaKg,
+          consumoKcal: opcao.kcal,
+          gastoKcal: painel.gasto.valor,
+          semanasParaMeta: proj.semanasParaMeta,
+          pontos: proj.pontos.map((p) => ({ semana: p.semana, peso: p.peso })),
+        });
+      }
+    } catch (e) {
+      registrarErro("aplicarOpcaoMeta", e);
+      return;
     }
-  } catch (e) {
-    registrarErro("aplicarOpcaoMeta", e);
-    return;
-  }
-  revalidatePath("/progresso/meta");
-  revalidatePath("/ajustes");
-  revalidatePath("/hoje");
-  redirect("/progresso/meta?salva=1");
+    revalidatePath("/progresso/meta");
+    revalidatePath("/ajustes");
+    revalidatePath("/hoje");
+    redirect("/progresso/meta?salva=1");
+
+  });
 }

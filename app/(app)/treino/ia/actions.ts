@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContaPropria as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { buscarNoCatalogo, idsComFoto, ligarAoCatalogo, type ResultadoCatalogo } from "@/lib/dal/catalogo";
 import { consumirUsoIa, corpoParaIa, devolverUsoIa, obterAceiteIa, registrarAceiteIa } from "@/lib/dal/ia";
 import { exerciciosPorNome, gravarPlanoCompleto } from "@/lib/dal/treino-ia";

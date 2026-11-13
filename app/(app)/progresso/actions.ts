@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario, executarAcaoAcompanhada, exigirContaPropria } from "@/lib/auth/acompanhamento";
 import {
   apagarPesagem as apagarPesagemDal,
   definirDiaAplicacao,
@@ -19,36 +19,43 @@ export type EstadoCorpo = { ok?: string; erro?: string; erros?: ErrosCampos };
 const FALHA = "Não foi possível salvar agora. Tente de novo.";
 
 export async function salvarPesagem(_: EstadoCorpo, form: FormData): Promise<EstadoCorpo> {
-  const { userId } = await exigirUsuario();
-  const r = pesagemSchema.safeParse(formParaObjeto(form, ["data", "pesoKg", "massaMagraKg", "cinturaCm"]));
-  if (!r.success) return { erros: errosPorCampo(r.error) };
-  try {
-    await salvarPesagemDal(userId, r.data.data, {
-      pesoKg: r.data.pesoKg,
-      massaMagraKg: r.data.massaMagraKg,
-      cinturaCm: r.data.cinturaCm,
-    });
-  } catch (e) {
-    registrarErro("salvarPesagem", e);
-    return { erro: FALHA };
-  }
-  revalidatePath("/progresso");
-  return { ok: "Pesagem salva." };
+  return executarAcaoAcompanhada(form.get("contextoId"), "salvarPesagem", async () => {
+    const { userId } = await exigirUsuario();
+    const r = pesagemSchema.safeParse(formParaObjeto(form, ["data", "pesoKg", "massaMagraKg", "cinturaCm"]));
+    if (!r.success) return { erros: errosPorCampo(r.error) };
+    try {
+      await salvarPesagemDal(userId, r.data.data, {
+        pesoKg: r.data.pesoKg,
+        massaMagraKg: r.data.massaMagraKg,
+        cinturaCm: r.data.cinturaCm,
+      });
+    } catch (e) {
+      registrarErro("salvarPesagem", e);
+      return { erro: FALHA };
+    }
+    revalidatePath("/progresso");
+    return { ok: "Pesagem salva." };
+
+  });
 }
 
 export async function apagarPesagem(form: FormData): Promise<void> {
-  const { userId } = await exigirUsuario();
-  const r = id.safeParse(form.get("pesagemId"));
-  if (!r.success) return;
-  try {
-    await apagarPesagemDal(userId, r.data);
-  } catch (e) {
-    registrarErro("apagarPesagem", e);
-  }
-  revalidatePath("/progresso");
+  return executarAcaoAcompanhada(form.get("contextoId"), "apagarPesagem", async () => {
+    const { userId } = await exigirUsuario();
+    const r = id.safeParse(form.get("pesagemId"));
+    if (!r.success) return;
+    try {
+      await apagarPesagemDal(userId, r.data);
+    } catch (e) {
+      registrarErro("apagarPesagem", e);
+    }
+    revalidatePath("/progresso");
+
+  });
 }
 
 export async function marcarAplicacao(form: FormData): Promise<void> {
+  await exigirContaPropria();
   const { userId } = await exigirUsuario();
   const r = aplicacaoSchema.safeParse(formParaObjeto(form, ["data"]));
   if (!r.success) return;
@@ -61,6 +68,7 @@ export async function marcarAplicacao(form: FormData): Promise<void> {
 }
 
 export async function desfazerAplicacao(form: FormData): Promise<void> {
+  await exigirContaPropria();
   const { userId } = await exigirUsuario();
   const r = aplicacaoSchema.safeParse(formParaObjeto(form, ["data"]));
   if (!r.success) return;
@@ -73,6 +81,7 @@ export async function desfazerAplicacao(form: FormData): Promise<void> {
 }
 
 export async function salvarDiaAplicacao(form: FormData): Promise<void> {
+  await exigirContaPropria();
   const { userId } = await exigirUsuario();
   const r = diaAplicacaoSchema.safeParse(form.get("dia"));
   if (!r.success) return;

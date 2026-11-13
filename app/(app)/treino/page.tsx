@@ -1,5 +1,6 @@
+import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { listarItensDoTreino, listarTreinos, obterAgenda, obterSessao, obterTrocas, planoAtivo } from "@/lib/dal/treino";
 import { hojeSaoPaulo, rotuloDia, somarDias } from "@/lib/datas";
 import { formatarTempo, seriesDoExercicio, treinoDoDia } from "@/lib/treino";
@@ -89,12 +90,12 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
             </p>
           )}
           {sessao.observacao ? <p className="text-suave">{sessao.observacao}</p> : null}
-          <form action={desfazerRegistroDoDia}>
+          <FormDados action={desfazerRegistroDoDia}>
             <input type="hidden" name="data" value={data} />
             <button type="submit" className="min-h-11 text-sm font-semibold text-suave underline">
               Desfazer o registro deste dia
             </button>
-          </form>
+          </FormDados>
         </section>
       ) : null}
 
@@ -144,7 +145,7 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
         </section>
       )}
 
-      <form action={trocarTreinoDoDia} className="space-y-3 border-t border-linha pt-6">
+      <FormDados action={trocarTreinoDoDia} className="space-y-3 border-t border-linha pt-6">
         <input type="hidden" name="data" value={data} />
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-suave">Trocar o treino deste dia</span>
@@ -165,7 +166,7 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
         <button type="submit" className="min-h-12 w-full rounded-full border-2 border-borda font-semibold">
           Trocar
         </button>
-      </form>
+      </FormDados>
     </div>
   );
 }

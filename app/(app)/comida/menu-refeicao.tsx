@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import Link from "next/link";
 import { useActionState } from "react";
@@ -20,14 +22,14 @@ export function MenuRefeicao({ data, refeicao, temItens }: { data: string; refei
           Usar refeição salva
         </Link>
         {temItens ? (
-          <form action={acao} className="space-y-4 border-t border-linha pt-4" noValidate>
+          <FormDados action={acao} className="space-y-4 border-t border-linha pt-4" noValidate>
             <input type="hidden" name="data" value={data} />
             <input type="hidden" name="refeicao" value={refeicao} />
             <Campo nome="nome" rotulo="Salvar esta refeição como" maxLength={80} erro={estado.erros?.nome} />
             {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
             {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
             <BotaoEnviar>Salvar refeição</BotaoEnviar>
-          </form>
+          </FormDados>
         ) : null}
       </div>
     </details>

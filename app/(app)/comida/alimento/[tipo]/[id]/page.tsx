@@ -1,6 +1,7 @@
+import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { citacaoTaco, obterAlimento } from "@/lib/dal/alimentos";
 import { ehFavorito, listarMedidas } from "@/lib/dal/medidas";
 import { sugestoesIbge } from "@/lib/dal/medidas-ibge";
@@ -75,7 +76,7 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
       <header className="space-y-2">
         <div className="flex items-start justify-between gap-4">
           <h1 className="text-3xl font-black leading-tight">{alimento.nome}</h1>
-          <form action={favoritar}>
+          <FormDados action={favoritar}>
             <input type="hidden" name="tipo" value={alimento.tipo} />
             <input type="hidden" name="alimentoId" value={alimento.id} />
             <button
@@ -86,7 +87,7 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
             >
               ★
             </button>
-          </form>
+          </FormDados>
         </div>
         <p className="text-suave">
           {alimento.tipo === "base" ? `TACO · ${alimento.grupo ?? ""}` : `Meu alimento${alimento.marca ? ` · ${alimento.marca}` : ""}`}

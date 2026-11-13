@@ -1,6 +1,7 @@
+import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { obterReceita } from "@/lib/dal/receitas";
 import { verificarAcessoIa } from "@/lib/ia/acesso";
 import { calcularReceita } from "@/lib/receita";
@@ -14,14 +15,14 @@ export const metadata = { title: "Receita · Kalyft" };
 const n = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
 
 export default async function PaginaReceita(props: PageProps<"/comida/receitas/[id]">) {
-  const { userId, admin } = await exigirUsuario();
+  const { userId, admin, modo } = await exigirUsuario();
   const params = await props.params;
   const sp = await props.searchParams;
   const id = idSchema.safeParse(params.id);
   if (!id.success) notFound();
   const r = await obterReceita(userId, id.data);
   if (!r) notFound();
-  const acesso = await verificarAcessoIa(userId, admin !== null);
+  const acesso = modo === "proprio" ? await verificarAcessoIa(userId, admin !== null) : { ok: false };
 
   const calc = calcularReceita({
     ingredientes: r.itens.map((i) => ({ nome: i.nome, gramas: i.gramas, nutrientes: { kcal: i.kcal, proteinaG: i.proteinaG, carboG: i.carboG, gorduraG: i.gorduraG, fibraG: i.fibraG } })),
@@ -77,10 +78,10 @@ export default async function PaginaReceita(props: PageProps<"/comida/receitas/[
         ) : null}
       </section>
 
-      <form action={excluirReceitaAcao}>
+      <FormDados action={excluirReceitaAcao}>
         <input type="hidden" name="receitaId" value={r.receita.id} />
         <button type="submit" className="min-h-12 w-full rounded-full border-2 border-erro font-semibold text-erro">Apagar receita</button>
-      </form>
+      </FormDados>
     </div>
   );
 }

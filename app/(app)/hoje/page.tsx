@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Barra } from "@/components/graficos";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { totalAguaDoDia } from "@/lib/dal/agua";
 import { carregarEnergia } from "@/lib/dal/energia";
 import { passosDoPeriodo } from "@/lib/dal/passos";
@@ -9,14 +9,19 @@ import { listarTreinos, obterAgenda, obterSessao, obterTrocas, planoAtivo } from
 import { formatarDataBr, hojeSaoPaulo } from "@/lib/datas";
 import { compararComMeta, formatarGramas, somarDia } from "@/lib/nutricao";
 import { treinoDoDia } from "@/lib/treino";
+import { listarAutorizacoes } from "@/lib/dal/acompanhamento";
 
 export const metadata = { title: "Hoje · Kalyft" };
 
 const n = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 const dec = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
 
-export default async function PaginaHoje() {
-  const { userId } = await exigirUsuario();
+export default async function PaginaHoje(props: PageProps<"/hoje">) {
+  const aviso = (await props.searchParams).acompanhamento;
+  const mensagens: Record<string, string> = { contexto: "A conta acompanhada mudou. Atualize a página antes de continuar.", leitura: "Você está apenas acompanhando. Solicite autorização para alterar.", pessoal: "Volte para sua conta para usar este recurso." };
+  const { userId, modo } = await exigirUsuario();
+  const pedidos = modo === "proprio" ? await listarAutorizacoes(userId) : [];
+  const pendentes = pedidos.filter((p) => p.estado === "pendente").length;
   const hoje = hojeSaoPaulo();
 
   const [energia, registros, aguaMl, passos, plano, sessao] = await Promise.all([
@@ -50,6 +55,8 @@ export default async function PaginaHoje() {
         <p className="text-sm font-semibold text-suave">{formatarDataBr(hoje)}</p>
         <h1 className="text-4xl font-black tracking-tight">Hoje</h1>
       </header>
+      {typeof aviso === "string" && mensagens[aviso] ? <p role="alert" className="rounded-2xl border-2 border-aviso p-4">{mensagens[aviso]}</p> : null}
+      {pendentes > 0 ? <Link href="/ajustes/acompanhamento" className="block rounded-2xl border-2 border-marca p-4 font-bold">Você tem {pendentes} {pendentes === 1 ? "solicitação" : "solicitações"} de acompanhamento. Ver permissões</Link> : null}
 
       <section aria-labelledby="cal" className="space-y-3">
         <h2 id="cal" className="sr-only">Calorias de hoje</h2>
@@ -129,7 +136,7 @@ export default async function PaginaHoje() {
           <div>
             <dt className="text-sm text-suave">Passos</dt>
             <dd className="text-2xl font-black">{passos[0] ? n(passos[0].passos) : "—"}</dd>
-            {!passos[0] ? <Link href="/ajustes/passos" className="text-sm font-semibold underline">Configurar</Link> : null}
+            {!passos[0] && modo === "proprio" ? <Link href="/ajustes/passos" className="text-sm font-semibold underline">Configurar</Link> : null}
           </div>
         </dl>
         {painel.faltam.length > 0 ? (

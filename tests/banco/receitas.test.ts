@@ -1,3 +1,5 @@
+// Simula uma requisição pessoal; mantém o resolvedor real de acompanhamento.
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined }) }));
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -29,7 +31,7 @@ let farinha: string; // alimento do usuário
 let alimentoDeB: string;
 
 const corpo = (r: unknown, receitaId?: string) => {
-  const f = new FormData();
+  const f = new FormData(); f.set("contextoId", "proprio");
   f.set("receita", typeof r === "string" ? r : JSON.stringify(r));
   if (receitaId) f.set("receitaId", receitaId);
   return f;
@@ -147,7 +149,7 @@ describe("segurança e validação", () => {
     expect((await salvarReceita({}, corpo(base(), id))).erro).toMatch(/não encontrada/);
     expect(await excluirReceita(B, id)).toBe(false);
     // A ação redireciona mesmo sem apagar nada; o que importa é que a receita da A continua lá.
-    await expect(excluirReceitaAcao((() => { const f = new FormData(); f.set("receitaId", id); return f; })())).rejects.toThrow("REDIRECT");
+    await expect(excluirReceitaAcao((() => { const f = new FormData(); f.set("contextoId", "proprio"); f.set("receitaId", id); return f; })())).rejects.toThrow("REDIRECT");
     expect(await obterReceita(A, id)).not.toBeNull();
   });
 });
@@ -173,7 +175,7 @@ describe("exclusões", () => {
     const id = await salvar({ ...base(), nome: "Receita para apagar" });
     const alimento = (await obterReceita(A, id))!.receita.alimentoUsuarioId!;
     await criarRegistros(A, [{ data: "2026-01-15", refeicao: "almoco", tipo: "usuario", alimentoId: alimento, nome: "Receita para apagar", gramas: 125, medidaTexto: "1 × porção", nutrientes: { kcal: 180, proteinaG: 6, carboG: 30, gorduraG: 3, fibraG: 2 } }]);
-    await expect(excluirReceitaAcao((() => { const f = new FormData(); f.set("receitaId", id); return f; })())).rejects.toThrow("REDIRECT:/comida/receitas");
+    await expect(excluirReceitaAcao((() => { const f = new FormData(); f.set("contextoId", "proprio"); f.set("receitaId", id); return f; })())).rejects.toThrow("REDIRECT:/comida/receitas");
     expect(await obterReceita(A, id)).toBeNull();
     expect((await db.select().from(alimentosUsuario).where(eq(alimentosUsuario.id, alimento))).length).toBe(0);
     const regs = await db.select().from(registrosAlimentares).where(and(eq(registrosAlimentares.userId, A), eq(registrosAlimentares.nome, "Receita para apagar")));

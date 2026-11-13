@@ -1,5 +1,7 @@
+import { SomenteContaPropria } from "@/components/contexto-dados";
+import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
-import { exigirUsuario } from "@/lib/auth/sessao";
+import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { listarExercicios, listarItensDoTreino, listarTreinos, obterAgenda, planoAtivo } from "@/lib/dal/treino";
 import { hojeSaoPaulo } from "@/lib/datas";
 import { formatarTempo, NOMES_DIA } from "@/lib/treino";
@@ -26,9 +28,9 @@ export default async function PaginaPlano() {
           ‹ Voltar
         </Link>
         <h1 className="text-3xl font-black">Criar plano</h1>
-        <Link href="/treino/ia" className="flex min-h-14 items-center justify-center rounded-full bg-destaque text-lg font-bold text-sobre-destaque">
+        <SomenteContaPropria><Link href="/treino/ia" className="flex min-h-14 items-center justify-center rounded-full bg-destaque text-lg font-bold text-sobre-destaque">
           Criar ou importar com IA
-        </Link>
+        </Link></SomenteContaPropria>
         <p className="text-suave">Ou monte o plano você mesmo:</p>
         <FormPlano hoje={hoje} />
       </div>
@@ -44,9 +46,9 @@ export default async function PaginaPlano() {
         ‹ Voltar
       </Link>
       <h1 className="text-3xl font-black">Plano de treino</h1>
-      <Link href="/treino/ia" className="flex min-h-14 items-center justify-center rounded-full border-2 border-marca text-lg font-bold">
+      <SomenteContaPropria><Link href="/treino/ia" className="flex min-h-14 items-center justify-center rounded-full border-2 border-marca text-lg font-bold">
         Criar ou importar com IA
-      </Link>
+      </Link></SomenteContaPropria>
 
       <section aria-labelledby="config" className="space-y-4">
         <h2 id="config" className="text-2xl font-bold">Plano</h2>
@@ -85,12 +87,12 @@ export default async function PaginaPlano() {
                         </p>
                         {i.observacao ? <p className="text-sm text-suave">{i.observacao}</p> : null}
                       </div>
-                      <form action={removerExercicioDoTreino}>
+                      <FormDados action={removerExercicioDoTreino}>
                         <input type="hidden" name="itemId" value={i.id} />
                         <button type="submit" className="min-h-11 px-2 text-sm font-semibold text-suave underline">
                           Remover
                         </button>
-                      </form>
+                      </FormDados>
                     </div>
                     <details>
                       <summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold text-suave">
@@ -100,18 +102,18 @@ export default async function PaginaPlano() {
                         {i.substitutos.map((s) => (
                           <li key={s.id} className="flex min-h-11 items-center justify-between text-sm">
                             <span>{s.nome}</span>
-                            <form action={removerSubstitutoDoItem}>
+                            <FormDados action={removerSubstitutoDoItem}>
                               <input type="hidden" name="itemId" value={i.id} />
                               <input type="hidden" name="exercicioId" value={s.id} />
                               <button type="submit" className="min-h-11 px-2 font-semibold text-suave underline">
                                 Tirar
                               </button>
-                            </form>
+                            </FormDados>
                           </li>
                         ))}
                       </ul>
                       {todos.filter((x) => x.id !== i.exercicio.id && !i.substitutos.some((s) => s.id === x.id)).length > 0 ? (
-                        <form action={adicionarSubstitutoAoItem} className="mt-2 flex gap-2">
+                        <FormDados action={adicionarSubstitutoAoItem} className="mt-2 flex gap-2">
                           <input type="hidden" name="itemId" value={i.id} />
                           <select name="exercicioId" className="min-h-11 flex-1 rounded-xl border-2 border-borda bg-superficie px-2">
                             {todos
@@ -125,7 +127,7 @@ export default async function PaginaPlano() {
                           <button type="submit" className="min-h-11 rounded-full border-2 border-borda px-4 font-semibold">
                             Adicionar
                           </button>
-                        </form>
+                        </FormDados>
                       ) : null}
                     </details>
                   </li>
@@ -141,12 +143,12 @@ export default async function PaginaPlano() {
                 <summary className="flex min-h-12 cursor-pointer items-center font-semibold text-suave">Editar ou apagar o treino</summary>
                 <div className="space-y-4 pt-3">
                   <FormTreino treinoId={t.id} nome={t.nome} foco={t.foco ?? ""} />
-                  <form action={apagarTreino}>
+                  <FormDados action={apagarTreino}>
                     <input type="hidden" name="treinoId" value={t.id} />
                     <button type="submit" className="min-h-12 w-full rounded-full border-2 border-erro font-semibold text-erro">
                       Apagar treino (o histórico fica)
                     </button>
-                  </form>
+                  </FormDados>
                 </div>
               </details>
             </article>
@@ -164,7 +166,7 @@ export default async function PaginaPlano() {
           <ul className="space-y-2">
             {NOMES_DIA.map((nome, dia) => (
               <li key={nome}>
-                <form action={definirAgendaDoDia} className="flex items-center gap-2">
+                <FormDados action={definirAgendaDoDia} className="flex items-center gap-2">
                   <input type="hidden" name="diaSemana" value={dia} />
                   <span className="w-20 shrink-0 font-semibold">{nome}</span>
                   <select name="treinoId" defaultValue={agenda.get(dia) ?? ""} className="min-h-12 flex-1 rounded-xl border-2 border-borda bg-superficie px-2">
@@ -178,7 +180,7 @@ export default async function PaginaPlano() {
                   <button type="submit" className="min-h-12 rounded-full border-2 border-borda px-4 font-semibold">
                     Salvar
                   </button>
-                </form>
+                </FormDados>
               </li>
             ))}
           </ul>

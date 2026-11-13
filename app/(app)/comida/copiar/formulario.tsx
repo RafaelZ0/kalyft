@@ -1,4 +1,6 @@
 "use client";
+import { FormDados } from "@/components/contexto-dados";
+
 
 import { useActionState } from "react";
 import { Aviso, BotaoEnviar, Campo, Opcoes } from "@/components/ui";
@@ -18,7 +20,7 @@ export function FormCopiar({
 }) {
   const [estado, acao] = useActionState<Estado, FormData>(copiarRefeicao, {});
   return (
-    <form action={acao} className="space-y-8" noValidate>
+    <FormDados action={acao} className="space-y-8" noValidate>
       <input type="hidden" name="paraData" value={paraData} />
       <input type="hidden" name="paraRefeicao" value={paraRefeicao} />
       <Campo nome="deData" rotulo="Copiar do dia" tipo="date" valor={deData} erro={estado.erros?.deData} />
@@ -26,6 +28,6 @@ export function FormCopiar({
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
       <BotaoEnviar pendente="Copiando…">Copiar</BotaoEnviar>
-    </form>
+    </FormDados>
   );
 }

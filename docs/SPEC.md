@@ -241,3 +241,7 @@ Cada fase termina com o app funcionando, publicado no Vercel e testado no iPhone
 - **TACO:** os termos permitem reprodução total ou parcial citando a fonte e não mencionam uso comercial. **Verificar** com o NEPA antes de vender.
 - **LGPD:** dados de saúde são dados pessoais sensíveis. Será preciso política de privacidade, consentimento, exclusão de conta e exportação de dados.
 - Aviso permanente de que o app não substitui nutricionista, médico ou educador físico.
+
+## Acompanhamento de alunos
+
+Administrador: Ajustes → Alunos → Acompanhar. Faixa permanente identifica o aluno e permite voltar. Aluno: Ajustes → Acompanhamento, onde aceita/recusa pedidos, escolhe prazo livre de edição, revoga e consulta histórico. Fotos precisam de aceite independente até revogação. Orientações pelo WhatsApp, sem chat interno. Implementação na branch codex/acompanhamento-alunos; publicação depende da validação e migration 0016.

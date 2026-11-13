@@ -970,3 +970,58 @@ export const fotosCorpo = pgTable(
 );
 
 export type FotoCorpoRow = typeof fotosCorpo.$inferSelect;
+
+// Contextos opacos ligados à identidade real e à sessão validada (somente hash).
+export const acompanhamentoContextos = pgTable("acompanhamento_contextos", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  administradorId: uuid("administrador_id").notNull().references(() => perfis.userId, { onDelete: "cascade" }),
+  alunoId: uuid("aluno_id").notNull().references(() => perfis.userId, { onDelete: "cascade" }),
+  sessaoHash: text("sessao_hash").notNull(),
+  criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+  expiraEm: timestamp("expira_em", { withTimezone: true }).notNull().default(sql`now() + interval '12 hours'`),
+  encerradoEm: timestamp("encerrado_em", { withTimezone: true }),
+}, (t) => [
+  index("acompanhamento_contextos_admin").on(t.administradorId),
+  index("acompanhamento_contextos_aluno").on(t.alunoId),
+  check("acompanhamento_contextos_par_check", sql`${t.administradorId} <> ${t.alunoId}`),
+  check("acompanhamento_contextos_hash_check", sql`${t.sessaoHash} ~ '^[0-9a-f]{64}$'`),
+  check("acompanhamento_contextos_prazo_check", sql`${t.expiraEm} > ${t.criadoEm} and ${t.expiraEm} <= ${t.criadoEm} + interval '12 hours'`),
+]);
+
+export const acompanhamentoAutorizacoes = pgTable("acompanhamento_autorizacoes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  administradorId: uuid("administrador_id").notNull().references(() => perfis.userId, { onDelete: "cascade" }),
+  alunoId: uuid("aluno_id").notNull().references(() => perfis.userId, { onDelete: "cascade" }),
+  tipo: text("tipo").$type<"edicao" | "fotos">().notNull(),
+  estado: text("estado").$type<"pendente" | "aceita" | "recusada" | "revogada">().notNull().default("pendente"),
+  solicitadoEm: timestamp("solicitado_em", { withTimezone: true }).notNull().defaultNow(),
+  decididoEm: timestamp("decidido_em", { withTimezone: true }),
+  expiraEm: timestamp("expira_em", { withTimezone: true }),
+  revogadoEm: timestamp("revogado_em", { withTimezone: true }),
+}, (t) => [
+  index("acompanhamento_autorizacoes_admin").on(t.administradorId, t.alunoId, t.tipo),
+  index("acompanhamento_autorizacoes_aluno").on(t.alunoId, t.solicitadoEm.desc()),
+  uniqueIndex("acompanhamento_autorizacoes_pendente").on(t.administradorId, t.alunoId, t.tipo).where(sql`${t.estado} = 'pendente'`),
+  check("acompanhamento_autorizacoes_par_check", sql`${t.administradorId} <> ${t.alunoId}`),
+  check("acompanhamento_autorizacoes_tipo_check", sql`${t.tipo} in ('edicao', 'fotos')`),
+  check("acompanhamento_autorizacoes_estado_check", sql`${t.estado} in ('pendente', 'aceita', 'recusada', 'revogada')`),
+  check("acompanhamento_autorizacoes_prazo_check", sql`${t.tipo} <> 'edicao' or ${t.estado} <> 'aceita' or (${t.expiraEm} is not null and ${t.decididoEm} is not null and ${t.expiraEm} > ${t.decididoEm})`),
+]);
+
+export const acompanhamentoEventos = pgTable("acompanhamento_eventos", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  atorId: uuid("ator_id").notNull().references(() => perfis.userId, { onDelete: "cascade" }),
+  alunoId: uuid("aluno_id").notNull().references(() => perfis.userId, { onDelete: "cascade" }),
+  autorizacaoId: uuid("autorizacao_id").references(() => acompanhamentoAutorizacoes.id, { onDelete: "set null" }),
+  contextoId: uuid("contexto_id").references(() => acompanhamentoContextos.id, { onDelete: "set null" }),
+  operacao: text("operacao").notNull(),
+  recurso: text("recurso").notNull(),
+  recursoId: text("recurso_id"),
+  criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("acompanhamento_eventos_aluno").on(t.alunoId, t.criadoEm.desc()),
+  index("acompanhamento_eventos_ator").on(t.atorId),
+  check("acompanhamento_eventos_operacao_check", sql`char_length(${t.operacao}) between 1 and 40`),
+  check("acompanhamento_eventos_recurso_check", sql`char_length(${t.recurso}) between 1 and 80`),
+  check("acompanhamento_eventos_recurso_id_check", sql`char_length(${t.recursoId}) <= 200`),
+]);

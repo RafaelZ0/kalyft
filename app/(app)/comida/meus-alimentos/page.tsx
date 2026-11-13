@@ -10,10 +10,10 @@ export default async function PaginaMeusAlimentos() {
   const { userId } = await exigirUsuario();
   const alimentos = await listarMeusAlimentos(userId);
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <Voltar href="/comida" />
-      <h1 className="text-3xl font-black">Meus alimentos</h1>
-      <Link href="/comida/meus-alimentos/novo" className="flex min-h-14 items-center justify-center rounded-full bg-destaque text-lg font-bold text-sobre-destaque">
+      <h1 className="page-heading">Meus alimentos</h1>
+      <Link href="/comida/meus-alimentos/novo" className="action-primary">
         + Cadastrar pelo rótulo
       </Link>
       {alimentos.length === 0 ? (

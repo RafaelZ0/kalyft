@@ -23,15 +23,15 @@ export default async function PaginaExercicio(props: PageProps<"/treino/exercici
   const primeira = evolucao[0]?.data;
 
   return (
-    <div className="space-y-10">
+    <div className="page-stack">
       <Link href="/treino/exercicios" className="inline-flex min-h-11 items-center font-semibold text-suave">
         ‹ Voltar
       </Link>
-      <h1 className="text-3xl font-black leading-tight">{ex.nome}</h1>
+      <h1 className="page-heading leading-tight">{ex.nome}</h1>
       <FotoExercicio fotoId={ex.fotoId} nome={ex.nome} />
 
-      <section aria-labelledby="evolucao" className="space-y-4">
-        <h2 id="evolucao" className="text-2xl font-bold">Evolução</h2>
+      <section aria-labelledby="evolucao" className="app-card space-y-4">
+        <h2 id="evolucao" className="section-heading">Evolução</h2>
         {evolucao.length >= 2 ? (
           <GraficoLinhas
             titulo={`Maior carga por sessão de ${ex.nome}`}
@@ -57,13 +57,13 @@ export default async function PaginaExercicio(props: PageProps<"/treino/exercici
       </section>
 
       <section aria-labelledby="editar" className="space-y-4 border-t border-linha pt-8">
-        <h2 id="editar" className="text-2xl font-bold">Editar</h2>
+        <h2 id="editar" className="section-heading">Editar</h2>
         <FormExercicio
           valores={{ id: ex.id, nome: ex.nome, grupo: ex.grupo ?? "", unilateral: ex.unilateral, cargaPorHalter: ex.cargaPorHalter, medida: ex.medida, fotoId: ex.fotoId ?? "" }}
         />
         <FormDados action={apagarExercicio} className="pt-4">
           <input type="hidden" name="exercicioId" value={ex.id} />
-          <button type="submit" className="min-h-12 w-full rounded-full border-2 border-erro font-semibold text-erro">
+          <button type="submit" className="min-h-12 w-full rounded-xl border-2 border-erro font-semibold text-erro">
             Apagar exercício (apaga também as séries registradas)
           </button>
         </FormDados>

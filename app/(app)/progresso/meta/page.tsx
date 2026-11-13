@@ -79,9 +79,9 @@ export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
       : null;
 
   return (
-    <div className="space-y-12">
+    <div className="page-stack">
       <Link href="/progresso" className="inline-flex min-h-11 items-center font-semibold text-suave">‹ Voltar</Link>
-      <h1 className="text-3xl font-black">Meta e plano</h1>
+      <h1 className="page-heading">Meta e plano</h1>
 
       {sp.salva === "1" ? <p role="status" className="rounded-2xl border-2 border-ok p-4 font-semibold text-ok"><span aria-hidden="true">✓ </span>Meta de calorias e macros salva.</p> : null}
 
@@ -89,16 +89,16 @@ export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
         <section className="space-y-3 rounded-2xl border-2 border-aviso p-4">
           <p className="font-semibold text-aviso"><span aria-hidden="true">! </span>Para calcular seu gasto, falta informar: {p.faltam.map((f) => FALTA[f]).join(", ")}.</p>
           <div className="flex flex-wrap gap-3">
-            {p.faltam.some((f) => f !== "peso") ? <Link href="/ajustes" className="min-h-12 rounded-full bg-destaque px-5 py-3 font-bold text-sobre-destaque">Completar o perfil</Link> : null}
-            {p.faltam.includes("atividade") ? <Link href="/ajustes/atividade" className="min-h-12 rounded-full border-2 border-borda px-5 py-3 font-semibold">Descobrir meu nível com a IA</Link> : null}
-            {p.faltam.includes("peso") ? <Link href="/progresso" className="min-h-12 rounded-full border-2 border-borda px-5 py-3 font-semibold">Registrar meu peso</Link> : null}
+            {p.faltam.some((f) => f !== "peso") ? <Link href="/ajustes" className="min-h-12 rounded-xl bg-destaque px-5 py-3 font-bold text-sobre-destaque">Completar o perfil</Link> : null}
+            {p.faltam.includes("atividade") ? <Link href="/ajustes/atividade" className="min-h-12 rounded-xl border border-borda px-5 py-3 font-semibold">Descobrir meu nível com a IA</Link> : null}
+            {p.faltam.includes("peso") ? <Link href="/progresso" className="min-h-12 rounded-xl border border-borda px-5 py-3 font-semibold">Registrar meu peso</Link> : null}
           </div>
         </section>
       ) : null}
 
       {p.gasto ? (
-        <section aria-labelledby="gasto" className="space-y-3">
-          <h2 id="gasto" className="text-2xl font-bold">Seu gasto por dia (estimativa)</h2>
+        <section aria-labelledby="gasto" className="app-card space-y-3">
+          <h2 id="gasto" className="section-heading">Seu gasto por dia (estimativa)</h2>
           <p className="text-4xl font-black">{n(p.gasto.valor)} <span className="text-lg font-bold text-suave">kcal</span></p>
           <p className="text-suave">Provavelmente entre {n(p.gasto.minimo)} e {n(p.gasto.maximo)} kcal.</p>
           <p className="text-sm text-suave">{p.gasto.explicacao}</p>
@@ -106,7 +106,7 @@ export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
             Em repouso (taxa metabólica basal): ≈ {n(p.tmb ?? 0)} kcal. Nível de atividade usado: <Link href="/ajustes/atividade" className="underline">{dados.perfil.nivel ? ROTULOS_ATIVIDADE[dados.perfil.nivel] : "—"}</Link>.
           </p>
           {p.previsaoDaMeta ? (
-            <p className="rounded-2xl border-2 border-borda p-3 font-semibold">{p.previsaoDaMeta.texto}</p>
+            <p className="rounded-2xl border border-borda p-3 font-semibold">{p.previsaoDaMeta.texto}</p>
           ) : null}
           {p.consumoMedio7d ? (
             <p className="text-sm text-suave">
@@ -117,8 +117,8 @@ export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
         </section>
       ) : null}
 
-      <section aria-labelledby="meta-peso" className="space-y-4">
-        <h2 id="meta-peso" className="text-2xl font-bold">Seu peso desejado</h2>
+      <section aria-labelledby="meta-peso" className="app-card space-y-4">
+        <h2 id="meta-peso" className="section-heading">Seu peso desejado</h2>
         <FormPesoMeta pesoMeta={pesoMeta === null ? "" : String(pesoMeta).replace(".", ",")} dataMeta={dados.meta?.dataMeta ?? ""} />
       </section>
 
@@ -136,7 +136,7 @@ export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
           ) : null}
 
           {plan.paraData ? (
-            <section className="space-y-2 rounded-2xl border-2 border-borda p-4">
+            <section className="space-y-2 rounded-2xl border border-borda p-4">
               <h2 className="text-xl font-bold">Para a data {formatarDataBr(dados.meta?.dataMeta ?? null)}</h2>
               <p>
                 Seriam {dec(plan.paraData.kgSemana, 2)} kg por semana ({dec(plan.paraData.pctSemana, 2)}% do peso), com cerca de {n(plan.paraData.kcal)} kcal por dia.{" "}
@@ -146,8 +146,8 @@ export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
           ) : null}
 
           {opcoes.length > 0 ? (
-            <section aria-labelledby="opcoes" className="space-y-4">
-              <h2 id="opcoes" className="text-2xl font-bold">
+            <section aria-labelledby="opcoes" className="app-card space-y-4">
+              <h2 id="opcoes" className="section-heading">
                 {plan.tipo === "manter" ? "Para manter o peso" : plan.tipo === "ganhar" ? "Para ganhar peso devagar" : "Quanto comer por dia"}
               </h2>
               <p className="text-sm text-suave">São sugestões calculadas pelo app (estimativas). A meta só muda quando você tocar em &quot;Usar como minha meta&quot;, e você pode ajustar depois em Ajustes ou combinar com o nutricionista.</p>
@@ -164,8 +164,8 @@ export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
           ) : null}
 
           {semanasGrafico >= 2 && projPlano ? (
-            <section aria-labelledby="proj" className="space-y-3">
-              <h2 id="proj" className="text-2xl font-bold">Projeção do peso</h2>
+            <section aria-labelledby="proj" className="app-card space-y-3">
+              <h2 id="proj" className="section-heading">Projeção do peso</h2>
               <GraficoLinhas
                 titulo="Projeção do peso por semana"
                 unidade="kg"
@@ -181,7 +181,7 @@ export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
           ) : null}
 
           {planoReal && planoReal.situacao !== "sem_dados" ? (
-            <section className="space-y-1 rounded-2xl border-2 border-borda p-4">
+            <section className="space-y-1 rounded-2xl border border-borda p-4">
               <h2 className="text-xl font-bold">Plano × real</h2>
               <p>
                 {planoReal.situacao === "no_ritmo" ? "No ritmo do plano." : planoReal.situacao === "adiantado" ? "Adiantado em relação ao plano." : "Um pouco atrás do plano."}{" "}
@@ -192,8 +192,8 @@ export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
         </>
       ) : null}
 
-      <section aria-labelledby="ritmo" className="space-y-4">
-        <h2 id="ritmo" className="text-2xl font-bold">Ritmo máximo</h2>
+      <section aria-labelledby="ritmo" className="app-card space-y-4">
+        <h2 id="ritmo" className="section-heading">Ritmo máximo</h2>
         <FormRitmoMax atual={dados.perfil.ritmoMaxPct} />
       </section>
 

@@ -20,7 +20,7 @@ export function FormCopiar({
 }) {
   const [estado, acao] = useActionState<Estado, FormData>(copiarRefeicao, {});
   return (
-    <FormDados action={acao} className="space-y-8" noValidate>
+    <FormDados action={acao} className="app-card space-y-8" noValidate>
       <input type="hidden" name="paraData" value={paraData} />
       <input type="hidden" name="paraRefeicao" value={paraRefeicao} />
       <Campo nome="deData" rotulo="Copiar do dia" tipo="date" valor={deData} erro={estado.erros?.deData} />

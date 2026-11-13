@@ -12,7 +12,7 @@ export function FormPlano({ hoje, valores }: { hoje: string; valores?: ValoresPl
   const [estado, acao] = useActionState<EstadoTreino, FormData>(salvarPlano, {});
   const e = estado.erros ?? {};
   return (
-    <FormDados action={acao} className="space-y-8" noValidate>
+    <FormDados action={acao} className="page-stack" noValidate>
       {valores ? <input type="hidden" name="planoId" value={valores.id} /> : null}
       <Campo nome="nome" rotulo="Nome do plano" maxLength={80} valor={valores?.nome} erro={e.nome} />
       <Campo nome="inicio" rotulo="Início do plano" tipo="date" valor={valores?.inicio ?? hoje} erro={e.inicio} />
@@ -33,7 +33,7 @@ export function FormTreino({ treinoId, nome, foco }: { treinoId?: string; nome?:
   const [estado, acao] = useActionState<EstadoTreino, FormData>(salvarTreino, {});
   const e = estado.erros ?? {};
   return (
-    <FormDados action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="page-stack" noValidate>
       {treinoId ? <input type="hidden" name="treinoId" value={treinoId} /> : null}
       <Campo nome="nome" rotulo="Nome do treino" maxLength={60} valor={nome} erro={e.nome} dica="Ex.: Dia 1 – superiores (empurrar)" />
       <Campo nome="foco" rotulo="Foco (opcional)" maxLength={120} valor={foco} erro={e.foco} />
@@ -49,11 +49,11 @@ export function FormItem({ treinoId, exercicios }: { treinoId: string; exercicio
   const e = estado.erros ?? {};
   if (exercicios.length === 0) return <p className="text-sm text-suave">Cadastre exercícios primeiro (botão &quot;Exercícios&quot; na aba Treino).</p>;
   return (
-    <FormDados action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="page-stack" noValidate>
       <input type="hidden" name="treinoId" value={treinoId} />
       <label className="block">
         <span className="mb-2 block text-sm font-medium text-suave">Exercício</span>
-        <select name="exercicioId" className="min-h-12 w-full rounded-xl border-2 border-borda bg-superficie px-3 text-lg font-semibold">
+        <select name="exercicioId" className="min-h-12 w-full rounded-xl border border-borda bg-superficie px-3 text-lg font-semibold">
           {exercicios.map((x) => (
             <option key={x.id} value={x.id}>
               {x.nome}

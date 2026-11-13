@@ -41,9 +41,9 @@ export default async function PaginaNovoAlimento(props: PageProps<"/comida/meus-
     }
   }
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <Voltar href="/comida/meus-alimentos" />
-      <h1 className="text-3xl font-black">Cadastrar pelo rótulo</h1>
+      <h1 className="page-heading">Cadastrar pelo rótulo</h1>
       {motivo ? (
         <p role="status" className="rounded-2xl border-2 border-aviso p-4 font-medium text-aviso">
           <span aria-hidden="true">! </span>

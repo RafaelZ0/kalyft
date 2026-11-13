@@ -24,9 +24,9 @@ export default async function PaginaIa() {
 
   if (!d.ok) {
     return (
-      <div className="space-y-6">
+      <div className="page-stack">
         <Voltar />
-        <h1 className="text-3xl font-black">Treino com IA</h1>
+        <h1 className="page-heading">Treino com IA</h1>
         <p className="text-lg text-suave">
           {d.motivo === "somente_admin" ? "A IA está liberada só para o administrador por enquanto." : "A IA ainda não está ativada neste app."}
         </p>
@@ -37,9 +37,9 @@ export default async function PaginaIa() {
   const aceite = await obterAceiteIa(userId);
   if (!aceite || aceite.versao < VERSAO_ACEITE_IA) {
     return (
-      <div className="space-y-6">
+      <div className="page-stack">
         <Voltar />
-        <h1 className="text-3xl font-black">Antes de usar a IA</h1>
+        <h1 className="page-heading">Antes de usar a IA</h1>
         <FormAceite gratuito={planoGratuito(env)} />
       </div>
     );
@@ -48,9 +48,9 @@ export default async function PaginaIa() {
   const hoje = hojeSaoPaulo();
   const [corpo, usoPlano, usoImportacao] = await Promise.all([corpoParaIa(userId, hoje), usoDoDia(userId, hoje, "plano"), usoDoDia(userId, hoje, "importacao")]);
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <Voltar />
-      <h1 className="text-3xl font-black">Treino com IA</h1>
+      <h1 className="page-heading">Treino com IA</h1>
       <FluxoIa corpo={corpo} restantePlano={usoPlano.limite - usoPlano.usadas} restanteImportacao={usoImportacao.limite - usoImportacao.usadas} />
     </div>
   );

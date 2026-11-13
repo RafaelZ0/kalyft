@@ -41,7 +41,7 @@ export function FormAlimento({
   return (
     <div className="space-y-8">
     {alimentoId ? null : <SomenteContaPropria><LerRotulo formRef={formRef} /></SomenteContaPropria>}
-    <FormDados ref={formRef} action={acao} className="space-y-8" noValidate>
+    <FormDados ref={formRef} action={acao} className="app-card space-y-8" noValidate>
       {alimentoId ? <input type="hidden" name="alimentoId" value={alimentoId} /> : null}
       {data ? <input type="hidden" name="data" value={data} /> : null}
       {refeicao ? <input type="hidden" name="refeicao" value={refeicao} /> : null}

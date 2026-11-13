@@ -70,11 +70,11 @@ export default async function PaginaSessao(props: PageProps<"/treino/sessao">) {
   }));
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <Link href={`/treino?data=${data}`} className="inline-flex min-h-11 items-center font-semibold text-suave">
         ‹ Voltar
       </Link>
-      <h1 className="text-3xl font-black">{treino.nome}</h1>
+      <h1 className="page-heading">{treino.nome}</h1>
       {itensTela.length === 0 ? (
         <p className="text-suave">
           Este treino não tem exercícios. <Link href="/treino/plano" className="underline">Adicionar no plano</Link>

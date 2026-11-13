@@ -12,8 +12,8 @@ const dec = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 
 
 function Secao({ id, titulo, children, nota }: { id: string; titulo: string; children: React.ReactNode; nota?: string }) {
   return (
-    <section aria-labelledby={id} className="space-y-3">
-      <h3 id={id} className="text-2xl font-bold">{titulo}</h3>
+    <section aria-labelledby={id} className="app-card min-w-0 space-y-3">
+      <h3 id={id} className="section-heading">{titulo}</h3>
       {children}
       {nota ? <p className="text-xs text-suave">{nota}</p> : null}
     </section>
@@ -39,7 +39,7 @@ export async function GraficosProgresso({ userId, hoje, periodo }: { userId: str
           key={p}
           href={`/progresso?periodo=${p}`}
           aria-current={p === periodo ? "true" : undefined}
-          className={`flex min-h-12 flex-1 items-center justify-center rounded-full border-2 text-sm font-semibold ${p === periodo ? "border-marca text-texto" : "border-borda text-suave"}`}
+          className={`flex min-h-12 flex-1 items-center justify-center rounded-xl border-2 text-sm font-semibold ${p === periodo ? "border-marca text-texto" : "border-borda text-suave"}`}
         >
           {ROTULOS_PERIODO[p]}
         </Link>
@@ -80,9 +80,9 @@ export async function GraficosProgresso({ userId, hoje, periodo }: { userId: str
   const rot = (a: string | undefined, b: string | undefined): [string, string] => [a ? formatarDataBr(a) : "", b ? formatarDataBr(b) : ""];
 
   return (
-    <div className="space-y-12">
+    <div className="page-stack">
       <div className="space-y-3">
-        <h2 className="text-2xl font-bold">Gráficos</h2>
+        <h2 className="section-heading">Sua evolução ao longo do tempo</h2>
         {seletor}
       </div>
 

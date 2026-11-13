@@ -11,11 +11,11 @@ export default async function PaginaReceitas() {
   const { userId } = await exigirUsuario();
   const lista = await listarReceitas(userId);
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <Voltar href="/comida" />
-      <h1 className="text-3xl font-black">Receitas</h1>
-      <p className="text-lg text-suave">Monte uma receita com os ingredientes e quantas porções ela rende. Ela vira um alimento seu, com a medida &quot;porção&quot;, para registrar no diário.</p>
-      <Link href="/comida/receitas/nova" className="flex min-h-14 items-center justify-center rounded-full bg-destaque text-lg font-bold text-sobre-destaque">
+      <h1 className="page-heading">Receitas</h1>
+      <p className="page-intro">Monte uma receita com os ingredientes e quantas porções ela rende. Ela vira um alimento seu, com a medida &quot;porção&quot;, para registrar no diário.</p>
+      <Link href="/comida/receitas/nova" className="action-primary">
         Nova receita
       </Link>
       {lista.length === 0 ? (
@@ -26,7 +26,7 @@ export default async function PaginaReceitas() {
             const porPorcao = r.kcalPor100g !== null ? (r.kcalPor100g * (r.pesoFinalG / r.porcoes)) / 100 : null;
             return (
               <li key={r.id}>
-                <Link href={`/comida/receitas/${r.id}`} className="block rounded-2xl border-2 border-linha p-4 active:border-marca">
+                <Link href={`/comida/receitas/${r.id}`} className="app-card block active:border-marca">
                   <span className="block text-lg font-bold">{r.nome}</span>
                   <span className="block text-sm text-suave">
                     {r.porcoes.toLocaleString("pt-BR")} {r.porcoes === 1 ? "porção" : "porções"}

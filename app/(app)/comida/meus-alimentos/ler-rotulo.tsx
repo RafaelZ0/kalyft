@@ -1,4 +1,6 @@
 "use client";
+import { CircleCheck } from "lucide-react";
+
 
 import { useActionState, useRef, useState, useTransition } from "react";
 import Link from "next/link";
@@ -69,11 +71,11 @@ export function LerRotulo({ formRef }: { formRef: React.RefObject<HTMLFormElemen
   const ocupado = preparando || pendente;
 
   return (
-    <section aria-labelledby="ler-rotulo" className="space-y-4 rounded-2xl border-2 border-borda p-4">
+    <section aria-labelledby="ler-rotulo" className="space-y-4 app-card">
       <h2 id="ler-rotulo" className="text-lg font-bold">Ler o rótulo por foto (IA)</h2>
       <p className="text-sm text-suave">Fotografe a tabela nutricional de perto. A IA lê os números e você confere. A foto é enviada ao Google; não fotografe nada além da embalagem.</p>
       <input ref={entrada} id="foto-rotulo" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" className="sr-only" onChange={(ev) => void escolher(ev.target.files?.[0])} />
-      <label htmlFor="foto-rotulo" className={`flex min-h-12 cursor-pointer items-center justify-center rounded-full border-2 border-borda font-semibold ${ocupado ? "opacity-60" : ""}`}>
+      <label htmlFor="foto-rotulo" className={`flex min-h-12 cursor-pointer items-center justify-center rounded-xl border border-linha font-semibold ${ocupado ? "opacity-60" : ""}`}>
         {ocupado ? "Lendo o rótulo…" : "Fotografar o rótulo"}
       </label>
 
@@ -105,7 +107,7 @@ export function LerRotulo({ formRef }: { formRef: React.RefObject<HTMLFormElemen
           ) : null}
           {estado.descartados ? <p className="text-sm text-suave">{estado.descartados} valor(es) fora do normal foram ignorados.</p> : null}
           <BotaoSecundario onClick={() => aplicar(lido)}>Usar estes valores no formulário</BotaoSecundario>
-          {aplicado ? <p role="status" className="font-medium text-ok"><span aria-hidden="true">✓ </span>Valores colocados no formulário. Confira e salve.</p> : null}
+          {aplicado ? <p role="status" className="font-medium text-ok"><CircleCheck size={18} aria-hidden="true" className="mr-2 inline" />Valores colocados no formulário. Confira e salve.</p> : null}
         </div>
       ) : null}
     </section>

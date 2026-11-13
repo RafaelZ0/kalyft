@@ -17,7 +17,7 @@ export function FormPesoMeta({ pesoMeta, dataMeta }: { pesoMeta: string; dataMet
   const [estado, acao] = useActionState<EstadoMeta, FormData>(salvarPesoMeta, {});
   const e = estado.erros ?? {};
   return (
-    <FormDados action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="page-stack" noValidate>
       <Campo nome="pesoMetaKg" rotulo="Peso desejado" teclado="decimal" sufixo="kg" maxLength={6} valor={pesoMeta} erro={e.pesoMetaKg} />
       <Campo nome="dataMeta" rotulo="Data desejada (opcional)" tipo="date" valor={dataMeta} erro={e.dataMeta} dica="Se informar, o app calcula o ritmo que essa data exigiria." />
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
@@ -40,7 +40,7 @@ export function FormRitmoMax({ atual }: { atual: number }) {
     <FormDados action={acao} className="space-y-4" noValidate>
       <label className="block">
         <span className="mb-2 block text-sm font-medium text-suave">Ritmo máximo que aceito (do meu peso)</span>
-        <select name="ritmo" defaultValue={String(atual)} className="min-h-12 w-full rounded-xl border-2 border-borda bg-superficie px-3 text-lg font-semibold">
+        <select name="ritmo" defaultValue={String(atual)} className="min-h-12 w-full rounded-xl border border-borda bg-superficie px-3 text-lg font-semibold">
           {OPCOES_RITMO.map((o) => (
             <option key={o.v} value={o.v}>{o.r}</option>
           ))}
@@ -82,7 +82,7 @@ export function CartaoOpcao({ o, tipo, ia }: { o: OpcaoTela; tipo: "perder" | "m
         <h3 className="text-xl font-bold">{o.rotulo}</h3>
         {o.recomendada ? <span className="text-sm font-bold text-marca"><span aria-hidden="true">★ </span>Recomendada</span> : null}
       </div>
-      <p className="text-3xl font-black">{n(o.kcal)} <span className="text-lg font-bold text-suave">kcal por dia</span></p>
+      <p className="page-heading">{n(o.kcal)} <span className="text-lg font-bold text-suave">kcal por dia</span></p>
       <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <div><dt className="text-suave">{tipo === "ganhar" ? "Ganho previsto" : "Perda prevista"}</dt><dd className="font-semibold">≈ {dec(o.kgSemana)} kg por semana</dd></div>
         <div><dt className="text-suave">Do seu peso</dt><dd className="font-semibold">{dec(o.pctSemana)}% por semana</dd></div>
@@ -112,13 +112,13 @@ export function CartaoOpcao({ o, tipo, ia }: { o: OpcaoTela; tipo: "perder" | "m
       <div className="flex flex-col gap-2">
         <FormDados action={explicar}>
           <input type="hidden" name="opcao" value={o.id} />
-          <button type="submit" className="min-h-12 w-full rounded-full border-2 border-borda font-semibold">
+          <button type="submit" className="min-h-12 w-full rounded-xl border border-borda font-semibold">
             {ia ? "Explicar com a IA" : "Explicar esta opção"}
           </button>
         </FormDados>
         <FormDados action={aplicarOpcaoMeta}>
           <input type="hidden" name="opcao" value={o.id} />
-          <button type="submit" className="min-h-12 w-full rounded-full bg-destaque font-bold text-sobre-destaque">
+          <button type="submit" className="min-h-12 w-full rounded-xl bg-destaque font-bold text-sobre-destaque">
             {o.ehMetaAtual ? "Esta já é a sua meta (aplicar de novo)" : "Usar como minha meta"}
           </button>
         </FormDados>

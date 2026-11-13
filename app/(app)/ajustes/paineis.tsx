@@ -52,7 +52,7 @@ function Cabecalho({
 }) {
   return (
     <div className="mb-2 flex items-center justify-between">
-      <h2 id={titulo.toLowerCase()} className="text-2xl font-bold">{titulo}</h2>
+      <h2 id={titulo.toLowerCase()} className="section-heading">{titulo}</h2>
       {!editando ? <BotaoSecundario onClick={onEditar}>Editar</BotaoSecundario> : null}
     </div>
   );
@@ -88,7 +88,7 @@ export function PainelPerfil({ perfil }: { perfil: PerfilTela }) {
   const erros = p.estado.erros ?? {};
 
   return (
-    <section aria-labelledby="perfil">
+    <section aria-labelledby="perfil" className="app-card">
       <Cabecalho titulo="Perfil" editando={p.editando} onEditar={p.editar} />
       {p.salvo ? <Aviso tipo="ok">Perfil salvo.</Aviso> : null}
       {!p.editando ? (
@@ -128,7 +128,7 @@ export function PainelMetas({ meta, historico }: { meta: MetaTela | null; histor
   const m = meta;
 
   return (
-    <section aria-labelledby="metas">
+    <section aria-labelledby="metas" className="app-card">
       <Cabecalho titulo="Metas" editando={p.editando} onEditar={p.editar} />
       <p className="mb-2 text-sm text-suave">
         Use as metas combinadas com seu nutricionista, ou veja as sugestões do app (estimativas) em Meta e plano. Nenhuma meta muda sem você confirmar.

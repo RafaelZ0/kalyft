@@ -1,5 +1,6 @@
 "use client";
 
+import { Search, CircleAlert } from "lucide-react";
 import { useEffect, useRef, useState, useTransition } from "react";
 import type { AlimentoResumo } from "@/lib/dal/alimentos";
 import { BUSCA_MAX, BUSCA_MIN } from "@/lib/busca";
@@ -33,7 +34,8 @@ export function Busca({ volta, children }: { volta: string; children: React.Reac
 
   return (
     <div className="space-y-6">
-      <label className="block">
+      <label className="relative block">
+        <Search size={21} aria-hidden="true" className="pointer-events-none absolute left-4 top-5 text-suave" />
         <span className="sr-only">Buscar alimento</span>
         <input
           type="search"
@@ -42,12 +44,12 @@ export function Busca({ volta, children }: { volta: string; children: React.Reac
           placeholder="Buscar alimento"
           autoComplete="off"
           enterKeyHint="search"
-          className="min-h-14 w-full rounded-2xl border-2 border-borda bg-superficie px-4 text-lg font-semibold outline-none placeholder:text-suave focus:border-marca"
+          className="min-h-14 w-full rounded-2xl border border-linha bg-superficie pl-12 pr-4 text-lg font-semibold outline-none placeholder:text-suave focus:border-marca"
         />
       </label>
       {mostrandoBusca ? (
         <section aria-live="polite" className="space-y-2">
-          {erro ? <p className="text-erro"><span aria-hidden="true">⚠ </span>{erro}</p> : null}
+          {erro ? <p className="text-erro"><CircleAlert size={18} aria-hidden="true" className="mr-2 inline" />{erro}</p> : null}
           {buscando && !resultados ? <p className="text-suave">Buscando…</p> : null}
           {resultados && resultados.length === 0 && !erro ? (
             <p className="text-suave">Nada encontrado. Tente outra palavra ou cadastre pelo rótulo.</p>

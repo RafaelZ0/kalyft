@@ -51,7 +51,7 @@ export function FluxoRefeicao(props: { data: string; refeicao: string; rotuloRef
             role="tab"
             aria-selected={aba === a}
             onClick={() => setAba(a)}
-            className={`min-h-12 flex-1 rounded-full border-2 font-semibold ${aba === a ? "border-marca text-texto" : "border-borda text-suave"}`}
+            className={`min-h-12 flex-1 rounded-xl border font-semibold ${aba === a ? "border-marca text-texto" : "border-linha text-suave"}`}
           >
             {a === "texto" ? "Escrever" : "Foto do prato"}
           </button>
@@ -77,7 +77,7 @@ function Entrada({ gratuito, restanteTexto, aoInterpretar }: { gratuito: boolean
   }, {});
   const entrada = montarEntradaRefeicao(texto);
   return (
-    <FormDados action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="app-card space-y-6" noValidate>
       <label className="block">
         <span className="mb-2 block text-sm font-medium text-suave">O que você comeu?</span>
         <textarea
@@ -87,10 +87,10 @@ function Entrada({ gratuito, restanteTexto, aoInterpretar }: { gratuito: boolean
           maxLength={LIMITES_REFEICAO.textoMax}
           rows={4}
           placeholder="Ex.: 2 conchas de feijão, arroz e um filé de frango grelhado"
-          className="w-full rounded-2xl border-2 border-borda bg-superficie p-4 text-lg outline-none placeholder:text-suave focus:border-marca"
+          className="w-full rounded-2xl border border-linha bg-superficie p-4 text-lg outline-none placeholder:text-suave focus:border-marca"
         />
       </label>
-      <section aria-labelledby="previa-ia" className="space-y-2 rounded-2xl border-2 border-borda p-4">
+      <section aria-labelledby="previa-ia" className="space-y-2 app-card">
         <h2 id="previa-ia" className="text-lg font-bold">O que será enviado ao Google</h2>
         {entrada ? <p className="font-semibold">{entrada.linhas[0].valor}</p> : <p className="text-suave">Escreva o que você comeu para ver o que será enviado.</p>}
         <p className="text-sm text-suave">{AVISO_NAO_ENVIADO}</p>
@@ -154,9 +154,9 @@ function EntradaFoto({ gratuito, aoInterpretar }: { gratuito: boolean; aoInterpr
   const ocupado = preparando || pendente;
   return (
     <FormDados onSubmit={enviar} className="space-y-6" noValidate>
-      <p className="text-lg text-suave">Fotografe o prato de cima, com tudo à vista. A IA lista o que vê e estima as porções; você confere antes de salvar.</p>
+      <p className="page-intro">Fotografe o prato de cima, com tudo à vista. A IA lista o que vê e estima as porções; você confere antes de salvar.</p>
       <input ref={entrada} id="foto-prato" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" className="sr-only" onChange={(ev) => void escolher(ev.target.files?.[0])} />
-      <label htmlFor="foto-prato" className="flex min-h-14 cursor-pointer items-center justify-center rounded-full border-2 border-borda text-lg font-semibold">
+      <label htmlFor="foto-prato" className="flex min-h-14 cursor-pointer items-center justify-center rounded-xl border border-linha text-lg font-semibold">
         {arquivo ? "Trocar a foto" : "Fotografar ou escolher a foto"}
       </label>
       {miniatura ? (
@@ -174,7 +174,7 @@ function EntradaFoto({ gratuito, aoInterpretar }: { gratuito: boolean; aoInterpr
           className="min-h-12 w-full border-b-2 border-borda bg-transparent py-2 text-lg outline-none placeholder:text-suave focus:border-marca"
         />
       </label>
-      <section aria-labelledby="previa-foto" className="space-y-2 rounded-2xl border-2 border-borda p-4">
+      <section aria-labelledby="previa-foto" className="space-y-2 app-card">
         <h2 id="previa-foto" className="text-lg font-bold">O que será enviado ao Google</h2>
         <p className="font-semibold">{arquivo ? "A foto acima" : "Nenhuma foto escolhida"}{nota.trim() ? ` e a observação: "${nota.trim()}"` : ""}</p>
         <p className="text-sm text-suave">{AVISO_NAO_ENVIADO}</p>
@@ -184,7 +184,7 @@ function EntradaFoto({ gratuito, aoInterpretar }: { gratuito: boolean; aoInterpr
       {erroLocal ? <Aviso>{erroLocal}</Aviso> : null}
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       {estado.precisaAceite ? <Link href="/treino/ia" className="block font-semibold underline">Ler e aceitar o aviso da IA</Link> : null}
-      <button type="submit" disabled={!arquivo || ocupado} className="min-h-14 w-full rounded-full bg-destaque px-6 text-lg font-bold text-sobre-destaque disabled:opacity-60">
+      <button type="submit" disabled={!arquivo || ocupado} className="min-h-14 w-full rounded-xl bg-destaque px-6 text-lg font-bold text-sobre-destaque disabled:opacity-60">
         {ocupado ? "A IA está olhando o prato…" : "Interpretar a foto"}
       </button>
     </FormDados>
@@ -196,9 +196,9 @@ function EntradaFoto({ gratuito, aoInterpretar }: { gratuito: boolean; aoInterpr
 function Passo({ valor, onMenos, onMais, rotulo }: { valor: string; onMenos: () => void; onMais: () => void; rotulo: string }) {
   return (
     <span className="flex items-center gap-3">
-      <button type="button" onClick={onMenos} aria-label={`Diminuir ${rotulo}`} className="size-12 rounded-full border-2 border-borda text-2xl font-bold">−</button>
+      <button type="button" onClick={onMenos} aria-label={`Diminuir ${rotulo}`} className="size-12 rounded-xl border border-linha section-heading">−</button>
       <span className="min-w-20 text-center text-lg font-bold">{valor}</span>
-      <button type="button" onClick={onMais} aria-label={`Aumentar ${rotulo}`} className="size-12 rounded-full border-2 border-borda text-2xl font-bold">+</button>
+      <button type="button" onClick={onMais} aria-label={`Aumentar ${rotulo}`} className="size-12 rounded-xl border border-linha section-heading">+</button>
     </span>
   );
 }
@@ -236,7 +236,7 @@ function Revisao({ data, refeicao, rotuloRefeicao, restanteEstimativa, origem, i
 
       <ol className="space-y-6">
         {itens.map((i) => (
-          <li key={i.chave} className="space-y-4 rounded-2xl border-2 border-linha p-4">
+          <li key={i.chave} className="space-y-4 rounded-2xl border border-linha bg-superficie p-4">
             <div>
               <p className="text-lg font-bold">{i.quantidade ? `${i.quantidade.toLocaleString("pt-BR")} ${i.unidade ?? ""} · ` : ""}{i.nome}</p>
               <p className="text-sm text-suave">{ROTULOS_CONFIANCA[i.confianca]}</p>
@@ -258,7 +258,7 @@ function Revisao({ data, refeicao, rotuloRefeicao, restanteEstimativa, origem, i
       </ol>
 
       {itens.length > 0 ? (
-        <p className="text-xl font-black">Total ≈ {fmt(total)} kcal{parcial ? " (parcial)" : ""}</p>
+        <p className="text-xl font-semibold">Total ≈ {fmt(total)} kcal{parcial ? " (parcial)" : ""}</p>
       ) : (
         <p className="text-suave">Nenhum item. Volte e escreva de novo.</p>
       )}
@@ -272,7 +272,7 @@ function Revisao({ data, refeicao, rotuloRefeicao, restanteEstimativa, origem, i
 
 function SalvarBotao({ desabilitado, rotulo }: { desabilitado: boolean; rotulo: string }) {
   return (
-    <button type="submit" disabled={desabilitado} className="min-h-14 w-full rounded-full bg-destaque px-6 text-lg font-bold text-sobre-destaque disabled:opacity-50">
+    <button type="submit" disabled={desabilitado} className="min-h-14 w-full rounded-xl bg-destaque px-6 text-lg font-bold text-sobre-destaque disabled:opacity-50">
       {rotulo}
     </button>
   );
@@ -310,7 +310,7 @@ function CampoAlimento({ item, restanteEstimativa, data, refeicao, aoEscolher }:
         <ul className="flex flex-wrap gap-2" aria-label="Outras opções">
           {item.candidatos.filter((c) => c.id !== item.escolhido?.id).slice(0, 4).map((c) => (
             <li key={c.id}>
-              <button type="button" onClick={() => aoEscolher(c)} className="min-h-11 rounded-full border-2 border-borda px-4 text-left text-sm font-semibold active:border-marca">{c.nome}</button>
+              <button type="button" onClick={() => aoEscolher(c)} className="min-h-11 rounded-xl border border-linha px-4 text-left text-sm font-semibold active:border-marca">{c.nome}</button>
             </li>
           ))}
         </ul>
@@ -322,7 +322,7 @@ function CampoAlimento({ item, restanteEstimativa, data, refeicao, aoEscolher }:
       </div>
 
       {aberto ? (
-        <div className="space-y-3 rounded-2xl border-2 border-borda p-3">
+        <div className="space-y-3 rounded-2xl border border-linha p-3">
           <div className="flex gap-2">
             <input
               value={termo}
@@ -339,7 +339,7 @@ function CampoAlimento({ item, restanteEstimativa, data, refeicao, aoEscolher }:
           <ul className="space-y-2">
             {(lista ?? []).slice(0, 8).map((c) => (
               <li key={`${c.tipo}-${c.id}`}>
-                <button type="button" onClick={() => { aoEscolher(c); setAberto(false); }} className="min-h-12 w-full rounded-2xl border-2 border-borda p-3 text-left active:border-marca">
+                <button type="button" onClick={() => { aoEscolher(c); setAberto(false); }} className="min-h-12 w-full rounded-2xl border border-linha p-3 text-left active:border-marca">
                   <span className="font-semibold">{c.nome}</span>{c.marca ? <span className="text-suave"> · {c.marca}</span> : null}{c.kcal !== null ? <span className="text-suave"> · {fmt(c.kcal)} kcal</span> : null}
                 </button>
               </li>
@@ -374,12 +374,12 @@ function PainelEstimativa({ nome, restante, aoConfirmar }: { nome: string; resta
   }
   const e: EstimativaAlimento | undefined = estado.estimativa;
   return (
-    <div className="space-y-3 rounded-2xl border-2 border-borda p-3">
+    <div className="space-y-3 rounded-2xl border border-linha p-3">
       {!e ? (
         <div className="space-y-3">
           <p className="text-sm text-suave">A IA estima os nutrientes de &quot;{nome}&quot; por 100 g. É só uma estimativa: você confere antes de usar. Restam {restante} estimativas hoje.</p>
           {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
-          <button type="button" onClick={pedir} disabled={pendente} className="min-h-12 w-full rounded-full bg-destaque px-6 font-bold text-sobre-destaque disabled:opacity-60">
+          <button type="button" onClick={pedir} disabled={pendente} className="min-h-12 w-full rounded-xl bg-destaque px-6 font-bold text-sobre-destaque disabled:opacity-60">
             {pendente ? "A IA está estimando…" : "Pedir estimativa"}
           </button>
         </div>
@@ -431,7 +431,7 @@ function ConferirEstimativa({ estimativa, aoConfirmar }: { estimativa: Estimativ
         </label>
       ) : null}
       {erro ? <Aviso>{erro}</Aviso> : null}
-      <button type="button" onClick={confirmar} disabled={pendente} className="min-h-12 w-full rounded-full bg-destaque px-6 font-bold text-sobre-destaque disabled:opacity-60">
+      <button type="button" onClick={confirmar} disabled={pendente} className="min-h-12 w-full rounded-xl bg-destaque px-6 font-bold text-sobre-destaque disabled:opacity-60">
         {pendente ? "Salvando…" : "Confirmar e usar este alimento"}
       </button>
     </div>

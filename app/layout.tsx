@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo } from "next/font/google";
+import { headers } from "next/headers";
+import { SCRIPT_APARENCIA } from "@/lib/aparencia";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -22,8 +24,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#121314" },
-    { media: "(prefers-color-scheme: light)", color: "#f6f3ec" },
+    { media: "(prefers-color-scheme: dark)", color: "#151817" },
+    { media: "(prefers-color-scheme: light)", color: "#f7f5f2" },
   ],
   colorScheme: "dark light",
   width: "device-width",
@@ -31,9 +33,11 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
-    <html lang="pt-BR" className={`${archivo.variable} antialiased`}>
+    <html lang="pt-BR" className={`${archivo.variable} antialiased`} suppressHydrationWarning>
+      <head><script nonce={nonce} dangerouslySetInnerHTML={{ __html: SCRIPT_APARENCIA }} /></head>
       <body className="min-h-dvh bg-fundo text-texto">{children}</body>
     </html>
   );

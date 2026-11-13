@@ -37,7 +37,7 @@ export function EnviarFoto({ hoje, cheio }: { hoje: string; cheio: boolean }) {
   if (cheio) return <Aviso>Você chegou ao limite de {LIMITES_FOTO_CORPO.maximo} fotos. Exclua alguma antiga para enviar outra.</Aviso>;
 
   return (
-    <FormDados ref={formRef} action={acao} className="space-y-6" noValidate>
+    <FormDados ref={formRef} action={acao} className="page-stack" noValidate>
       <label className="block space-y-2">
         <span className="block font-semibold">Foto</span>
         <input name="foto" type="file" accept="image/jpeg,image/png,image/webp" className="block min-h-12 w-full text-base" required />
@@ -46,7 +46,7 @@ export function EnviarFoto({ hoje, cheio }: { hoje: string; cheio: boolean }) {
         <legend className="font-semibold">Posição</legend>
         <div className="grid grid-cols-3 gap-2">
           {POSICOES.map((p, i) => (
-            <label key={p} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border-2 border-linha px-2 has-[:checked]:border-marca has-[:checked]:font-bold">
+            <label key={p} className="flex min-h-12 cursor-pointer items-center justify-center rounded-xl border border-linha px-2 has-[:checked]:border-marca has-[:checked]:font-bold">
               <input type="radio" name="posicao" value={p} defaultChecked={i === 0} className="sr-only" />
               {ROTULOS_POSICAO[p]}
             </label>

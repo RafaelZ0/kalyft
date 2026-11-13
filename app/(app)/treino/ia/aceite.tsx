@@ -9,7 +9,7 @@ import { aceitarUsoIa, type EstadoIa } from "./actions";
 export function FormAceite({ gratuito }: { gratuito: boolean }) {
   const [estado, acao] = useActionState<EstadoIa, FormData>(aceitarUsoIa, {});
   return (
-    <FormDados action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="page-stack" noValidate>
       <ul className="list-disc space-y-3 pl-5 text-lg">
         <li>
           A IA monta um <strong>rascunho</strong>. Nada é salvo sem você conferir e confirmar.

@@ -8,7 +8,7 @@ export function FaixaAcompanhamento({ contexto, nome }: { contexto: ContextoDado
     timeZone: "America/Sao_Paulo", dateStyle: "short", timeStyle: "short",
   }).format(new Date(contexto.edicaoAte)) : null;
   return (
-    <aside aria-label="Contexto de acompanhamento" className="sticky top-0 z-40 -mx-5 mb-6 space-y-3 border-b-2 border-marca bg-fundo px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-4">
+    <aside aria-label="Contexto de acompanhamento" className="mb-6 space-y-3 rounded-2xl border border-marca bg-superficie p-4">
       <div>
         <p className="font-bold">Acompanhando: {nome}</p>
         <p className="text-sm text-suave">{contexto.podeEditar && prazo ? `Edição autorizada até ${prazo} (São Paulo)` : "Somente leitura"}</p>

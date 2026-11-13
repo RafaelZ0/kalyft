@@ -1,48 +1,26 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ChartNoAxesCombined, Dumbbell, House, Settings2, Utensils, HeartHandshake } from "lucide-react";
+import { Logotipo } from "@/lib/marca";
 
 const ABAS = [
-  { href: "/hoje", rotulo: "Hoje", icone: "M4 12h16M12 4v16" },
-  { href: "/comida", rotulo: "Comida", icone: "M7 3v8a3 3 0 0 0 6 0V3M10 3v18M17 3c-1.5 2-2 4-2 7h3v11" },
-  { href: "/treino", rotulo: "Treino", icone: "M3 9v6M6 6v12M18 6v12M21 9v6M6 12h12" },
-  { href: "/progresso", rotulo: "Progresso", icone: "M3 20h18M5 16l5-5 4 3 6-8" },
-  { href: "/ajustes", rotulo: "Ajustes", icone: "M4 6h16M4 12h16M4 18h16M9 4v4M15 10v4M8 16v4" },
-] as const;
+  { href: "/hoje", rotulo: "Hoje", desktop: "Hoje", Icone: House },
+  { href: "/comida", rotulo: "Comida", desktop: "Alimentação", Icone: Utensils },
+  { href: "/treino", rotulo: "Treino", desktop: "Treino", Icone: Dumbbell },
+  { href: "/progresso", rotulo: "Progresso", desktop: "Progresso", Icone: ChartNoAxesCombined },
+  { href: "/ajustes", rotulo: "Conta", desktop: "Conta", Icone: Settings2 },
+];
 
 export function BarraAbas() {
   const caminho = usePathname();
-  return (
-    <nav
-      aria-label="Principal"
-      className="fixed inset-x-0 bottom-0 z-10 border-t border-linha bg-fundo/95 pb-[env(safe-area-inset-bottom)] backdrop-blur"
-    >
-      <ul className="mx-auto grid max-w-lg grid-cols-5">
-        {ABAS.map((aba) => {
-          const ativa = caminho === aba.href || caminho.startsWith(`${aba.href}/`);
-          return (
-            <li key={aba.href}>
-              <Link
-                href={aba.href}
-                aria-current={ativa ? "page" : undefined}
-                className={`flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-semibold ${
-                  ativa ? "text-marca" : "text-suave"
-                }`}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                  className="h-6 w-6 fill-none stroke-current [stroke-linecap:round] [stroke-linejoin:round] [stroke-width:2]"
-                >
-                  <path d={aba.icone} />
-                </svg>
-                {aba.rotulo}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
+  const ativa = (href: string) => caminho === href || caminho.startsWith(`${href}/`);
+  return <>
+    <aside className="app-sidebar">
+      <Link href="/hoje" aria-label="Kalyft, início" className="inline-flex min-h-11 items-center"><Logotipo /></Link>
+      <nav aria-label="Principal no computador">{ABAS.map(({ href, desktop, Icone }) => <Link key={href} href={href} aria-current={ativa(href) ? "page" : undefined}><Icone size={21} aria-hidden="true" />{desktop}</Link>)}</nav>
+      <div className="mt-auto border-t border-linha pt-6"><HeartHandshake size={23} className="mb-3 text-marca" aria-hidden="true" /><p className="text-sm font-semibold">Seu ritmo. Sua evolução.</p><p className="mt-1 text-xs leading-relaxed text-suave">Alimentação e treino, juntos no seu dia.</p></div>
+    </aside>
+    <nav className="app-bottom-nav" aria-label="Principal"><ul>{ABAS.map(({ href, rotulo, Icone }) => <li key={href}><Link href={href} aria-current={ativa(href) ? "page" : undefined}><span className="nav-icon"><Icone size={22} aria-hidden="true" /></span>{rotulo}</Link></li>)}</ul></nav>
+  </>;
 }

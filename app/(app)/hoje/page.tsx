@@ -1,44 +1,38 @@
 import Link from "next/link";
-import { Barra } from "@/components/graficos";
+import { Apple, ArrowRight, CalendarDays, CheckCircle2, ChevronRight, Coffee, Dumbbell, Footprints, Moon, Plus, Scale, ShieldCheck, Sun, TrendingUp } from "lucide-react";
+import { ResumoCalorias } from "@/components/resumo-calorias";
+import { PainelAgua } from "../comida/painel-agua";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { totalAguaDoDia } from "@/lib/dal/agua";
 import { carregarEnergia } from "@/lib/dal/energia";
 import { passosDoPeriodo } from "@/lib/dal/passos";
 import { listarDia } from "@/lib/dal/registros";
+import { obterPerfil } from "@/lib/dal/perfil";
 import { listarTreinos, obterAgenda, obterSessao, obterTrocas, planoAtivo } from "@/lib/dal/treino";
 import { formatarDataBr, hojeSaoPaulo } from "@/lib/datas";
-import { compararComMeta, formatarGramas, somarDia } from "@/lib/nutricao";
+import { somarDia } from "@/lib/nutricao";
 import { treinoDoDia } from "@/lib/treino";
 import { listarAutorizacoes } from "@/lib/dal/acompanhamento";
+import { REFEICOES, ROTULOS_REFEICAO } from "@/lib/validacao/comida";
 
 export const metadata = { title: "Hoje · Kalyft" };
-
 const n = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
 const dec = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+const ICONES_REFEICAO = { cafe: Coffee, almoco: Sun, lanche: Apple, jantar: Moon, ceia: Moon };
 
 export default async function PaginaHoje(props: PageProps<"/hoje">) {
   const aviso = (await props.searchParams).acompanhamento;
   const mensagens: Record<string, string> = { contexto: "A conta acompanhada mudou. Atualize a página antes de continuar.", leitura: "Você está apenas acompanhando. Solicite autorização para alterar.", pessoal: "Volte para sua conta para usar este recurso." };
-  const { userId, modo } = await exigirUsuario();
-  const pedidos = modo === "proprio" ? await listarAutorizacoes(userId) : [];
-  const pendentes = pedidos.filter((p) => p.estado === "pendente").length;
+  const contexto = await exigirUsuario();
+  const { userId, modo } = contexto;
   const hoje = hojeSaoPaulo();
-
-  const [energia, registros, aguaMl, passos, plano, sessao] = await Promise.all([
-    carregarEnergia(userId, hoje, 60),
-    listarDia(userId, hoje),
-    totalAguaDoDia(userId, hoje),
-    passosDoPeriodo(userId, hoje, hoje),
-    planoAtivo(userId),
-    obterSessao(userId, hoje),
+  const [energia, registros, aguaMl, passos, plano, sessao, perfil, pedidos] = await Promise.all([
+    carregarEnergia(userId, hoje, 60), listarDia(userId, hoje), totalAguaDoDia(userId, hoje), passosDoPeriodo(userId, hoje, hoje), planoAtivo(userId), obterSessao(userId, hoje), obterPerfil(userId), modo === "proprio" ? listarAutorizacoes(userId) : Promise.resolve([]),
   ]);
+  const pendentes = pedidos.filter((p) => p.estado === "pendente").length;
   const meta = energia.meta;
   const painel = energia.painel;
   const totais = somarDia(registros);
-  const kcal = compararComMeta(totais.kcal, meta?.kcal ?? null);
-  const prot = compararComMeta(totais.proteinaG, meta?.proteinaG ?? null);
-  const agua = compararComMeta(aguaMl, meta?.aguaMl ?? null);
-
   let treinoNome: string | null = null;
   if (plano) {
     const [agenda, trocas, treinos] = await Promise.all([obterAgenda(userId), obterTrocas(userId, hoje, hoje), listarTreinos(userId, plano.id)]);
@@ -47,110 +41,30 @@ export default async function PaginaHoje(props: PageProps<"/hoje">) {
   }
   const pesoHoje = energia.pesagens.find((p) => p.data === hoje)?.peso ?? null;
   const ultimoPeso = energia.pesagens.at(-1) ?? null;
-  const restante = meta?.kcal != null ? meta.kcal - totais.kcal : null;
-
-  return (
-    <div className="space-y-10">
-      <header>
-        <p className="text-sm font-semibold text-suave">{formatarDataBr(hoje)}</p>
-        <h1 className="text-4xl font-black tracking-tight">Hoje</h1>
-      </header>
-      {typeof aviso === "string" && mensagens[aviso] ? <p role="alert" className="rounded-2xl border-2 border-aviso p-4">{mensagens[aviso]}</p> : null}
-      {pendentes > 0 ? <Link href="/ajustes/acompanhamento" className="block rounded-2xl border-2 border-marca p-4 font-bold">Você tem {pendentes} {pendentes === 1 ? "solicitação" : "solicitações"} de acompanhamento. Ver permissões</Link> : null}
-
-      <section aria-labelledby="cal" className="space-y-3">
-        <h2 id="cal" className="sr-only">Calorias de hoje</h2>
-        <p className="text-5xl font-black">{n(totais.kcal)}<span className="ml-2 text-lg font-bold text-suave">{meta?.kcal != null ? `de ${n(meta.kcal)} kcal` : "kcal"}</span></p>
-        {meta?.kcal != null ? (
-          <>
-            <Barra percentual={kcal.percentual ?? 0} aviso={(kcal.percentual ?? 0) > 110} />
-            {restante !== null && restante >= 0 ? (
-              <p className="text-lg font-semibold">Ainda dá para comer ≈ {n(restante)} kcal hoje.</p>
-            ) : (
-              <p className="text-lg font-semibold text-aviso"><span aria-hidden="true">! </span>Acima da meta em ≈ {n(-(restante ?? 0))} kcal. A média da semana é o que conta.</p>
-            )}
-          </>
-        ) : (
-          <p className="text-suave">Sem meta de calorias. <Link href="/progresso/meta" className="font-semibold underline">Ver sugestões</Link></p>
-        )}
-        {painel.previsaoDaMeta ? <p className="rounded-2xl border-2 border-borda p-3 text-sm font-medium">{painel.previsaoDaMeta.texto} <span className="text-suave">(estimativa)</span></p> : null}
-        <Link href="/comida" className="flex min-h-12 items-center justify-center rounded-full bg-destaque font-bold text-sobre-destaque">
-          Registrar comida
-        </Link>
-      </section>
-
-      <section aria-labelledby="macros" className="space-y-3">
-        <h2 id="macros" className="text-2xl font-bold">Proteína e água</h2>
-        <div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-suave">Proteína</span>
-            <span className="font-semibold">{formatarGramas(totais.proteinaG)} g{meta?.proteinaG != null ? <span className="text-suave"> / {meta.proteinaG} g</span> : null}</span>
-          </div>
-          {meta?.proteinaG != null ? <div className="mt-1"><Barra percentual={prot.percentual ?? 0} /></div> : null}
-        </div>
-        <div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-suave">Água</span>
-            <span className="font-semibold">{dec(aguaMl / 1000)} L{meta?.aguaMl != null ? <span className="text-suave"> / {dec(meta.aguaMl / 1000)} L</span> : null}</span>
-          </div>
-          {meta?.aguaMl != null ? <div className="mt-1"><Barra percentual={agua.percentual ?? 0} /></div> : null}
-        </div>
-      </section>
-
-      <section aria-labelledby="treino" className="space-y-3">
-        <h2 id="treino" className="text-2xl font-bold">Treino</h2>
-        {sessao?.status === "feito" ? (
-          <p className="text-lg font-bold text-ok"><span aria-hidden="true">✓ </span>Treino feito hoje.</p>
-        ) : sessao?.status === "faltou" ? (
-          <p className="text-lg font-bold text-aviso"><span aria-hidden="true">! </span>Falta registrada hoje.</p>
-        ) : treinoNome ? (
-          <p className="text-lg font-semibold">{treinoNome}</p>
-        ) : plano ? (
-          <p className="text-suave">Dia de descanso, segundo o seu plano.</p>
-        ) : (
-          <p className="text-suave">Você ainda não tem um plano de treino.</p>
-        )}
-        <Link href="/treino" className="flex min-h-12 items-center justify-center rounded-full border-2 border-borda font-semibold">
-          {treinoNome && sessao?.status !== "feito" ? "Ir para o treino" : "Abrir treino"}
-        </Link>
-      </section>
-
-      <section aria-labelledby="corpo" className="space-y-3">
-        <h2 id="corpo" className="text-2xl font-bold">Corpo</h2>
-        <dl className="grid grid-cols-2 gap-4">
-          <div>
-            <dt className="text-sm text-suave">Peso de hoje</dt>
-            <dd className="text-2xl font-black">{pesoHoje !== null ? `${dec(pesoHoje)} kg` : "—"}</dd>
-            {pesoHoje === null ? <Link href="/progresso" className="text-sm font-semibold underline">Registrar</Link> : null}
-          </div>
-          <div>
-            <dt className="text-sm text-suave">Tendência</dt>
-            <dd className="text-2xl font-black">{painel.tendenciaKg !== null ? `${dec(painel.tendenciaKg)} kg` : "—"}</dd>
-            {pesoHoje === null && ultimoPeso ? <p className="text-xs text-suave">última pesagem em {formatarDataBr(ultimoPeso.data)}</p> : null}
-          </div>
-          <div>
-            <dt className="text-sm text-suave">Gasto estimado</dt>
-            <dd className="text-2xl font-black">{painel.gasto ? `${n(painel.gasto.valor)} kcal` : "—"}</dd>
-            <p className="text-xs text-suave">{painel.gasto ? `entre ${n(painel.gasto.minimo)} e ${n(painel.gasto.maximo)} (estimativa)` : "complete o perfil"}</p>
-          </div>
-          <div>
-            <dt className="text-sm text-suave">Passos</dt>
-            <dd className="text-2xl font-black">{passos[0] ? n(passos[0].passos) : "—"}</dd>
-            {!passos[0] && modo === "proprio" ? <Link href="/ajustes/passos" className="text-sm font-semibold underline">Configurar</Link> : null}
-          </div>
-        </dl>
-        {painel.faltam.length > 0 ? (
-          <p className="rounded-2xl border-2 border-aviso p-3 text-sm font-medium text-aviso">
-            <span aria-hidden="true">! </span>Para estimar seu gasto, complete o perfil. <Link href="/progresso/meta" className="underline">Ver o que falta</Link>
-          </p>
-        ) : null}
-        <Link href="/progresso/meta" className="flex min-h-12 items-center justify-center rounded-full border-2 border-borda font-semibold">
-          Meta e plano
-        </Link>
-        <Link href="/progresso/semana" className="flex min-h-12 items-center justify-center rounded-full border-2 border-borda font-semibold">
-          Resumo da semana
-        </Link>
-      </section>
+  const primeiroNome = perfil?.nome?.trim().split(/\s+/)[0];
+  const dataExtenso = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(`${hoje}T12:00:00Z`));
+  return <div className="page-stack">
+    <header className="mb-7"><p className="eyebrow mb-2">{dataExtenso}</p><h1 className="page-heading">{modo === "acompanhamento" ? `O dia de ${primeiroNome || "quem você acompanha"}` : primeiroNome ? `Olá, ${primeiroNome}.` : "Seu dia, em equilíbrio."}</h1><p className="page-intro">Alimentação e treino, um passo de cada vez.</p></header>
+    {typeof aviso === "string" && mensagens[aviso] ? <p role="alert" className="app-card border-aviso text-sm text-aviso">{mensagens[aviso]}</p> : null}
+    {pendentes > 0 ? <Link href="/ajustes/acompanhamento" className="app-card flex items-center gap-3 border-marca text-sm font-semibold"><ShieldCheck size={23} className="shrink-0 text-marca" aria-hidden="true" /><span>Você tem {pendentes} {pendentes === 1 ? "solicitação" : "solicitações"} de acompanhamento. Ver permissões</span><ChevronRight size={20} className="ml-auto shrink-0" aria-hidden="true" /></Link> : null}
+    <div className="dashboard-grid">
+      <div className="dashboard-stack">
+        <ResumoCalorias totais={totais} meta={meta} temRegistros={registros.length > 0} />
+        <section className="app-card" aria-labelledby="refeicoes"><div className="flex items-center justify-between gap-3"><h2 id="refeicoes" className="section-heading">Refeições do dia</h2><Link href="/comida" className="action-link">Ver diário</Link></div><ul className="mt-2 divide-y divide-linha">{REFEICOES.map((ref) => {
+          const itens = registros.filter((r) => r.refeicao === ref);
+          const kcal = itens.reduce((total, item) => total + item.kcal, 0);
+          const Icone = ICONES_REFEICAO[ref];
+          return <li key={ref}><Link href={itens.length ? `/comida?data=${hoje}#ref-${ref}` : `/comida/adicionar?data=${hoje}&refeicao=${ref}`} className="flex min-h-20 items-center gap-3 py-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-fundo text-suave"><Icone size={20} aria-hidden="true" /></span><span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{ROTULOS_REFEICAO[ref]}</span><span className="mt-0.5 block truncate text-xs text-suave">{itens.length ? itens.map((item) => item.nome).join(", ") : "Quando fizer, registre aqui"}</span></span>{itens.length ? <span className="shrink-0 text-sm text-suave">{n(kcal)} kcal</span> : <Plus size={19} className="shrink-0 text-marca" aria-hidden="true" />}</Link></li>;
+        })}</ul></section>
+      </div>
+      <div className="dashboard-stack">
+        <PainelAgua data={hoje} totalMl={aguaMl} metaMl={meta?.aguaMl ?? null} editavel={contexto.podeEditar} compacto />
+        <section className="app-card" aria-labelledby="treino"><div className="flex items-center justify-between gap-3"><h2 id="treino" className="section-heading">Treino de hoje</h2><span className="icon-badge"><Dumbbell size={21} aria-hidden="true" /></span></div><div className="my-5">
+          {sessao?.status === "feito" ? <p className="flex items-center gap-2 font-semibold text-ok"><CheckCircle2 size={20} aria-hidden="true" />Treino concluído</p> : sessao?.status === "faltou" ? <p className="font-semibold text-suave">Pausa registrada hoje.</p> : <><p className="text-2xl font-semibold tracking-tight">{treinoNome || (plano ? "Dia de descanso" : "Vamos começar?")}</p><p className="mt-2 text-sm text-suave">{treinoNome ? "Seu plano, no seu ritmo." : plano ? "Recuperar também faz parte do seu percurso." : "Monte seu plano ou importe um treino que você já tem."}</p></>}
+        </div><Link href={treinoNome && !sessao ? `/treino/sessao?data=${hoje}` : "/treino"} className="action-primary w-full">{treinoNome && !sessao ? "Começar treino" : plano ? "Ver meu treino" : "Criar meu plano"}<ArrowRight size={18} aria-hidden="true" /></Link></section>
+        <section className="app-card" aria-labelledby="corpo"><div className="flex items-center justify-between"><h2 id="corpo" className="section-heading">Sua evolução</h2><TrendingUp size={22} className="text-ok" aria-hidden="true" /></div><dl className="mt-5 grid grid-cols-2 gap-5"><div><dt className="text-xs text-suave">{pesoHoje !== null ? "Peso de hoje" : "Último peso"}</dt><dd className="mt-1 text-2xl font-semibold tracking-tight">{pesoHoje !== null ? `${dec(pesoHoje)} kg` : ultimoPeso ? `${dec(ultimoPeso.peso)} kg` : "—"}</dd></div><div><dt className="text-xs text-suave">Tendência</dt><dd className="mt-1 text-2xl font-semibold tracking-tight">{painel.tendenciaKg !== null ? `${dec(painel.tendenciaKg)} kg` : "—"}</dd></div></dl><p className="mt-3 text-xs text-suave">{ultimoPeso ? `Última pesagem: ${formatarDataBr(ultimoPeso.data)}. A tendência é uma estimativa.` : "Registre seu peso para acompanhar sua evolução."}</p><div className="mt-4 rounded-xl bg-fundo p-3 text-sm text-suave">Acompanhe o percurso, além do número.</div><div className="mt-3 flex flex-wrap items-center justify-between gap-2"><Link href="/progresso" className="action-link"><Scale size={17} aria-hidden="true" />{pesoHoje === null ? "Registrar peso" : "Ver progresso"}</Link><Link href="/progresso/semana" className="action-link"><CalendarDays size={17} aria-hidden="true" />Resumo semanal</Link></div></section>
+        <details className="app-card"><summary className="section-heading flex min-h-11 items-center gap-2"><Footprints size={21} className="text-marca" aria-hidden="true" />Mais sobre seu dia</summary><dl className="mt-4 grid grid-cols-2 gap-4"><div><dt className="text-xs text-suave">Passos</dt><dd className="text-xl font-semibold">{passos[0] ? n(passos[0].passos) : "—"}</dd>{!passos[0] && modo === "proprio" ? <Link href="/ajustes/passos" className="action-link">Configurar</Link> : null}</div><div><dt className="text-xs text-suave">Gasto estimado</dt><dd className="text-xl font-semibold">{painel.gasto ? `${n(painel.gasto.valor)} kcal` : "—"}</dd>{painel.gasto ? <p className="mt-1 text-xs text-suave">Entre {n(painel.gasto.minimo)} e {n(painel.gasto.maximo)} kcal</p> : null}</div></dl>{painel.previsaoDaMeta ? <p className="mt-4 text-sm text-suave">{painel.previsaoDaMeta.texto} (estimativa)</p> : null}{painel.faltam.length > 0 ? <p className="mt-3 text-sm text-suave">Complete seu perfil para estimar o gasto.</p> : null}<Link href="/progresso/meta" className="action-link mt-2">Meta e plano<ArrowRight size={17} aria-hidden="true" /></Link></details>
+      </div>
     </div>
-  );
+  </div>;
 }

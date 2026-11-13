@@ -21,18 +21,18 @@ export default async function PaginaPassos() {
   return (
     <div className="space-y-12">
       <Link href="/ajustes" className="inline-flex min-h-11 items-center font-semibold text-suave">‹ Voltar</Link>
-      <h1 className="text-3xl font-black">Passos do iPhone</h1>
+      <h1 className="page-heading">Passos do iPhone</h1>
       <p className="text-lg text-suave">
         Um app da web não lê o app Saúde. Por isso o iPhone envia os seus passos todos os dias, por uma automação do app Atalhos. Os passos ajudam a interpretar o seu gasto; <strong>não</strong> são somados como calorias.
       </p>
 
       <section aria-labelledby="chave" className="space-y-4">
-        <h2 id="chave" className="text-2xl font-bold">1. Crie uma chave</h2>
+        <h2 id="chave" className="section-heading">1. Crie uma chave</h2>
         <NovoToken />
       </section>
 
       <section aria-labelledby="atalho" className="space-y-4">
-        <h2 id="atalho" className="text-2xl font-bold">2. Monte a automação no Atalhos</h2>
+        <h2 id="atalho" className="section-heading">2. Monte a automação no Atalhos</h2>
         <p className="rounded-2xl border-2 border-aviso p-4 text-sm font-medium text-aviso">
           <span aria-hidden="true">! </span>Este passo a passo ainda não foi conferido num aparelho: os nomes dos botões do Atalhos mudam entre versões do iOS. Se algo for diferente, me avise.
         </p>
@@ -49,7 +49,7 @@ export default async function PaginaPassos() {
       </section>
 
       <section aria-labelledby="chaves" className="space-y-3">
-        <h2 id="chaves" className="text-2xl font-bold">Suas chaves</h2>
+        <h2 id="chaves" className="section-heading">Suas chaves</h2>
         {tokens.length === 0 ? <p className="text-suave">Nenhuma chave ainda.</p> : null}
         <ul>
           {tokens.map((t) => (
@@ -74,7 +74,7 @@ export default async function PaginaPassos() {
       </section>
 
       <section aria-labelledby="ultimos" className="space-y-3">
-        <h2 id="ultimos" className="text-2xl font-bold">Últimos 7 dias</h2>
+        <h2 id="ultimos" className="section-heading">Últimos 7 dias</h2>
         {recentes.length === 0 ? (
           <p className="text-suave">Ainda não chegaram passos.</p>
         ) : (

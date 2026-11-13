@@ -20,9 +20,9 @@ export default async function PaginaEditarAlimento(props: PageProps<"/comida/meu
   if (!a) notFound();
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <Voltar href="/comida/meus-alimentos" />
-      <h1 className="text-3xl font-black">Editar alimento</h1>
+      <h1 className="page-heading">Editar alimento</h1>
       <p className="text-sm text-suave">Os valores estão por 100 g. Registros antigos não mudam.</p>
       <Link href={`/comida/alimento/usuario/${a.id}`} className="inline-flex min-h-11 items-center font-semibold underline">
         Adicionar ao diário
@@ -43,7 +43,7 @@ export default async function PaginaEditarAlimento(props: PageProps<"/comida/meu
       />
       <FormDados action={apagarAlimento} className="border-t border-linha pt-8">
         <input type="hidden" name="alimentoId" value={a.id} />
-        <button type="submit" className="min-h-12 w-full rounded-full border-2 border-erro font-semibold text-erro">
+        <button type="submit" className="min-h-12 w-full rounded-xl border border-erro font-semibold text-erro">
           Apagar alimento
         </button>
       </FormDados>

@@ -13,9 +13,9 @@ export default async function PaginaCopiar(props: PageProps<"/comida/copiar">) {
   const data = dataDiario.safeParse(sp.data).data ?? hoje;
   const ref = refeicaoSchema.safeParse(sp.refeicao).data ?? "almoco";
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <Voltar href={`/comida?data=${data}`} />
-      <h1 className="text-3xl font-black">Copiar {comArtigo(ref, "para")}</h1>
+      <h1 className="page-heading">Copiar {comArtigo(ref, "para")}</h1>
       <p className="text-suave">Os alimentos e as quantidades são copiados, e os nutrientes são recalculados como registros novos deste dia.</p>
       <FormCopiar
         paraData={data}

@@ -13,7 +13,7 @@ export const metadata = { title: "Fotos de progresso · Kalyft" };
 
 export default async function PaginaFotos(props: PageProps<"/progresso/fotos">) {
   const { userId, modo, podeVerFotos, contextoId } = await exigirUsuario();
-  if (!podeVerFotos) return <div className="space-y-4"><h1 className="text-3xl font-black">Fotos de progresso</h1><p>O aluno ainda não autorizou o acesso às fotos. Use “Solicitar fotos” na faixa de acompanhamento.</p><Link href="/progresso" className="inline-flex min-h-12 items-center underline">Voltar ao progresso</Link></div>;
+  if (!podeVerFotos) return <div className="space-y-4"><h1 className="page-heading">Fotos de progresso</h1><p>O aluno ainda não autorizou o acesso às fotos. Use “Solicitar fotos” na faixa de acompanhamento.</p><Link href="/progresso" className="inline-flex min-h-12 items-center underline">Voltar ao progresso</Link></div>;
   const hoje = hojeSaoPaulo();
   const sp = await props.searchParams;
   const pedidos = (Array.isArray(sp.f) ? sp.f : sp.f ? [sp.f] : []).filter((x): x is string => typeof x === "string");
@@ -34,23 +34,23 @@ export default async function PaginaFotos(props: PageProps<"/progresso/fotos">) 
   };
 
   return (
-    <div className="space-y-10">
+    <div className="page-stack">
       <Link href="/progresso" className="inline-flex min-h-11 items-center font-semibold text-suave">‹ Voltar</Link>
       <header className="space-y-2">
-        <h1 className="text-3xl font-black">Fotos de progresso</h1>
+        <h1 className="page-heading">Fotos de progresso</h1>
         <p className="text-suave">
           {fotos.length} de {LIMITES_FOTO_CORPO.maximo} fotos. Acesso privado, compartilhado apenas com administradores autorizados. Elas não vão para a IA.
         </p>
       </header>
 
       {comparadas.length ? (
-        <section aria-labelledby="comparar" className="space-y-3">
-          <h2 id="comparar" className="text-2xl font-bold">Comparação</h2>
+        <section aria-labelledby="comparar" className="app-card space-y-3">
+          <h2 id="comparar" className="section-heading">Comparação</h2>
           <div className="grid grid-cols-2 gap-3">
             {comparadas.map((f) => (
               <figure key={f.id} className="space-y-1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={`/api/fotos-corpo/${f.id}?contextoId=${encodeURIComponent(contextoId)}`} alt={`Foto de ${rotulo(f)}`} className="w-full rounded-xl border-2 border-linha" />
+                <img src={`/api/fotos-corpo/${f.id}?contextoId=${encodeURIComponent(contextoId)}`} alt={`Foto de ${rotulo(f)}`} className="w-full rounded-xl border border-linha" />
                 <figcaption className="text-sm text-suave">{rotulo(f)}</figcaption>
               </figure>
             ))}
@@ -59,13 +59,13 @@ export default async function PaginaFotos(props: PageProps<"/progresso/fotos">) 
         </section>
       ) : null}
 
-      {modo === "proprio" ? <section aria-labelledby="nova" className="space-y-4">
-        <h2 id="nova" className="text-2xl font-bold">Nova foto</h2>
+      {modo === "proprio" ? <section aria-labelledby="nova" className="app-card space-y-4">
+        <h2 id="nova" className="section-heading">Nova foto</h2>
         <EnviarFoto hoje={hoje} cheio={fotos.length >= LIMITES_FOTO_CORPO.maximo} />
       </section> : null}
 
-      <section aria-labelledby="lista" className="space-y-4">
-        <h2 id="lista" className="text-2xl font-bold">Suas fotos</h2>
+      <section aria-labelledby="lista" className="app-card space-y-4">
+        <h2 id="lista" className="section-heading">Suas fotos</h2>
         {fotos.length === 0 ? <p className="text-suave">Ainda não há fotos. Tire na mesma posição e com a mesma luz para comparar melhor.</p> : null}
         <ul className="grid grid-cols-2 gap-3">
           {fotos.map((f) => (
@@ -75,7 +75,7 @@ export default async function PaginaFotos(props: PageProps<"/progresso/fotos">) 
               <p className="text-sm font-semibold">{rotulo(f)}</p>
               {f.nota ? <p className="text-sm text-suave">{f.nota}</p> : null}
               <div className="flex gap-2">
-                <Link href={linkComparar(f.id)} className="flex min-h-11 flex-1 items-center justify-center rounded-lg border-2 border-borda text-sm font-semibold">
+                <Link href={linkComparar(f.id)} className="flex min-h-11 flex-1 items-center justify-center rounded-lg border border-borda text-sm font-semibold">
                   {marcadas.has(f.id) ? "Tirar" : "Comparar"}
                 </Link>
                 {modo === "proprio" ? <FormDados action={excluirFotoCorpoAcao}>

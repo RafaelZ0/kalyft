@@ -27,7 +27,7 @@ export function NovoToken() {
         <BotaoEnviar pendente="Criando…">Criar chave</BotaoEnviar>
       </FormDados>
       {estado.token ? (
-        <div className="space-y-3 rounded-2xl border-2 border-marca p-4" aria-live="polite">
+        <div className="space-y-3 rounded-2xl border border-marca p-4" aria-live="polite">
           <p className="font-bold">Chave &quot;{estado.nome}&quot; criada. Copie agora: ela não aparece de novo.</p>
           <p className="break-all rounded-xl bg-superficie p-3 font-mono text-sm">{estado.token}</p>
           <BotaoSecundario onClick={copiar}>{copiado ? "Copiada ✓" : "Copiar a chave"}</BotaoSecundario>

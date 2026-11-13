@@ -10,7 +10,7 @@ export function FormPesagem({ hoje, atual }: { hoje: string; atual: { peso: stri
   const [estado, acao] = useActionState<EstadoCorpo, FormData>(salvarPesagem, {});
   const e = estado.erros ?? {};
   return (
-    <FormDados action={acao} className="space-y-6" noValidate>
+    <FormDados action={acao} className="page-stack" noValidate>
       <Campo nome="data" rotulo="Dia" tipo="date" valor={hoje} erro={e.data} />
       <Campo nome="pesoKg" rotulo="Peso" teclado="decimal" sufixo="kg" maxLength={6} valor={atual?.peso} erro={e.pesoKg} dica="Idealmente em jejum, de manhã." />
       <div className="grid grid-cols-2 gap-6">

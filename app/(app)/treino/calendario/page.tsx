@@ -11,7 +11,7 @@ const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julh
 const CLASSE: Record<StatusDia, string> = {
   feito: "bg-destaque text-sobre-destaque font-bold",
   faltou: "bg-aviso text-fundo font-bold",
-  planejado: "border-2 border-marca",
+  planejado: "border border-marca",
   sem_registro: "border-2 border-dashed border-aviso",
   livre: "text-suave",
 };
@@ -50,18 +50,18 @@ export default async function PaginaCalendario(props: PageProps<"/treino/calenda
   const vazios = diaDaSemana(primeiro);
 
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <Link href="/treino" className="inline-flex min-h-11 items-center font-semibold text-suave">
         ‹ Voltar
       </Link>
       <header className="flex items-center justify-between">
-        <Link href={`/treino/calendario?mes=${mesAdjacente(ano, mes, -1)}`} aria-label="Mês anterior" className="flex min-h-12 min-w-12 items-center justify-center rounded-full border-2 border-borda text-xl font-bold">
+        <Link href={`/treino/calendario?mes=${mesAdjacente(ano, mes, -1)}`} aria-label="Mês anterior" className="flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-borda text-xl font-bold">
           ‹
         </Link>
-        <h1 className="text-2xl font-black capitalize">
+        <h1 className="page-heading capitalize">
           {MESES[mes - 1]} {ano}
         </h1>
-        <Link href={`/treino/calendario?mes=${mesAdjacente(ano, mes, 1)}`} aria-label="Próximo mês" className="flex min-h-12 min-w-12 items-center justify-center rounded-full border-2 border-borda text-xl font-bold">
+        <Link href={`/treino/calendario?mes=${mesAdjacente(ano, mes, 1)}`} aria-label="Próximo mês" className="flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-borda text-xl font-bold">
           ›
         </Link>
       </header>
@@ -99,8 +99,8 @@ export default async function PaginaCalendario(props: PageProps<"/treino/calenda
         ))}
       </ul>
 
-      <section aria-labelledby="estatisticas" className="space-y-3">
-        <h2 id="estatisticas" className="text-2xl font-bold">Estatísticas</h2>
+      <section aria-labelledby="estatisticas" className="app-card space-y-3">
+        <h2 id="estatisticas" className="section-heading">Estatísticas</h2>
         <dl className="grid grid-cols-3 gap-3 text-center">
           <div>
             <dt className="text-xs text-suave">Treinos no mês</dt>

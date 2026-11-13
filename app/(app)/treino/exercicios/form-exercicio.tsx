@@ -23,7 +23,7 @@ export function FormExercicio({ valores }: { valores?: ValoresExercicio }) {
   const e = estado.erros ?? {};
   const [foto, setFoto] = useState<{ id: string | null; nome: string | null }>({ id: valores?.fotoId || null, nome: valores?.fotoId ? valores.fotoId.replace(/_/g, " ") : null });
   return (
-    <FormDados action={acao} className="space-y-8" noValidate>
+    <FormDados action={acao} className="page-stack" noValidate>
       {valores ? <input type="hidden" name="exercicioId" value={valores.id} /> : null}
       <Campo nome="nome" rotulo="Nome" maxLength={80} valor={valores?.nome} erro={e.nome} />
       <Campo nome="grupo" rotulo="Grupo muscular (opcional)" maxLength={40} valor={valores?.grupo} erro={e.grupo} />

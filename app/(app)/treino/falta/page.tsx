@@ -21,11 +21,11 @@ export default async function PaginaFalta(props: PageProps<"/treino/falta">) {
   const treino = treinos.find((t) => t.id === treinoDoDia(data, agenda, trocas)) ?? null;
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <Link href={`/treino?data=${data}`} className="inline-flex min-h-11 items-center font-semibold text-suave">
         ‹ Voltar
       </Link>
-      <h1 className="text-3xl font-black">Não vou treinar</h1>
+      <h1 className="page-heading">Não vou treinar</h1>
       <p className="text-suave">
         {rotuloDia(data, hoje)}
         {treino ? ` · ${treino.nome}` : ""}

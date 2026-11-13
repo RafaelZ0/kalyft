@@ -10,7 +10,7 @@ import { registrarFaltaDoDia, type EstadoTreino } from "../actions";
 export function FormFalta({ data, treinoId }: { data: string; treinoId: string }) {
   const [estado, acao] = useActionState<EstadoTreino, FormData>(registrarFaltaDoDia, {});
   return (
-    <FormDados action={acao} className="space-y-8" noValidate>
+    <FormDados action={acao} className="page-stack" noValidate>
       <input type="hidden" name="data" value={data} />
       <input type="hidden" name="treinoId" value={treinoId} />
       <Opcoes nome="motivo" rotulo="Motivo" opcoes={MOTIVOS.map((m) => ({ valor: m, rotulo: ROTULOS_MOTIVO[m] }))} erro={estado.erros?.motivo} />

@@ -1,4 +1,5 @@
-import { FormDados } from "@/components/contexto-dados";
+import { ChevronLeft, ChevronRight, Dumbbell, Moon, Play, Plus, Sparkles } from "lucide-react";
+import { FormDados, SomenteContaPropria } from "@/components/contexto-dados";
 import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { listarItensDoTreino, listarTreinos, obterAgenda, obterSessao, obterTrocas, planoAtivo } from "@/lib/dal/treino";
@@ -23,7 +24,7 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
         ["/treino/plano", "Plano"],
         ["/treino/exercicios", "Exercícios"],
       ].map(([href, rotulo]) => (
-        <Link key={href} href={href} className="flex min-h-11 items-center whitespace-nowrap rounded-full border-2 border-borda px-4 text-suave">
+        <Link key={href} href={href} className="action-secondary whitespace-nowrap">
           {rotulo}
         </Link>
       ))}
@@ -32,12 +33,20 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
 
   if (!plano) {
     return (
-      <div className="space-y-8">
-        <h1 className="text-4xl font-black tracking-tight">Treino</h1>
-        <p className="max-w-sm text-lg text-suave">Você ainda não tem um plano de treino. Monte o seu: cadastre os exercícios e organize os treinos da semana.</p>
-        <Link href="/treino/plano" className="flex min-h-14 items-center justify-center rounded-full bg-destaque text-lg font-bold text-sobre-destaque">
-          Criar meu plano
-        </Link>
+      <div className="page-stack">
+        <h1 className="page-heading">Treino</h1>
+        <section className="app-card space-y-5">
+          <span className="icon-badge"><Dumbbell size={22} aria-hidden="true" /></span>
+          <div className="space-y-2">
+            <h2 className="section-heading">Seu próximo passo começa aqui</h2>
+            <p className="page-intro">Crie um plano no seu ritmo ou traga o treino que você já recebeu.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <SomenteContaPropria><Link href="/treino/ia" className="action-primary gap-2"><Sparkles size={18} aria-hidden="true" />Criar ou importar com IA</Link></SomenteContaPropria>
+            <Link href="/treino/plano" className="action-secondary gap-2"><Plus size={18} aria-hidden="true" />Montar manualmente</Link>
+          </div>
+          <p className="text-sm text-suave">Organize os exercícios e os dias da semana. Você pode ajustar seu plano depois.</p>
+        </section>
         {links}
       </div>
     );
@@ -54,12 +63,13 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
   const itens = treino ? await listarItensDoTreino(userId, treino.id) : [];
 
   return (
-    <div className="space-y-10">
+    <div className="page-stack">
       <header className="space-y-4">
-        <h1 className="text-4xl font-black tracking-tight">Treino</h1>
-        <nav aria-label="Dia" className="flex items-center justify-between">
-          <Link href={`/treino?data=${somarDias(data, -1)}`} aria-label="Dia anterior" className="flex min-h-12 min-w-12 items-center justify-center rounded-full border-2 border-borda text-xl font-bold">
-            ‹
+        <h1 className="page-heading">Treino</h1>
+        <p className="page-intro">Movimento que cabe na sua rotina.</p>
+        <nav aria-label="Dia" className="app-card flex items-center justify-between">
+          <Link href={`/treino?data=${somarDias(data, -1)}`} aria-label="Dia anterior" className="flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-borda text-xl font-bold">
+            <ChevronLeft size={20} aria-hidden="true" />
           </Link>
           <div className="text-center">
             <p className="text-xl font-bold">{rotuloDia(data, hoje)}</p>
@@ -70,8 +80,8 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
             ) : null}
           </div>
           {data < hoje ? (
-            <Link href={`/treino?data=${somarDias(data, 1)}`} aria-label="Próximo dia" className="flex min-h-12 min-w-12 items-center justify-center rounded-full border-2 border-borda text-xl font-bold">
-              ›
+            <Link href={`/treino?data=${somarDias(data, 1)}`} aria-label="Próximo dia" className="flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-borda text-xl font-bold">
+              <ChevronRight size={20} aria-hidden="true" />
             </Link>
           ) : (
             <span className="min-h-12 min-w-12" aria-hidden="true" />
@@ -81,7 +91,7 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
       </header>
 
       {sessao ? (
-        <section className="space-y-3 rounded-2xl border-2 border-borda p-4" aria-live="polite">
+        <section className="app-card space-y-3" aria-live="polite">
           {sessao.status === "feito" ? (
             <p className="text-lg font-bold text-ok"><span aria-hidden="true">✓ </span>Treino feito</p>
           ) : (
@@ -100,9 +110,10 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
       ) : null}
 
       {treino ? (
-        <section aria-labelledby="treino-dia" className="space-y-4">
+        <section aria-labelledby="treino-dia" className="app-card space-y-5">
           <div>
-            <h2 id="treino-dia" className="text-3xl font-black">{treino.nome}</h2>
+            <p className="mb-2 flex items-center gap-2 text-sm font-medium text-suave"><Dumbbell size={18} aria-hidden="true" />Seu treino do dia</p>
+            <h2 id="treino-dia" className="text-2xl font-semibold tracking-tight">{treino.nome}</h2>
             {treino.foco ? <p className="text-suave">{treino.foco}</p> : null}
           </div>
           {itens.length === 0 ? (
@@ -112,7 +123,7 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
           ) : (
             <ol className="divide-y divide-linha">
               {itens.map((i) => (
-                <li key={i.id} className="py-3">
+                <li key={i.id} className="py-4">
                   <p className="font-semibold">{i.exercicio.nome}</p>
                   <p className="text-sm text-suave">
                     {seriesDoExercicio(i.series, plano, data)} × {i.repsMin === i.repsMax ? i.repsMin : `${i.repsMin}–${i.repsMax}`}
@@ -127,32 +138,33 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
           <div className="grid gap-3">
             <Link
               href={`/treino/sessao?data=${data}`}
-              className="flex min-h-14 items-center justify-center rounded-full bg-destaque text-lg font-bold text-sobre-destaque"
+              className="action-primary gap-2"
             >
-              {sessao?.status === "feito" ? "Continuar treino" : "Começar treino"}
+              <Play size={18} aria-hidden="true" />{sessao?.status === "feito" ? "Continuar treino" : "Começar treino"}
             </Link>
             {!sessao ? (
-              <Link href={`/treino/falta?data=${data}`} className="flex min-h-12 items-center justify-center rounded-full border-2 border-borda font-semibold">
+              <Link href={`/treino/falta?data=${data}`} className="flex min-h-12 items-center justify-center rounded-xl border border-borda font-semibold">
                 Não vou treinar
               </Link>
             ) : null}
           </div>
         </section>
       ) : (
-        <section className="space-y-2">
-          <h2 className="text-3xl font-black">Descanso</h2>
-          <p className="text-suave">Sem treino neste dia. Você pode trocar abaixo.</p>
+        <section className="app-card space-y-3">
+          <span className="icon-badge"><Moon size={22} aria-hidden="true" /></span>
+          <h2 className="section-heading">Dia de descanso</h2>
+          <p className="text-suave">Recuperar também faz parte da rotina. Se preferir treinar, escolha um treino abaixo.</p>
         </section>
       )}
 
-      <FormDados action={trocarTreinoDoDia} className="space-y-3 border-t border-linha pt-6">
+      <FormDados action={trocarTreinoDoDia} className="app-card space-y-3">
         <input type="hidden" name="data" value={data} />
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-suave">Trocar o treino deste dia</span>
           <select
             name="treinoId"
             defaultValue={treinoId ?? "descanso"}
-            className="min-h-12 w-full rounded-xl border-2 border-borda bg-superficie px-3 text-lg font-semibold"
+            className="min-h-12 w-full rounded-xl border border-borda bg-superficie px-3 text-lg font-semibold"
           >
             {treinos.map((t) => (
               <option key={t.id} value={t.id}>
@@ -163,7 +175,7 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
             <option value="agenda">Voltar ao da agenda</option>
           </select>
         </label>
-        <button type="submit" className="min-h-12 w-full rounded-full border-2 border-borda font-semibold">
+        <button type="submit" className="min-h-12 w-full rounded-xl border border-borda font-semibold">
           Trocar
         </button>
       </FormDados>

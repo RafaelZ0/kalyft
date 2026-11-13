@@ -10,11 +10,11 @@ export default async function PaginaExercicios() {
   const { userId } = await exigirUsuario();
   const lista = await listarExercicios(userId);
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <Link href="/treino" className="inline-flex min-h-11 items-center font-semibold text-suave">
         ‹ Voltar
       </Link>
-      <h1 className="text-3xl font-black">Exercícios</h1>
+      <h1 className="page-heading">Exercícios</h1>
       {lista.length > 0 ? (
         <ul>
           {lista.map((e) => (
@@ -37,7 +37,7 @@ export default async function PaginaExercicios() {
         <p className="text-suave">Você ainda não cadastrou exercícios.</p>
       )}
       <section aria-labelledby="novo" className="space-y-4 border-t border-linha pt-8">
-        <h2 id="novo" className="text-2xl font-bold">Novo exercício</h2>
+        <h2 id="novo" className="section-heading">Novo exercício</h2>
         <FormExercicio />
       </section>
       <p className="text-xs text-suave">{CREDITO_FOTOS}</p>

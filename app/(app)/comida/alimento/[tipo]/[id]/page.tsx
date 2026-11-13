@@ -1,3 +1,4 @@
+import { CircleAlert, Star } from "lucide-react";
 import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -71,11 +72,11 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
   const m = alimento.marcacoes;
 
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <Voltar href={`/comida/adicionar${voltaQuery(data, ref)}`} />
       <header className="space-y-2">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-3xl font-black leading-tight">{alimento.nome}</h1>
+          <h1 className="page-heading">{alimento.nome}</h1>
           <FormDados action={favoritar}>
             <input type="hidden" name="tipo" value={alimento.tipo} />
             <input type="hidden" name="alimentoId" value={alimento.id} />
@@ -83,9 +84,9 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
               type="submit"
               aria-pressed={favorito}
               aria-label={favorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-              className={`flex min-h-12 min-w-12 items-center justify-center rounded-full border-2 text-2xl ${favorito ? "border-marca text-marca" : "border-borda text-suave"}`}
+              className={`flex min-h-12 min-w-12 items-center justify-center rounded-xl border text-2xl ${favorito ? "border-marca text-marca" : "border-linha text-suave"}`}
             >
-              ★
+              <Star size={21} aria-hidden="true" fill={favorito ? "currentColor" : "none"} />
             </button>
           </FormDados>
         </div>
@@ -103,7 +104,7 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
       </header>
 
       {alimento.kcal === null ? (
-        <p role="alert" className="rounded-2xl border-2 border-erro p-4 font-medium text-erro"><span aria-hidden="true">⚠ </span>
+        <p role="alert" className="rounded-2xl border-2 border-erro p-4 font-medium text-erro"><CircleAlert size={18} aria-hidden="true" className="mr-2 inline" />
           As calorias deste alimento estão em reavaliação na TACO, então ele não pode ser adicionado. Cadastre pelo rótulo do produto.
         </p>
       ) : (

@@ -22,7 +22,7 @@ export function FormEditarRegistro({
   const [estado, acao] = useActionState<Estado, FormData>(editarRegistro, {});
   return (
     <div className="space-y-10">
-      <FormDados action={acao} className="space-y-8" noValidate>
+      <FormDados action={acao} className="app-card space-y-8" noValidate>
         <input type="hidden" name="registroId" value={registroId} />
         <input type="hidden" name="data" value={data} />
         <Opcoes nome="refeicao" rotulo="Refeição" opcoes={opcoes} valor={refeicao} erro={estado.erros?.refeicao} />
@@ -33,7 +33,7 @@ export function FormEditarRegistro({
       <FormDados action={apagarRegistro} className="border-t border-linha pt-8">
         <input type="hidden" name="registroId" value={registroId} />
         <input type="hidden" name="data" value={data} />
-        <button type="submit" className="min-h-12 w-full rounded-full border-2 border-erro font-semibold text-erro">
+        <button type="submit" className="min-h-12 w-full rounded-xl border border-erro font-semibold text-erro">
           Apagar registro
         </button>
       </FormDados>

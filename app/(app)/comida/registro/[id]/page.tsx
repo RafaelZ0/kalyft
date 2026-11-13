@@ -16,10 +16,10 @@ export default async function PaginaRegistro(props: PageProps<"/comida/registro/
   if (!registro) notFound();
 
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <Voltar href={`/comida?data=${registro.data}`} />
       <header className="space-y-1">
-        <h1 className="text-3xl font-black leading-tight">{registro.nome}</h1>
+        <h1 className="page-heading">{registro.nome}</h1>
         <p className="text-suave">
           {formatarKcal(registro.kcal)} kcal · {formatarGramas(registro.gramas)} g
           {registro.medidaTexto ? ` · ${registro.medidaTexto}` : ""}

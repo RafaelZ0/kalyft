@@ -79,14 +79,14 @@ export function Leitor({ data, refeicao }: { data?: string; refeicao?: string })
   return (
     <div className="space-y-8">
       <div className="space-y-4">
-        <div className={`overflow-hidden rounded-2xl border-2 border-borda bg-superficie ${fase === "parado" ? "hidden" : ""}`}>
+        <div className={`overflow-hidden rounded-2xl border border-linha bg-superficie ${fase === "parado" ? "hidden" : ""}`}>
           {/* Pré-visualização da câmera: playsInline e muted são necessários no iPhone. */}
           <video ref={videoRef} playsInline muted className="aspect-[4/3] w-full object-cover" aria-label="Imagem da câmera" />
         </div>
-        {fase === "lendo" ? <p role="status" className="text-lg text-suave">Aponte para o código de barras da embalagem…</p> : null}
-        {pendente ? <p role="status" className="text-lg text-suave">Buscando o produto…</p> : null}
+        {fase === "lendo" ? <p role="status" className="page-intro">Aponte para o código de barras da embalagem…</p> : null}
+        {pendente ? <p role="status" className="page-intro">Buscando o produto…</p> : null}
         {fase === "parado" ? (
-          <button type="button" onClick={() => void abrirCamera()} disabled={pendente} className="min-h-14 w-full rounded-full bg-destaque px-6 text-lg font-bold text-sobre-destaque disabled:opacity-60">
+          <button type="button" onClick={() => void abrirCamera()} disabled={pendente} className="min-h-14 w-full rounded-xl bg-destaque px-6 text-lg font-bold text-sobre-destaque disabled:opacity-60">
             Abrir a câmera
           </button>
         ) : (

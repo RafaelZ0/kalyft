@@ -29,7 +29,7 @@ function Chip({ ativo, onClick, children, radio = true }: { ativo: boolean; onCl
       role={radio ? "radio" : "checkbox"}
       aria-checked={ativo}
       onClick={onClick}
-      className={`min-h-12 rounded-full border-2 px-4 font-semibold ${ativo ? "border-marca text-texto" : "border-borda text-suave"}`}
+      className={`min-h-12 rounded-xl border-2 px-4 font-semibold ${ativo ? "border-marca text-texto" : "border-borda text-suave"}`}
     >
       {ativo ? <span aria-hidden="true">✓ </span> : null}
       {children}
@@ -39,7 +39,7 @@ function Chip({ ativo, onClick, children, radio = true }: { ativo: boolean; onCl
 
 function Previa({ entrada }: { entrada: EntradaIa | null }) {
   return (
-    <section aria-labelledby="previa" className="space-y-2 rounded-2xl border-2 border-borda p-4">
+    <section aria-labelledby="previa" className="space-y-2 rounded-2xl border border-borda p-4">
       <h2 id="previa" className="text-lg font-bold">O que será enviado ao Google</h2>
       {entrada ? (
         <dl className="space-y-1">
@@ -66,7 +66,7 @@ export function FluxoIa({ corpo, restantePlano, restanteImportacao }: { corpo: C
     return <EditorRascunho inicial={rascunho.rascunho} descartados={rascunho.descartados ?? 0} onCancelar={() => setRascunho(null)} />;
   }
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <div role="tablist" aria-label="O que você quer fazer" className="flex gap-2">
         {(["criar", "importar"] as const).map((a) => (
           <button
@@ -75,7 +75,7 @@ export function FluxoIa({ corpo, restantePlano, restanteImportacao }: { corpo: C
             role="tab"
             aria-selected={aba === a}
             onClick={() => setAba(a)}
-            className={`min-h-12 flex-1 rounded-full border-2 font-semibold ${aba === a ? "border-marca text-texto" : "border-borda text-suave"}`}
+            className={`min-h-12 flex-1 rounded-xl border-2 font-semibold ${aba === a ? "border-marca text-texto" : "border-borda text-suave"}`}
           >
             {a === "criar" ? "Criar plano" : "Importar"}
           </button>
@@ -122,7 +122,7 @@ function FormCriar({ corpo, restante, aoGerar }: { corpo: CorpoPerfil; restante:
   ];
 
   return (
-    <FormDados action={acao} className="space-y-8" noValidate>
+    <FormDados action={acao} className="page-stack" noValidate>
       <input type="hidden" name="objetivo" value={objetivo} />
       <input type="hidden" name="nivel" value={nivel} />
       <input type="hidden" name="dias" value={dias} />
@@ -179,7 +179,7 @@ function FormCriar({ corpo, restante, aoGerar }: { corpo: CorpoPerfil; restante:
           onChange={(ev) => setLimitacoes(ev.target.value)}
           maxLength={300}
           rows={3}
-          className="w-full rounded-2xl border-2 border-borda bg-superficie p-4 text-lg outline-none focus:border-marca"
+          className="w-full rounded-2xl border border-borda bg-superficie p-4 text-lg outline-none focus:border-marca"
         />
         {e.limitacoes ? <Aviso>{e.limitacoes}</Aviso> : null}
       </label>
@@ -257,7 +257,7 @@ function FormImportar({ restante, aoGerar }: { restante: number; aoGerar: (e: Es
   }
 
   return (
-    <FormDados onSubmit={enviar} className="space-y-8" noValidate>
+    <FormDados onSubmit={enviar} className="page-stack" noValidate>
       <p className="text-lg text-suave">Envie prints, fotos ou PDF do seu treino. A IA monta um rascunho e você confere antes de salvar.</p>
       <div className="space-y-3">
         <input
@@ -269,7 +269,7 @@ function FormImportar({ restante, aoGerar }: { restante: number; aoGerar: (e: Es
           id="arquivos"
           onChange={(ev) => void escolher(ev.target.files)}
         />
-        <label htmlFor="arquivos" className="flex min-h-14 cursor-pointer items-center justify-center rounded-full border-2 border-borda text-lg font-semibold">
+        <label htmlFor="arquivos" className="flex min-h-14 cursor-pointer items-center justify-center rounded-xl border border-borda text-lg font-semibold">
           {arquivos.length ? "Trocar arquivos" : "Escolher imagens ou PDF"}
         </label>
         <p className="text-sm text-suave">Até {LIMITES_ARQUIVO.quantidade} arquivos, 4 MB cada. Não envie documentos com nome, CPF ou exames.</p>
@@ -291,7 +291,7 @@ function FormImportar({ restante, aoGerar }: { restante: number; aoGerar: (e: Es
       <button
         type="submit"
         disabled={pendente || processando || arquivos.length === 0}
-        className="min-h-14 w-full rounded-full bg-destaque px-6 text-lg font-bold text-sobre-destaque disabled:opacity-60"
+        className="min-h-14 w-full rounded-xl bg-destaque px-6 text-lg font-bold text-sobre-destaque disabled:opacity-60"
       >
         {pendente ? "A IA está lendo…" : "Montar rascunho"}
       </button>

@@ -1,3 +1,4 @@
+import { ChevronLeft, Star } from "lucide-react";
 import Link from "next/link";
 import type { AlimentoResumo } from "@/lib/dal/alimentos";
 import { formatarKcal } from "@/lib/nutricao";
@@ -21,7 +22,7 @@ export function ListaAlimentos({ itens, volta }: { itens: AlimentoResumo[]; volt
           >
             <span>
               <span className="block font-medium">
-                {a.favorito ? <span aria-label="favorito" className="text-apoio-texto">★ </span> : null}
+                {a.favorito ? <Star aria-label="favorito" size={15} className="mr-1 inline text-marca" /> : null}
                 {a.nome}
               </span>
               <span className="text-sm text-suave">
@@ -45,8 +46,8 @@ export function CitacaoTaco({ citacao }: { citacao: string | null }) {
 
 export function Voltar({ href, rotulo = "Voltar" }: { href: string; rotulo?: string }) {
   return (
-    <Link href={href} className="inline-flex min-h-11 items-center font-semibold text-suave">
-      ‹ {rotulo}
+    <Link href={href} className="action-link gap-1">
+      <ChevronLeft size={18} aria-hidden="true" /> {rotulo}
     </Link>
   );
 }

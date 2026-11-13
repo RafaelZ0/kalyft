@@ -13,9 +13,9 @@ const sinal = (v: number) => (v > 0 ? `+${n(v)}` : n(v));
 
 function Cartao({ titulo, grande, texto }: { titulo: string; grande: string; texto?: string }) {
   return (
-    <div className="rounded-2xl border-2 border-linha p-4">
+    <div className="app-card">
       <p className="text-sm text-suave">{titulo}</p>
-      <p className="text-3xl font-black">{grande}</p>
+      <p className="page-heading">{grande}</p>
       {texto ? <p className="mt-1 text-sm text-suave">{texto}</p> : null}
     </div>
   );
@@ -30,18 +30,18 @@ export default async function PaginaSemana(props: PageProps<"/progresso/semana">
   const ehAtual = semanaSeguinte(inicio) > hoje;
 
   return (
-    <div className="space-y-10">
+    <div className="page-stack">
       <Link href="/progresso" className="inline-flex min-h-11 items-center font-semibold text-suave">‹ Voltar</Link>
       <header className="space-y-4">
-        <h1 className="text-3xl font-black">Resumo da semana</h1>
+        <h1 className="page-heading">Resumo da semana</h1>
         <nav aria-label="Semana" className="flex items-center justify-between">
-          <Link href={`/progresso/semana?inicio=${semanaAnterior(inicio)}`} aria-label="Semana anterior" className="flex min-h-12 min-w-12 items-center justify-center rounded-full border-2 border-borda text-xl font-bold">‹</Link>
+          <Link href={`/progresso/semana?inicio=${semanaAnterior(inicio)}`} aria-label="Semana anterior" className="flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-borda text-xl font-bold">‹</Link>
           <p className="text-center font-semibold">
             {formatarDataBr(r.inicio)} a {formatarDataBr(r.fim)}
             {r.parcial ? <span className="block text-sm text-suave">em andamento</span> : null}
           </p>
           {!ehAtual ? (
-            <Link href={`/progresso/semana?inicio=${semanaSeguinte(inicio)}`} aria-label="Próxima semana" className="flex min-h-12 min-w-12 items-center justify-center rounded-full border-2 border-borda text-xl font-bold">›</Link>
+            <Link href={`/progresso/semana?inicio=${semanaSeguinte(inicio)}`} aria-label="Próxima semana" className="flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-borda text-xl font-bold">›</Link>
           ) : (
             <span className="min-w-12" />
           )}
@@ -56,8 +56,8 @@ export default async function PaginaSemana(props: PageProps<"/progresso/semana">
         </ul>
       ) : null}
 
-      <section aria-labelledby="resumo" className="space-y-4">
-        <h2 id="resumo" className="text-2xl font-bold">Resumo</h2>
+      <section aria-labelledby="resumo" className="app-card space-y-4">
+        <h2 id="resumo" className="section-heading">Resumo</h2>
         <div className="space-y-2 rounded-2xl bg-superficie p-4">
           <p className="text-xs font-semibold text-suave">{textoIa ? "Escrito pela IA com os números abaixo" : "Resumo do app (estimativa)"}</p>
           {(textoIa ?? resumoFixo(r)).split("\n").map((linha, i) => (
@@ -67,9 +67,9 @@ export default async function PaginaSemana(props: PageProps<"/progresso/semana">
         {acesso.ok || acesso.precisaAceite ? <BotaoResumo inicio={inicio} temTexto={textoIa !== null} /> : null}
       </section>
 
-      <section aria-labelledby="numeros" className="space-y-4">
-        <h2 id="numeros" className="text-2xl font-bold">Números da semana</h2>
-        <div className="grid grid-cols-2 gap-3">
+      <section aria-labelledby="numeros" className="app-card space-y-4">
+        <h2 id="numeros" className="section-heading">Números da semana</h2>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Cartao
             titulo="Calorias por dia"
             grande={r.calorias.media !== null ? `${r.calorias.media.toLocaleString("pt-BR")}` : "—"}

@@ -9,9 +9,9 @@ export default async function PaginaNovaReceita() {
   const { userId, admin, modo } = await exigirUsuario();
   const acesso = modo === "proprio" ? await verificarAcessoIa(userId, admin !== null) : { ok: false };
   return (
-    <div className="space-y-8">
+    <div className="page-stack">
       <Voltar href="/comida/receitas" />
-      <h1 className="text-3xl font-black">Nova receita</h1>
+      <h1 className="page-heading">Nova receita</h1>
       <EditorReceita nomeInicial="" porcoesInicial={4} pesoFinalInicial="" itensIniciais={[]} iaDisponivel={acesso.ok} />
     </div>
   );

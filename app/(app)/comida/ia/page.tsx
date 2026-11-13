@@ -20,12 +20,12 @@ export default async function PaginaRefeicaoIa(props: PageProps<"/comida/ia">) {
   const acesso = await verificarAcessoIa(userId, admin !== null);
   if (!acesso.ok) {
     return (
-      <div className="space-y-6">
+      <div className="page-stack">
         <Voltar href={`/comida/adicionar${volta}`} />
-        <h1 className="text-3xl font-black">Registrar com IA</h1>
-        <p className="text-lg text-suave">{acesso.erro}</p>
+        <h1 className="page-heading">Registrar com IA</h1>
+        <p className="page-intro">{acesso.erro}</p>
         {acesso.precisaAceite ? (
-          <Link href="/treino/ia" className="flex min-h-14 items-center justify-center rounded-full bg-destaque text-lg font-bold text-sobre-destaque">
+          <Link href="/treino/ia" className="action-primary">
             Ler e aceitar o aviso da IA
           </Link>
         ) : null}
@@ -35,9 +35,9 @@ export default async function PaginaRefeicaoIa(props: PageProps<"/comida/ia">) {
 
   const [texto, estimativa] = await Promise.all([usoDoDia(userId, hojeSaoPaulo(), "texto"), usoDoDia(userId, hojeSaoPaulo(), "estimativa")]);
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <Voltar href={`/comida/adicionar${volta}`} />
-      <h1 className="text-3xl font-black">{ROTULOS_REFEICAO[ref]}</h1>
+      <h1 className="page-heading">{ROTULOS_REFEICAO[ref]}</h1>
       <FluxoRefeicao
         data={data}
         refeicao={ref}

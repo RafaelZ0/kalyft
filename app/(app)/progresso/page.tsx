@@ -1,6 +1,6 @@
 import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
-import { EmBreve } from "@/components/em-breve";
+import { ArrowUpRight, CalendarDays, Camera, Target } from "lucide-react";
 import { GraficoLinhas } from "@/components/graficos";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { datasDeAplicacao, listarPesagens, obterDiaAplicacao } from "@/lib/dal/corpo";
@@ -39,39 +39,24 @@ export default async function PaginaProgresso(props: PageProps<"/progresso">) {
   const pendente = aplicacaoPendente(hoje, diaAplic, aplicacoes);
 
   return (
-    <div className="space-y-14">
-      <EmBreve titulo="Progresso" texto="Seu corpo ao longo do tempo." />
+    <div className="page-stack">
+      <header className="space-y-2"><h1 className="page-heading">Progresso</h1><p className="page-intro">Acompanhe o percurso, além do número.</p></header>
 
-      <Link href="/progresso/semana" className="block rounded-2xl border-2 border-linha p-4 active:bg-superficie">
-        <span className="block text-lg font-bold">Resumo da semana</span>
-        <span className="block text-sm text-suave">Calorias, treinos, peso e gasto da semana, com um texto-resumo</span>
-      </Link>
-
-      <Link href="/progresso/fotos" className="block rounded-2xl border-2 border-linha p-4 active:bg-superficie">
-        <span className="block text-lg font-bold">Fotos de progresso</span>
-        <span className="block text-sm text-suave">Frente, lado e costas. Compartilhamento somente com autorização</span>
-      </Link>
-
-      <Link href="/progresso/meta" className="block rounded-2xl border-2 border-marca p-4 active:bg-superficie">
-        <span className="block text-lg font-bold">Meta e plano</span>
-        <span className="block text-sm text-suave">Seu gasto estimado, quanto comer por dia e a projeção do peso</span>
-      </Link>
-
-      <section aria-labelledby="peso" className="space-y-5">
-        <h2 id="peso" className="text-2xl font-bold">Peso</h2>
+      <section aria-labelledby="peso" className="app-card space-y-5">
+        <div className="space-y-1"><h2 id="peso" className="section-heading">Peso e tendência</h2><p className="text-sm text-suave">{ultima ? `Último registro em ${formatarDataBr(ultima.data)}` : "Seu primeiro registro é o começo do acompanhamento."}</p></div>
         {ultima ? (
-          <dl className="grid grid-cols-3 gap-3 text-center">
+          <dl className="grid grid-cols-1 gap-4 rounded-2xl bg-fundo p-4 sm:grid-cols-3">
             <div>
               <dt className="text-xs text-suave">Último</dt>
-              <dd className="text-xl font-bold">{formatarGramas(ultima.pesoKg)} kg</dd>
+              <dd className="text-2xl font-semibold tabular-nums">{formatarGramas(ultima.pesoKg)} kg</dd>
             </div>
             <div>
               <dt className="text-xs text-suave">Tendência</dt>
-              <dd className="text-xl font-bold">{tendenciaAtual === null ? "—" : `${formatarGramas(tendenciaAtual)} kg`}</dd>
+              <dd className="text-2xl font-semibold tabular-nums">{tendenciaAtual === null ? "—" : `${formatarGramas(tendenciaAtual)} kg`}</dd>
             </div>
             <div>
               <dt className="text-xs text-suave">Massa gorda</dt>
-              <dd className="text-xl font-bold">{gorda === null ? "—" : `${formatarGramas(gorda)} kg`}</dd>
+              <dd className="text-2xl font-semibold tabular-nums">{gorda === null ? "—" : `${formatarGramas(gorda)} kg`}</dd>
             </div>
           </dl>
         ) : null}
@@ -123,8 +108,25 @@ export default async function PaginaProgresso(props: PageProps<"/progresso">) {
 
       <GraficosProgresso userId={userId} hoje={hoje} periodo={periodo} />
 
-      {modo === "proprio" ? <section aria-labelledby="aplicacao" className="space-y-4">
-        <h2 id="aplicacao" className="text-2xl font-bold">Aplicação semanal</h2>
+      <section aria-labelledby="explorar-progresso" className="app-card space-y-4">
+        <h2 id="explorar-progresso" className="section-heading">Seu acompanhamento</h2>
+        <div className="grid gap-3 lg:grid-cols-3">
+          {[
+            { href: "/progresso/semana", titulo: "Resumo da semana", texto: "Alimentação, treinos e peso em uma visão da sua semana.", Icone: CalendarDays },
+            { href: "/progresso/fotos", titulo: "Fotos de progresso", texto: "Seu percurso em fotos. Compartilhe somente se autorizar.", Icone: Camera },
+            { href: "/progresso/meta", titulo: "Meta e plano", texto: "Sua referência diária e a projeção do peso.", Icone: Target },
+          ].map(({ href, titulo, texto, Icone }) => (
+            <Link key={href} href={href} className="app-card group space-y-3 transition-colors hover:border-marca">
+              <div className="flex items-center justify-between"><span className="icon-badge"><Icone size={20} aria-hidden="true" /></span><ArrowUpRight size={18} className="text-suave" aria-hidden="true" /></div>
+              <span className="block font-semibold">{titulo}</span>
+              <span className="block text-sm leading-relaxed text-suave">{texto}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {modo === "proprio" ? <section aria-labelledby="aplicacao" className="app-card space-y-4">
+        <h2 id="aplicacao" className="section-heading">Aplicação semanal</h2>
         <p className="text-sm text-suave">Só um registro de &quot;feito&quot; no dia que você escolher. O app não dá orientação sobre medicação.</p>
         <FormDados action={salvarDiaAplicacao} className="flex items-end gap-3">
           <label className="flex-1">
@@ -132,7 +134,7 @@ export default async function PaginaProgresso(props: PageProps<"/progresso">) {
             <select
               name="dia"
               defaultValue={diaAplic === null ? "" : String(diaAplic)}
-              className="min-h-12 w-full rounded-xl border-2 border-borda bg-superficie px-3 text-lg font-semibold"
+              className="min-h-12 w-full rounded-xl border border-borda bg-superficie px-3 text-lg font-semibold"
             >
               <option value="">Sem lembrete</option>
               {NOMES_DIA.map((n, i) => (
@@ -142,15 +144,15 @@ export default async function PaginaProgresso(props: PageProps<"/progresso">) {
               ))}
             </select>
           </label>
-          <button type="submit" className="min-h-12 rounded-full border-2 border-borda px-5 font-semibold">
+          <button type="submit" className="min-h-12 rounded-xl border border-borda px-5 font-semibold">
             Salvar
           </button>
         </FormDados>
         {pendente ? (
-          <FormDados action={marcarAplicacao} className="space-y-2 rounded-2xl border-2 border-marca p-4">
+          <FormDados action={marcarAplicacao} className="space-y-2 rounded-2xl border border-marca p-4">
             <p className="font-semibold">Hoje é o dia da aplicação.</p>
             <input type="hidden" name="data" value={hoje} />
-            <button type="submit" className="min-h-12 w-full rounded-full bg-destaque font-bold text-sobre-destaque">
+            <button type="submit" className="min-h-12 w-full rounded-xl bg-destaque font-bold text-sobre-destaque">
               Marcar como feita
             </button>
           </FormDados>

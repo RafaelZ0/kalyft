@@ -1,3 +1,4 @@
+import { CircleCheck } from "lucide-react";
 import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -31,22 +32,22 @@ export default async function PaginaReceita(props: PageProps<"/comida/receitas/[
   });
 
   return (
-    <div className="space-y-10">
+    <div className="page-stack">
       <Voltar href="/comida/receitas" />
-      <h1 className="text-3xl font-black">{r.receita.nome}</h1>
-      {sp.salva === "1" ? <p role="status" className="rounded-2xl border-2 border-ok p-4 font-semibold text-ok"><span aria-hidden="true">✓ </span>Receita salva. Ela já está nos seus alimentos.</p> : null}
+      <h1 className="page-heading">{r.receita.nome}</h1>
+      {sp.salva === "1" ? <p role="status" className="rounded-2xl border-2 border-ok p-4 font-semibold text-ok"><CircleCheck size={18} aria-hidden="true" className="mr-2 inline" />Receita salva. Ela já está nos seus alimentos.</p> : null}
 
       {calc.ok ? (
         <section aria-labelledby="nutri" className="space-y-3">
-          <h2 id="nutri" className="text-2xl font-bold">Por porção ({n(calc.porPorcao.gramas)} g)</h2>
-          <p className="text-4xl font-black">{n(calc.porPorcao.kcal)} <span className="text-lg font-bold text-suave">kcal</span></p>
+          <h2 id="nutri" className="section-heading">Por porção ({n(calc.porPorcao.gramas)} g)</h2>
+          <p className="text-4xl font-semibold">{n(calc.porPorcao.kcal)} <span className="text-lg font-bold text-suave">kcal</span></p>
           <p className="text-suave">
             Proteína {n(calc.porPorcao.proteinaG)} g · Carboidrato {n(calc.porPorcao.carboG)} g · Gordura {n(calc.porPorcao.gorduraG)} g · Fibra {n(calc.porPorcao.fibraG)} g
           </p>
           <p className="text-sm text-suave">Por 100 g: {n(calc.por100g.kcal)} kcal. Receita inteira: {n(calc.totais.kcal)} kcal em {n(calc.pesoFinalG)} g, {n(calc.porcoes)} {calc.porcoes === 1 ? "porção" : "porções"}.</p>
           {Object.values(calc.parcial).some(Boolean) ? <p className="text-sm font-medium text-aviso"><span aria-hidden="true">! </span>Algum ingrediente não tem todos os nutrientes na tabela: os valores de proteína, carboidrato, gordura ou fibra são parciais.</p> : null}
           {r.receita.alimentoUsuarioId ? (
-            <Link href={`/comida/alimento/usuario/${r.receita.alimentoUsuarioId}`} className="flex min-h-12 items-center justify-center rounded-full bg-destaque font-bold text-sobre-destaque">
+            <Link href={`/comida/alimento/usuario/${r.receita.alimentoUsuarioId}`} className="flex min-h-12 items-center justify-center rounded-xl bg-destaque font-bold text-sobre-destaque">
               Registrar no diário
             </Link>
           ) : (
@@ -57,7 +58,7 @@ export default async function PaginaReceita(props: PageProps<"/comida/receitas/[
       ) : null}
 
       <section aria-labelledby="editar" className="space-y-6">
-        <h2 id="editar" className="text-2xl font-bold">Editar</h2>
+        <h2 id="editar" className="section-heading">Editar</h2>
         <EditorReceita
           receitaId={r.receita.id}
           nomeInicial={r.receita.nome}
@@ -80,7 +81,7 @@ export default async function PaginaReceita(props: PageProps<"/comida/receitas/[
 
       <FormDados action={excluirReceitaAcao}>
         <input type="hidden" name="receitaId" value={r.receita.id} />
-        <button type="submit" className="min-h-12 w-full rounded-full border-2 border-erro font-semibold text-erro">Apagar receita</button>
+        <button type="submit" className="min-h-12 w-full rounded-xl border border-erro font-semibold text-erro">Apagar receita</button>
       </FormDados>
     </div>
   );

@@ -4,8 +4,8 @@ import { useActionState, useState } from "react";
 import { CampoContexto } from "@/components/contexto-dados";
 import { responderPedido, revogarAcesso, solicitarAcesso, type EstadoAcompanhamento } from "./actions";
 
-const BOTAO = "min-h-12 rounded-full border-2 border-borda px-4 font-semibold disabled:opacity-50";
-const PRINCIPAL = "min-h-12 rounded-full bg-destaque px-4 font-bold text-sobre-destaque disabled:opacity-50";
+const BOTAO = "min-h-12 rounded-xl border border-borda px-4 font-semibold disabled:opacity-50";
+const PRINCIPAL = "min-h-12 rounded-xl bg-destaque px-4 font-bold text-sobre-destaque disabled:opacity-50";
 
 function Resultado({ estado, sucesso }: { estado: EstadoAcompanhamento; sucesso: string }) {
   if (estado.erro) return <p role="alert" className="text-sm text-erro">{estado.erro}</p>;

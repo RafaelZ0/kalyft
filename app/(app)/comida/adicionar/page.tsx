@@ -1,3 +1,4 @@
+import { ScanBarcode, Sparkles, Plus } from "lucide-react";
 import { SomenteContaPropria } from "@/components/contexto-dados";
 import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
@@ -23,18 +24,39 @@ export default async function PaginaAdicionar(props: PageProps<"/comida/adiciona
   ]);
 
   return (
-    <div className="space-y-6">
+    <div className="page-stack">
       <Voltar href={`/comida?data=${data}`} />
-      <h1 className="text-3xl font-black">{ROTULOS_REFEICAO[ref]}</h1>
+      <h1 className="page-heading">{ROTULOS_REFEICAO[ref]}</h1>
+      <p className="page-intro">Busque um alimento ou escolha como quer registrar.</p>
+      <div className="grid gap-3 sm:grid-cols-3">
+      <SomenteContaPropria><Link
+        href={`/comida/ia${volta}`}
+        className="action-secondary gap-2"
+      >
+        <Sparkles size={19} aria-hidden="true" /> Texto ou foto com IA
+      </Link></SomenteContaPropria>
+      <SomenteContaPropria><Link
+        href={`/comida/barras${volta}`}
+        className="action-secondary gap-2"
+      >
+        <ScanBarcode size={19} aria-hidden="true" /> Código de barras
+      </Link></SomenteContaPropria>
+      <Link
+        href={`/comida/meus-alimentos/novo${volta}`}
+        className="action-secondary gap-2"
+      >
+        <Plus size={19} aria-hidden="true" /> Cadastrar pelo rótulo
+      </Link>
+      </div>
       <Busca volta={volta}>
         {favs.length > 0 ? (
-          <section className="space-y-1">
+          <section className="app-card space-y-2">
             <h2 className="text-lg font-bold">Favoritos</h2>
             <ListaAlimentos itens={favs} volta={volta} />
           </section>
         ) : null}
         {recentes.length > 0 ? (
-          <section className="space-y-1">
+          <section className="app-card space-y-2">
             <h2 className="text-lg font-bold">Recentes</h2>
             <ListaAlimentos itens={recentes} volta={volta} />
           </section>
@@ -43,24 +65,6 @@ export default async function PaginaAdicionar(props: PageProps<"/comida/adiciona
           <p className="text-suave">Digite o nome do alimento. Ex.: arroz, feijão, frango.</p>
         ) : null}
       </Busca>
-      <SomenteContaPropria><Link
-        href={`/comida/ia${volta}`}
-        className="flex min-h-12 items-center justify-center rounded-full border-2 border-marca font-bold"
-      >
-        Registrar com IA (escrevendo)
-      </Link></SomenteContaPropria>
-      <SomenteContaPropria><Link
-        href={`/comida/barras${volta}`}
-        className="flex min-h-12 items-center justify-center rounded-full bg-destaque font-bold text-sobre-destaque"
-      >
-        Ler código de barras
-      </Link></SomenteContaPropria>
-      <Link
-        href={`/comida/meus-alimentos/novo${volta}`}
-        className="flex min-h-12 items-center justify-center rounded-full border-2 border-borda font-semibold"
-      >
-        Não achou? Cadastrar pelo rótulo
-      </Link>
       <CitacaoTaco citacao={citacao} />
     </div>
   );

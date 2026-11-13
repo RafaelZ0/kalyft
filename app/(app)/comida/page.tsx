@@ -1,3 +1,4 @@
+import { ChevronLeft, ChevronRight, Plus, Utensils } from "lucide-react";
 import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { totalAguaDoDia } from "@/lib/dal/agua";
@@ -9,7 +10,7 @@ import { dataDiario, REFEICOES, ROTULOS_REFEICAO } from "@/lib/validacao/comida"
 import { MenuRefeicao } from "./menu-refeicao";
 import { PainelAgua } from "./painel-agua";
 
-export const metadata = { title: "Comida · Kalyft" };
+export const metadata = { title: "Alimentação · Kalyft" };
 
 const LINHAS_TOTAIS: Array<{ campo: CampoTotal; rotulo: string; unidade: string; meta: "kcal" | "proteinaG" | "carboG" | "gorduraG" | null }> = [
   { campo: "kcal", rotulo: "Calorias", unidade: "kcal", meta: "kcal" },
@@ -30,23 +31,25 @@ export default async function PaginaComida(props: PageProps<"/comida">) {
   const totais = somarDia(registros);
 
   return (
-    <div className="space-y-10">
+    <div className="page-stack">
       <header className="space-y-4">
-        <h1 className="text-4xl font-black tracking-tight">Comida</h1>
+        <h1 className="page-heading">Alimentação</h1>
+        <p className="page-intro">Seu diário, uma refeição de cada vez.</p>
+        <Link href={`/comida/adicionar?data=${data}`} className="action-primary gap-2"><Plus size={19} aria-hidden="true" /> Registrar alimentação</Link>
         <div className="flex flex-wrap gap-2 text-sm font-semibold">
-          <Link href="/comida/receitas" className="flex min-h-11 items-center whitespace-nowrap rounded-full border-2 border-borda px-4 text-suave">
+          <Link href="/comida/receitas" className="flex min-h-11 items-center whitespace-nowrap rounded-xl border border-linha px-4 text-suave">
             Receitas
           </Link>
-          <Link href="/comida/meus-alimentos" className="flex min-h-11 items-center whitespace-nowrap rounded-full border-2 border-borda px-4 text-suave">
+          <Link href="/comida/meus-alimentos" className="flex min-h-11 items-center whitespace-nowrap rounded-xl border border-linha px-4 text-suave">
             Meus alimentos
           </Link>
-          <Link href={`/comida/refeicoes?data=${data}`} className="flex min-h-11 items-center whitespace-nowrap rounded-full border-2 border-borda px-4 text-suave">
+          <Link href={`/comida/refeicoes?data=${data}`} className="flex min-h-11 items-center whitespace-nowrap rounded-xl border border-linha px-4 text-suave">
             Refeições salvas
           </Link>
         </div>
-        <nav aria-label="Dia" className="flex items-center justify-between">
-          <Link href={`/comida?data=${somarDias(data, -1)}`} aria-label="Dia anterior" className="flex min-h-12 min-w-12 items-center justify-center rounded-full border-2 border-borda text-xl font-bold">
-            ‹
+        <nav aria-label="Dia" className="app-card flex items-center justify-between">
+          <Link href={`/comida?data=${somarDias(data, -1)}`} aria-label="Dia anterior" className="flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-linha text-xl font-bold">
+            <ChevronLeft size={20} aria-hidden="true" />
           </Link>
           <div className="text-center">
             <p className="text-xl font-bold">{rotuloDia(data, hoje)}</p>
@@ -57,8 +60,8 @@ export default async function PaginaComida(props: PageProps<"/comida">) {
             ) : null}
           </div>
           {data < hoje ? (
-            <Link href={`/comida?data=${somarDias(data, 1)}`} aria-label="Próximo dia" className="flex min-h-12 min-w-12 items-center justify-center rounded-full border-2 border-borda text-xl font-bold">
-              ›
+            <Link href={`/comida?data=${somarDias(data, 1)}`} aria-label="Próximo dia" className="flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-linha text-xl font-bold">
+              <ChevronRight size={20} aria-hidden="true" />
             </Link>
           ) : (
             <span className="min-h-12 min-w-12" aria-hidden="true" />
@@ -66,18 +69,18 @@ export default async function PaginaComida(props: PageProps<"/comida">) {
         </nav>
       </header>
 
-      <section aria-labelledby="totais" className="space-y-3">
-        <h2 id="totais" className="sr-only">Totais do dia</h2>
+      <section aria-labelledby="totais" className="app-card grid gap-5 sm:grid-cols-3">
+        <h2 id="totais" className="section-heading sm:col-span-3">Resumo do dia</h2>
         {LINHAS_TOTAIS.map(({ campo, rotulo, unidade, meta: chaveMeta }) => {
           const valorMeta = chaveMeta && meta ? (meta[chaveMeta] ?? null) : null;
           const c = compararComMeta(totais[campo], valorMeta);
           const fmt = campo === "kcal" ? formatarKcal : formatarGramas;
           const largura = c.percentual === null ? 0 : Math.min(100, c.percentual);
           return (
-            <div key={campo}>
-              <div className="flex items-baseline justify-between">
+            <div key={campo} className={campo === "kcal" || campo === "fibraG" ? "space-y-2 sm:col-span-3" : "space-y-2"}>
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                 <span className="text-suave">{rotulo}</span>
-                <span className="font-semibold">
+                <span className={campo === "kcal" ? "text-2xl font-semibold tabular-nums" : "font-semibold tabular-nums"}>
                   {fmt(c.consumido)}
                   {c.meta !== null ? <span className="text-suave"> / {fmt(c.meta)}</span> : null} {unidade}
                   {totais.parcial[campo] ? <span className="ml-1 text-sm text-suave" title="Algum item não tem esse valor na tabela">(parcial)</span> : null}
@@ -102,19 +105,20 @@ export default async function PaginaComida(props: PageProps<"/comida">) {
         ) : null}
       </section>
 
-      <PainelAgua data={data} totalMl={aguaMl} metaMl={meta?.aguaMl ?? null} editavel />
+      <PainelAgua data={data} totalMl={aguaMl} metaMl={meta?.aguaMl ?? null} editavel compacto />
 
       {REFEICOES.map((ref) => {
         const itens = registros.filter((x) => x.refeicao === ref);
         const kcal = itens.reduce((s, x) => s + x.kcal, 0);
         return (
-          <section key={ref} aria-labelledby={`ref-${ref}`} className="space-y-2">
+          <section key={ref} aria-labelledby={`ref-${ref}`} className="app-card space-y-4">
             <div className="flex items-center justify-between">
-              <h2 id={`ref-${ref}`} className="text-2xl font-bold">
-                {ROTULOS_REFEICAO[ref]}
+              <h2 id={`ref-${ref}`} className="section-heading flex items-center gap-3">
+                <Utensils size={19} className="text-marca" aria-hidden="true" />{ROTULOS_REFEICAO[ref]}
               </h2>
               <span className="text-suave">{formatarKcal(kcal)} kcal</span>
             </div>
+            {itens.length === 0 ? <p className="py-2 text-sm text-suave">Quando fizer sua refeição, registre aqui.</p> : null}
             <ul>
               {itens.map((x) => (
                 <li key={x.id}>
@@ -132,8 +136,8 @@ export default async function PaginaComida(props: PageProps<"/comida">) {
               ))}
             </ul>
             <div className="flex items-center gap-3 pt-1">
-              <Link href={`/comida/adicionar?data=${data}&refeicao=${ref}`} className="flex min-h-12 flex-1 items-center justify-center rounded-full bg-destaque font-bold text-sobre-destaque">
-                + Adicionar
+              <Link href={`/comida/adicionar?data=${data}&refeicao=${ref}`} className="action-secondary flex-1 gap-2">
+                <Plus size={18} aria-hidden="true" /> Adicionar
               </Link>
               <MenuRefeicao data={data} refeicao={ref} temItens={itens.length > 0} />
             </div>

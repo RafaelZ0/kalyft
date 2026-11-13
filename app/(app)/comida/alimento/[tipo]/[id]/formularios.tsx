@@ -1,4 +1,6 @@
 "use client";
+import { CircleAlert } from "lucide-react";
+
 import { FormDados } from "@/components/contexto-dados";
 
 
@@ -57,7 +59,7 @@ export function FormAdicionar({
   const previa = gramas > 0 ? calcularNutrientes(alimento, gramas) : null;
 
   return (
-    <FormDados action={acao} className="space-y-6 rounded-2xl border-2 border-borda p-4" noValidate>
+    <FormDados action={acao} className="space-y-6 app-card" noValidate>
       <input type="hidden" name="data" value={data} />
       <input type="hidden" name="refeicao" value={refeicao} />
       <input type="hidden" name="tipo" value={alimento.tipo} />
@@ -78,7 +80,7 @@ export function FormAdicionar({
               type="button"
               onClick={() => setModo(m)}
               aria-pressed={modo === m}
-              className={`min-h-12 flex-1 rounded-full border-2 font-semibold ${modo === m ? "border-marca text-texto" : "border-borda text-suave"}`}
+              className={`min-h-12 flex-1 rounded-xl border font-semibold ${modo === m ? "border-marca text-texto" : "border-linha text-suave"}`}
             >
               {m === "medida" ? "Medida" : "Gramas"}
             </button>
@@ -97,11 +99,11 @@ export function FormAdicionar({
               onChange={(e) => setGramasTxt(e.target.value)}
               maxLength={7}
               aria-invalid={estado.erros?.gramas ? true : undefined}
-              className="min-h-12 w-full bg-transparent py-2 text-2xl font-bold outline-none"
+              className="min-h-12 w-full bg-transparent py-2 section-heading outline-none"
             />
             <span className="text-suave">g</span>
           </span>
-          {estado.erros?.gramas ? <span className="mt-1 block text-sm text-erro"><span aria-hidden="true">⚠ </span>{estado.erros.gramas}</span> : null}
+          {estado.erros?.gramas ? <span className="mt-1 block text-sm text-erro"><CircleAlert size={18} aria-hidden="true" className="mr-2 inline" />{estado.erros.gramas}</span> : null}
         </label>
       ) : (
         <div className="space-y-4">
@@ -118,7 +120,7 @@ export function FormAdicionar({
                     onChange={() => setChave(x.chave)}
                     className="peer sr-only"
                   />
-                  <span className="flex min-h-12 flex-col justify-center rounded-2xl border-2 border-borda px-4 py-1 font-semibold text-suave peer-checked:border-marca peer-checked:text-texto">
+                  <span className="flex min-h-12 flex-col justify-center rounded-2xl border border-linha px-4 py-1 font-semibold text-suave peer-checked:border-marca peer-checked:text-texto">
                     <span>
                       {x.nome} · {formatarGramas(x.gramas)} g{x.origem === "ibge" ? <SeloIbge /> : null}
                     </span>
@@ -131,7 +133,7 @@ export function FormAdicionar({
           <label className="block">
             <span className="mb-2 block text-sm font-medium text-suave">Quantas</span>
             <span className="flex items-center gap-3">
-              <button type="button" onClick={() => setQtdTxt(String(Math.max(0.5, numero(qtdTxt) - 0.5)))} aria-label="Menos meia" className="min-h-12 min-w-12 rounded-full border-2 border-borda text-xl font-bold">
+              <button type="button" onClick={() => setQtdTxt(String(Math.max(0.5, numero(qtdTxt) - 0.5)))} aria-label="Menos meia" className="min-h-12 min-w-12 rounded-xl border border-linha text-xl font-bold">
                 −
               </button>
               <input
@@ -140,9 +142,9 @@ export function FormAdicionar({
                 value={qtdTxt}
                 onChange={(e) => setQtdTxt(e.target.value)}
                 maxLength={5}
-                className="min-h-12 w-20 border-b-2 border-borda bg-transparent text-center text-2xl font-bold outline-none focus:border-marca"
+                className="min-h-12 w-20 border-b-2 border-borda bg-transparent text-center section-heading outline-none focus:border-marca"
               />
-              <button type="button" onClick={() => setQtdTxt(String(numero(qtdTxt) + 0.5))} aria-label="Mais meia" className="min-h-12 min-w-12 rounded-full border-2 border-borda text-xl font-bold">
+              <button type="button" onClick={() => setQtdTxt(String(numero(qtdTxt) + 0.5))} aria-label="Mais meia" className="min-h-12 min-w-12 rounded-xl border border-linha text-xl font-bold">
                 +
               </button>
             </span>
@@ -224,7 +226,7 @@ export function Medidas({
                   <input type="hidden" name="tipo" value={tipo} />
                   <input type="hidden" name="alimentoId" value={alimentoId} />
                   <input type="hidden" name="medidaIbgeId" value={x.id} />
-                  <button type="submit" className="min-h-11 shrink-0 rounded-full border-2 border-borda px-3 text-sm font-semibold">
+                  <button type="submit" className="min-h-11 shrink-0 rounded-xl border border-linha px-3 text-sm font-semibold">
                     Fixar
                   </button>
                 </FormDados>

@@ -125,14 +125,14 @@ function Cronometro({ fimMs, aoAcabar, onMais, onPular }: { fimMs: number; aoAca
       <div className="mx-auto flex max-w-lg items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase">{resta === 0 ? "Descanso acabou" : "Descanso"}</p>
-          <p className="text-3xl font-black tabular-nums">{formatarTempo(resta)}</p>
+          <p className="page-heading tabular-nums">{formatarTempo(resta)}</p>
           <p className="text-xs opacity-70">termina às {horaFim}</p>
         </div>
         <div className="flex gap-2">
-          <button type="button" onClick={onMais} className="min-h-12 rounded-full border-2 border-current px-4 font-bold">
+          <button type="button" onClick={onMais} className="min-h-12 rounded-xl border-2 border-current px-4 font-bold">
             +15 s
           </button>
-          <button type="button" onClick={onPular} className="min-h-12 rounded-full border-2 border-current px-4 font-bold">
+          <button type="button" onClick={onPular} className="min-h-12 rounded-xl border-2 border-current px-4 font-bold">
             {resta === 0 ? "Ok" : "Pular"}
           </button>
         </div>
@@ -148,14 +148,14 @@ function Contador({ rotulo, valor, passo, minimo, onChange, unidade }: { rotulo:
     <div>
       <p className="mb-1 text-xs text-suave">{rotulo}</p>
       <div className="flex items-center gap-2">
-        <button type="button" aria-label={`Diminuir ${rotulo}`} onClick={() => onChange(Math.max(minimo, Math.round((valor - passo) * 100) / 100))} className="min-h-12 min-w-12 rounded-full border-2 border-borda text-xl font-bold">
+        <button type="button" aria-label={`Diminuir ${rotulo}`} onClick={() => onChange(Math.max(minimo, Math.round((valor - passo) * 100) / 100))} className="min-h-12 min-w-12 rounded-xl border border-borda text-xl font-bold">
           −
         </button>
         <span className="min-w-14 text-center text-xl font-black tabular-nums">
           {fmt(valor)}
           <span className="ml-0.5 text-xs font-medium text-suave">{unidade}</span>
         </span>
-        <button type="button" aria-label={`Aumentar ${rotulo}`} onClick={() => onChange(Math.round((valor + passo) * 100) / 100)} className="min-h-12 min-w-12 rounded-full border-2 border-borda text-xl font-bold">
+        <button type="button" aria-label={`Aumentar ${rotulo}`} onClick={() => onChange(Math.round((valor + passo) * 100) / 100)} className="min-h-12 min-w-12 rounded-xl border border-borda text-xl font-bold">
           +
         </button>
       </div>
@@ -256,12 +256,12 @@ export function SessaoCliente({
   }
 
   return (
-      <fieldset disabled={!contexto.podeEditar} className="min-w-0 space-y-10 pb-28">
+      <fieldset disabled={!contexto.podeEditar} className="min-w-0 page-stack pb-28">
       {itens.map((item, idx) => {
         const op = item.opcoes.find((o) => o.id === escolha[item.id]) ?? item.opcoes[0];
         const dica = dicas[`${item.id}:${op.id}`];
         return (
-          <section key={item.id} aria-labelledby={`ex-${item.id}`} className="space-y-4">
+          <section key={item.id} aria-labelledby={`ex-${item.id}`} className="app-card space-y-4">
             <div>
               <p className="text-sm text-suave">
                 {idx + 1} de {itens.length}
@@ -272,8 +272,8 @@ export function SessaoCliente({
                 {op.porSegundos ? " s" : ""} · descanso {formatarTempo(item.descansoS)}
               </p>
               <p className="mt-1 flex flex-wrap gap-2 text-xs font-bold">
-                {op.unilateral ? <span className="rounded-full border border-linha px-2 py-0.5">cada lado</span> : null}
-                {op.cargaPorHalter ? <span className="rounded-full border border-linha px-2 py-0.5">carga de cada halter</span> : null}
+                {op.unilateral ? <span className="rounded-xl border border-linha px-2 py-0.5">cada lado</span> : null}
+                {op.cargaPorHalter ? <span className="rounded-xl border border-linha px-2 py-0.5">carga de cada halter</span> : null}
               </p>
               {item.observacao ? <p className="mt-1 text-sm text-suave">{item.observacao}</p> : null}
             </div>
@@ -286,7 +286,7 @@ export function SessaoCliente({
                     type="button"
                     aria-pressed={o.id === op.id}
                     onClick={() => setEscolha((e) => ({ ...e, [item.id]: o.id }))}
-                    className={`min-h-11 rounded-full border-2 px-4 text-sm font-semibold ${o.id === op.id ? "border-marca text-texto" : "border-borda text-suave"}`}
+                    className={`min-h-11 rounded-xl border-2 px-4 text-sm font-semibold ${o.id === op.id ? "border-marca text-texto" : "border-borda text-suave"}`}
                   >
                     {o.principal ? o.nome : `Substituto: ${o.nome}`}
                   </button>
@@ -335,12 +335,12 @@ export function SessaoCliente({
                         type="button"
                         disabled={s.salvando}
                         onClick={() => void marcarFeita(item, op, n)}
-                        className={`min-h-12 flex-1 rounded-full font-bold ${s.feita ? "border-2 border-marca text-marca" : "bg-destaque text-sobre-destaque"} disabled:opacity-60`}
+                        className={`min-h-12 flex-1 rounded-full font-bold ${s.feita ? "border border-marca text-marca" : "bg-destaque text-sobre-destaque"} disabled:opacity-60`}
                       >
                         {s.salvando ? "Salvando…" : s.feita ? "Feita ✓ (salvar de novo)" : "Feito"}
                       </button>
                       {s.feita ? (
-                        <button type="button" onClick={() => void desfazer(item, op, n)} className="min-h-12 rounded-full border-2 border-borda px-4 text-sm font-semibold text-suave">
+                        <button type="button" onClick={() => void desfazer(item, op, n)} className="min-h-12 rounded-xl border border-borda px-4 text-sm font-semibold text-suave">
                           Desfazer
                         </button>
                       ) : null}

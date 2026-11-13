@@ -30,7 +30,7 @@ export function FormEntrar() {
         </Link>
       ) : null}
       <BotaoEnviar pendente="Entrando…">Entrar</BotaoEnviar>
-      <Link href="/entrar/cadastro" className="flex min-h-14 w-full items-center justify-center rounded-full border-2 border-borda bg-superficie text-lg font-bold">
+      <Link href="/entrar/cadastro" className="flex min-h-14 w-full items-center justify-center rounded-xl border border-borda bg-superficie text-lg font-bold">
         Criar conta
       </Link>
       <Link href="/entrar/esqueci" className="flex min-h-12 items-center justify-center font-semibold text-suave underline">
@@ -61,7 +61,7 @@ export function FormNovaSenha() {
     return (
       <div className="space-y-8">
         <Aviso tipo="ok">{estado.ok}</Aviso>
-        <Link href="/entrar" className="flex min-h-14 items-center justify-center rounded-full bg-destaque text-lg font-bold text-sobre-destaque">
+        <Link href="/entrar" className="flex min-h-14 items-center justify-center rounded-xl bg-destaque text-lg font-bold text-sobre-destaque">
           Entrar
         </Link>
       </div>
@@ -116,7 +116,7 @@ export function FormVerificar() {
         {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
         {estado.ok ? <Aviso tipo="ok">{estado.ok}</Aviso> : null}
         {estado.ok ? (
-          <Link href="/entrar" className="flex min-h-14 items-center justify-center rounded-full bg-destaque text-lg font-bold text-sobre-destaque">
+          <Link href="/entrar" className="flex min-h-14 items-center justify-center rounded-xl bg-destaque text-lg font-bold text-sobre-destaque">
             Entrar
           </Link>
         ) : (

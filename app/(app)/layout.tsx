@@ -2,7 +2,8 @@ import { exigirContextoDados } from "@/lib/auth/acompanhamento";
 import { ContextoDadosProvider } from "@/components/contexto-dados";
 import { FaixaAcompanhamento } from "./faixa-acompanhamento";
 import Link from "next/link";
-import { IconeKalyft } from "@/lib/marca";
+import { Logotipo } from "@/lib/marca";
+import { SeletorAparencia } from "@/components/aparencia";
 import { BarraAbas } from "./barra-abas";
 
 export default async function LayoutApp({ children }: LayoutProps<"/">) {
@@ -11,15 +12,18 @@ export default async function LayoutApp({ children }: LayoutProps<"/">) {
   const publico = { contextoId: contexto.contextoId, modo: contexto.modo, podeEditar: contexto.podeEditar, podeVerFotos: contexto.podeVerFotos, edicaoAte: contexto.edicaoAte?.toISOString() ?? null };
   return (
     <ContextoDadosProvider contexto={publico}>
-    <div className="mx-auto min-h-dvh max-w-lg">
-      <FaixaAcompanhamento contexto={publico} nome={contexto.nome} />
-      <main className="px-5 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[calc(6rem+env(safe-area-inset-bottom))]">
-        <Link href="/hoje" aria-label="Kalyft, início" className="mb-4 inline-flex min-h-11 items-center">
-          <IconeKalyft tamanho={40} id="app" />
-        </Link>
+    <div className="app-shell">
+      <a href="#conteudo" className="skip-link">Ir para o conteúdo</a>
+      <BarraAbas />
+      <main id="conteudo" className="app-content">
+        <FaixaAcompanhamento contexto={publico} nome={contexto.nome} />
+        <header className="app-topbar">
+          <Link href="/hoje" aria-label="Kalyft, início" className="mobile-brand inline-flex min-h-11 items-center"><Logotipo /></Link>
+          <p className="eyebrow hidden lg:block">{contexto.modo === "proprio" ? "Seu acompanhamento" : `Acompanhando ${contexto.nome}`}</p>
+          <SeletorAparencia compacto />
+        </header>
         {children}
       </main>
-      <BarraAbas />
     </div>
     </ContextoDadosProvider>
   );

@@ -19,9 +19,9 @@ const dec = (n: number) => n.toLocaleString("pt-BR", { maximumFractionDigits: 1 
 function Passo({ valor, onMenos, onMais, rotulo }: { valor: string; onMenos: () => void; onMais: () => void; rotulo: string }) {
   return (
     <span className="flex items-center gap-3">
-      <button type="button" onClick={onMenos} aria-label={`Diminuir ${rotulo}`} className="size-12 rounded-full border-2 border-borda text-2xl font-bold">−</button>
+      <button type="button" onClick={onMenos} aria-label={`Diminuir ${rotulo}`} className="size-12 rounded-xl border border-linha section-heading">−</button>
       <span className="min-w-20 text-center text-lg font-bold">{valor}</span>
-      <button type="button" onClick={onMais} aria-label={`Aumentar ${rotulo}`} className="size-12 rounded-full border-2 border-borda text-2xl font-bold">+</button>
+      <button type="button" onClick={onMais} aria-label={`Aumentar ${rotulo}`} className="size-12 rounded-xl border border-linha section-heading">+</button>
     </span>
   );
 }
@@ -139,11 +139,11 @@ export function EditorReceita({
       </label>
 
       <section aria-labelledby="ingredientes" className="space-y-5">
-        <h2 id="ingredientes" className="text-2xl font-bold">Ingredientes</h2>
+        <h2 id="ingredientes" className="section-heading">Ingredientes</h2>
         {itens.length === 0 ? <p className="text-suave">Nenhum ingrediente ainda. Busque abaixo{iaDisponivel ? " ou cole a lista para a IA preencher" : ""}.</p> : null}
         <ol className="space-y-4">
           {itens.map((i) => (
-            <li key={i.chave} className="space-y-3 rounded-2xl border-2 border-linha p-4">
+            <li key={i.chave} className="space-y-3 rounded-2xl border border-linha bg-superficie p-4">
               <div className="flex items-start justify-between gap-3">
                 <p className="text-lg font-bold">{i.nome}</p>
                 <button type="button" onClick={() => setItens((l) => l.filter((x) => x.chave !== i.chave))} className="min-h-11 shrink-0 px-2 font-semibold text-suave underline">Remover</button>
@@ -156,7 +156,7 @@ export function EditorReceita({
           ))}
         </ol>
 
-        <div className="space-y-3 rounded-2xl border-2 border-borda p-3">
+        <div className="space-y-3 rounded-2xl border border-linha p-3">
           <div className="flex gap-2">
             <input
               value={termo}
@@ -178,7 +178,7 @@ export function EditorReceita({
                   type="button"
                   disabled={r.kcal === null}
                   onClick={() => { adicionar(r); setLista(null); setTermo(""); }}
-                  className="min-h-12 w-full rounded-2xl border-2 border-borda p-3 text-left disabled:opacity-50 active:border-marca"
+                  className="min-h-12 w-full rounded-2xl border border-linha p-3 text-left disabled:opacity-50 active:border-marca"
                 >
                   <span className="font-semibold">{r.nome}</span>
                   {r.marca ? <span className="text-suave"> · {r.marca}</span> : null}
@@ -190,7 +190,7 @@ export function EditorReceita({
         </div>
 
         {iaDisponivel ? (
-          <div className="space-y-3 rounded-2xl border-2 border-borda p-3">
+          <div className="space-y-3 rounded-2xl border border-linha p-3">
             <label className="block">
               <span className="mb-2 block text-sm font-medium text-suave">Ou cole a lista e a IA preenche (estimativa)</span>
               <textarea
@@ -199,7 +199,7 @@ export function EditorReceita({
                 rows={3}
                 maxLength={500}
                 placeholder="Ex.: 3 ovos, 2 xícaras de farinha de trigo, 1 xícara de açúcar, 1 colher de fermento"
-                className="w-full rounded-2xl border-2 border-borda bg-superficie p-3 text-lg outline-none placeholder:text-suave focus:border-marca"
+                className="w-full rounded-2xl border border-linha bg-superficie p-3 text-lg outline-none placeholder:text-suave focus:border-marca"
               />
             </label>
             <p className="text-xs text-suave">O texto é enviado ao Google (Gemini). As gramas são estimativas: confira cada ingrediente.</p>
@@ -213,7 +213,7 @@ export function EditorReceita({
 
       <section aria-labelledby="resumo-r" className="space-y-2 rounded-2xl bg-superficie p-4">
         <h2 id="resumo-r" className="text-lg font-bold">Total da receita (estimativa)</h2>
-        <p className="text-3xl font-black">≈ {fmt(totalKcal)} kcal</p>
+        <p className="page-heading">≈ {fmt(totalKcal)} kcal</p>
         <p className="text-suave">≈ {fmt(totalKcal / porcoes)} kcal por porção · {fmt((pesoNum && pesoValido ? pesoNum : somaGramas) / porcoes)} g cada</p>
         <p className="text-xs text-suave">Proteína, carboidrato e gordura são calculados ao salvar, com a tabela.</p>
       </section>

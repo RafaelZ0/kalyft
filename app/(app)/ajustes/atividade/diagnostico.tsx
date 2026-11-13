@@ -52,14 +52,14 @@ export function Diagnostico({ treinosPorSemana, iaDisponivel }: { treinosPorSema
       </FormDados>
 
       {estado.resultado ? (
-        <div className="space-y-3 rounded-2xl border-2 border-marca p-4" aria-live="polite">
+        <div className="space-y-3 rounded-2xl border border-marca p-4" aria-live="polite">
           <p className="text-sm font-semibold text-suave">Sugestão da IA (estimativa)</p>
           <p className="text-xl font-bold">{ROTULOS_ATIVIDADE[estado.resultado.nivel]}</p>
           <p>{estado.resultado.justificativa}</p>
           <p className="text-sm text-suave">Fator de atividade usado no cálculo: {String(FATORES_ATIVIDADE[estado.resultado.nivel]).replace(".", ",")}.</p>
           <FormDados action={confirmarAtividade}>
             <input type="hidden" name="nivel" value={estado.resultado.nivel} />
-            <button type="submit" className="min-h-12 w-full rounded-full bg-destaque font-bold text-sobre-destaque">Usar este nível</button>
+            <button type="submit" className="min-h-12 w-full rounded-xl bg-destaque font-bold text-sobre-destaque">Usar este nível</button>
           </FormDados>
         </div>
       ) : null}

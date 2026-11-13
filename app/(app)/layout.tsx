@@ -3,7 +3,6 @@ import { ContextoDadosProvider } from "@/components/contexto-dados";
 import { FaixaAcompanhamento } from "./faixa-acompanhamento";
 import Link from "next/link";
 import { Logotipo } from "@/lib/marca";
-import { SeletorAparencia } from "@/components/aparencia";
 import { BarraAbas } from "./barra-abas";
 
 export default async function LayoutApp({ children }: LayoutProps<"/">) {
@@ -20,7 +19,6 @@ export default async function LayoutApp({ children }: LayoutProps<"/">) {
         <header className="app-topbar">
           <Link href="/hoje" aria-label="Kalyft, início" className="mobile-brand inline-flex min-h-11 items-center"><Logotipo /></Link>
           <p className="eyebrow hidden lg:block">{contexto.modo === "proprio" ? "Seu acompanhamento" : `Acompanhando ${contexto.nome}`}</p>
-          <SeletorAparencia compacto />
         </header>
         {children}
       </main>

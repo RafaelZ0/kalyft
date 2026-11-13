@@ -21,7 +21,8 @@ function observar(atualizar: () => void) {
 }
 const servidor = (): Aparencia => "sistema";
 
-export function SeletorAparencia({ compacto = false }: { compacto?: boolean }) {
+/** Mantém a aparência e a cor do navegador sincronizadas em todas as páginas, sem controles visíveis. */
+export function SincronizarAparencia() {
   const preferencia = useSyncExternalStore(observar, ler, servidor);
   useEffect(() => {
     const sistema = window.matchMedia("(prefers-color-scheme: dark)");
@@ -36,7 +37,11 @@ export function SeletorAparencia({ compacto = false }: { compacto?: boolean }) {
     sistema.addEventListener("change", atualizar);
     return () => sistema.removeEventListener("change", atualizar);
   }, [preferencia]);
+  return null;
+}
 
+export function SeletorAparencia() {
+  const preferencia = useSyncExternalStore(observar, ler, servidor);
   function escolher(valor: string) {
     const p = normalizarAparencia(valor);
     document.documentElement.setAttribute("data-aparencia", p);
@@ -44,15 +49,6 @@ export function SeletorAparencia({ compacto = false }: { compacto?: boolean }) {
     window.dispatchEvent(new Event(EVENTO));
   }
 
-  if (compacto) return (
-    <label className="theme-select">
-      <Monitor size={17} aria-hidden="true" />
-      <span className="sr-only">Aparência</span>
-      <select aria-label="Aparência" value={preferencia} onChange={(e) => escolher(e.target.value)}>
-        <option value="sistema">Sistema</option><option value="claro">Claro</option><option value="escuro">Escuro</option>
-      </select>
-    </label>
-  );
   return (
     <fieldset className="space-y-4">
       <legend className="section-heading">Aparência</legend>

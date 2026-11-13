@@ -1,5 +1,4 @@
 import { Logotipo } from "@/lib/marca";
-import { SeletorAparencia } from "@/components/aparencia";
 import { Check, HeartHandshake, Utensils, Dumbbell } from "lucide-react";
 
 export default function LayoutEntrar({ children }: LayoutProps<"/entrar">) {
@@ -16,7 +15,7 @@ export default function LayoutEntrar({ children }: LayoutProps<"/entrar">) {
         </div>
       </section>
       <div className="auth-form">
-        <header className="mb-8 flex items-center justify-between gap-4"><Logotipo /><SeletorAparencia compacto /></header>
+        <header className="mb-8 flex items-center gap-4"><Logotipo /></header>
         <div className="app-card sm:p-8">{children}</div>
         <p className="mt-6 text-center text-xs leading-relaxed text-suave">Seu cuidado começa com um passo.</p>
       </div>

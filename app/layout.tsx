@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Archivo } from "next/font/google";
 import { headers } from "next/headers";
 import { SCRIPT_APARENCIA } from "@/lib/aparencia";
+import { SincronizarAparencia } from "@/components/aparencia";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -38,7 +39,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${archivo.variable} antialiased`} suppressHydrationWarning>
       <head><script nonce={nonce} dangerouslySetInnerHTML={{ __html: SCRIPT_APARENCIA }} /></head>
-      <body className="min-h-dvh bg-fundo text-texto">{children}</body>
+      <body className="min-h-dvh bg-fundo text-texto"><SincronizarAparencia />{children}</body>
     </html>
   );
 }

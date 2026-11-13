@@ -16,7 +16,7 @@ WORD = '''<path d="M0 0H24V57L72 0H102L45 66 106 140H74L24 79V140H0Z"/>
 <path d="M484 12H508V40H537V62H508V105C508 118 514 122 524 122 529 122 534 121 539 119V140C533 143 525 144 517 144 494 144 484 133 484 110V62H470V40H484Z"/>'''
 
 def svg(name, w, h, content):
-    (OUT / name).write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" role="img" aria-label="Kalyft"><title>Kalyft</title>{content}</svg>\n', encoding='utf-8')
+    (OUT / name).write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" role="img" aria-label="Kalyft"><title>Kalyft</title>{content}</svg>\n', encoding='utf-8', newline='\n')
 
 for name, color in [('vermelho', RED), ('branco', '#FFFFFF'), ('preto', '#000000')]:
     svg(f'simbolo-{name}.svg', 400, 360, f'<g fill="{color}">{SYMBOL}</g>')

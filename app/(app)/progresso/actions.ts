@@ -33,7 +33,7 @@ export async function salvarPesagem(_: EstadoCorpo, form: FormData): Promise<Est
       registrarErro("salvarPesagem", e);
       return { erro: FALHA };
     }
-    revalidatePath("/progresso");
+    revalidatePath("/progresso", "layout");
     return { ok: "Pesagem salva." };
 
   });
@@ -49,7 +49,7 @@ export async function apagarPesagem(form: FormData): Promise<void> {
     } catch (e) {
       registrarErro("apagarPesagem", e);
     }
-    revalidatePath("/progresso");
+    revalidatePath("/progresso", "layout");
 
   });
 }
@@ -64,7 +64,7 @@ export async function marcarAplicacao(form: FormData): Promise<void> {
   } catch (e) {
     registrarErro("marcarAplicacao", e);
   }
-  revalidatePath("/progresso");
+  revalidatePath("/progresso", "layout");
 }
 
 export async function desfazerAplicacao(form: FormData): Promise<void> {
@@ -77,7 +77,7 @@ export async function desfazerAplicacao(form: FormData): Promise<void> {
   } catch (e) {
     registrarErro("desfazerAplicacao", e);
   }
-  revalidatePath("/progresso");
+  revalidatePath("/progresso", "layout");
 }
 
 export async function salvarDiaAplicacao(form: FormData): Promise<void> {
@@ -90,5 +90,5 @@ export async function salvarDiaAplicacao(form: FormData): Promise<void> {
   } catch (e) {
     registrarErro("salvarDiaAplicacao", e);
   }
-  revalidatePath("/progresso");
+  revalidatePath("/progresso", "layout");
 }

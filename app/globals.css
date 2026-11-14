@@ -129,6 +129,18 @@ input[type=number]{
   .icon-badge{
     @apply inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-marca-suave text-marca
   }
+  .atalho{
+    @apply flex min-h-11 flex-col items-center gap-2 rounded-xl text-center
+  }
+  .atalho-icone{
+    @apply inline-flex size-14 items-center justify-center rounded-2xl bg-marca-suave text-marca transition-transform group-active:scale-95
+  }
+  .atalho-rotulo{
+    @apply text-xs font-medium leading-tight text-texto
+  }
+  .campo-busca{
+    @apply flex items-center gap-3 rounded-2xl border border-borda bg-superficie px-4 focus-within:border-marca
+  }
   .eyebrow{
     @apply text-xs font-semibold uppercase tracking-[0.13em] text-suave
   }

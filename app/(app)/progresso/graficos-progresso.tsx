@@ -5,6 +5,7 @@ import { listarSessoes } from "@/lib/dal/treino";
 import { formatarDataBr, somarDias } from "@/lib/datas";
 import { deficitAcumulado, PERIODOS, ROTULOS_PERIODO, type Periodo } from "@/lib/painel-energia";
 import { mediaPorSemana, perdaRealPelaTendencia, treinosPorSemana } from "@/lib/progresso-graficos";
+import { ABAS_GRAFICO, ROTULOS_ABA, type AbaGrafico } from "@/lib/progresso-resumo";
 import { diasEntre, tendenciaDoPeso } from "@/lib/treino";
 
 const n = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
@@ -12,16 +13,16 @@ const dec = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 
 
 function Secao({ id, titulo, children, nota }: { id: string; titulo: string; children: React.ReactNode; nota?: string }) {
   return (
-    <section aria-labelledby={id} className="app-card min-w-0 space-y-3">
-      <h3 id={id} className="section-heading">{titulo}</h3>
+    <section aria-labelledby={id} className="min-w-0 space-y-3">
+      <h3 id={id} className="font-semibold">{titulo}</h3>
       {children}
       {nota ? <p className="text-xs text-suave">{nota}</p> : null}
     </section>
   );
 }
 
-/** Gráficos de progresso com seletor de período. Todos os dados são do próprio usuário (DAL com user_id). */
-export async function GraficosProgresso({ userId, hoje, periodo }: { userId: string; hoje: string; periodo: Periodo }) {
+/** Gráficos de progresso: uma aba por vez, com seletor de período. Dados do titular (DAL com user_id). */
+export async function GraficosProgresso({ userId, hoje, periodo, aba }: { userId: string; hoje: string; periodo: Periodo; aba: AbaGrafico }) {
   const dias = PERIODOS[periodo];
   const desde = somarDias(hoje, -dias);
   const dados = await carregarEnergia(userId, hoje, Math.max(dias, 60));
@@ -37,11 +38,26 @@ export async function GraficosProgresso({ userId, hoje, periodo }: { userId: str
       {(Object.keys(PERIODOS) as Periodo[]).map((p) => (
         <Link
           key={p}
-          href={`/progresso?periodo=${p}`}
+          href={`/progresso?aba=${aba}&periodo=${p}#graficos`}
           aria-current={p === periodo ? "true" : undefined}
-          className={`flex min-h-12 flex-1 items-center justify-center rounded-xl border-2 text-sm font-semibold ${p === periodo ? "border-marca text-texto" : "border-borda text-suave"}`}
+          className={`flex min-h-11 flex-1 items-center justify-center rounded-xl border text-sm font-semibold ${p === periodo ? "border-marca text-texto" : "border-borda text-suave"}`}
         >
           {ROTULOS_PERIODO[p]}
+        </Link>
+      ))}
+    </nav>
+  );
+
+  const abas = (
+    <nav aria-label="Gráfico" className="flex flex-wrap gap-2">
+      {ABAS_GRAFICO.map((a) => (
+        <Link
+          key={a}
+          href={`/progresso?aba=${a}&periodo=${periodo}#graficos`}
+          aria-current={a === aba ? "true" : undefined}
+          className={`flex min-h-11 shrink-0 items-center rounded-full px-4 text-sm font-semibold ${a === aba ? "bg-destaque text-sobre-destaque" : "border border-borda text-suave"}`}
+        >
+          {ROTULOS_ABA[a]}
         </Link>
       ))}
     </nav>
@@ -57,6 +73,7 @@ export async function GraficosProgresso({ userId, hoje, periodo }: { userId: str
   // 2) Déficit acumulado × perda real.
   const trend = tendenciaDoPeso(dados.pesagens.map((p) => ({ data: p.data, peso: p.peso })));
   const real = perdaRealPelaTendencia(trend, desde);
+  const pesoPeriodo = trend.filter((p) => p.data >= desde);
   const def = gasto !== null ? deficitAcumulado(consumo, gasto) : [];
   const base = real[0]?.data ?? def[0]?.data ?? desde;
   const xDia = (d: string) => Math.max(0, diasEntre(base, d));
@@ -80,89 +97,117 @@ export async function GraficosProgresso({ userId, hoje, periodo }: { userId: str
   const rot = (a: string | undefined, b: string | undefined): [string, string] => [a ? formatarDataBr(a) : "", b ? formatarDataBr(b) : ""];
 
   return (
-    <div className="page-stack">
-      <div className="space-y-3">
-        <h2 className="section-heading">Sua evolução ao longo do tempo</h2>
-        {seletor}
-      </div>
+    <section id="graficos" aria-labelledby="g-titulo" className="app-card min-w-0 scroll-mt-6 space-y-4">
+      <h2 id="g-titulo" className="section-heading">Sua evolução</h2>
+      {abas}
+      {seletor}
 
-      <Secao id="g-consumo" titulo="Consumo × gasto" nota={`${semanal ? "Média de calorias por semana" : "Calorias por dia"}, só em dias com registro completo (a partir de 800 kcal). A linha é o gasto estimado de hoje; barras laranjas ficaram acima dele. Estimativa.`}>
-        <GraficoBarras
-          titulo="Calorias consumidas e gasto estimado"
-          unidade="kcal"
-          linha={gasto}
-          rotuloLinha="gasto"
-          acimaEmAtencao
-          barras={barrasKcal}
-          rotulosX={rot(kcalDias[0]?.data, kcalDias.at(-1)?.data)}
-        />
-        {mediaKcal !== null && gasto !== null ? (
-          <p className="font-semibold">
-            Média: {n(mediaKcal)} kcal por dia.{" "}
-            {mediaKcal < gasto ? `Déficit médio de ≈ ${n(gasto - mediaKcal)} kcal.` : `Superávit médio de ≈ ${n(mediaKcal - gasto)} kcal.`}
-          </p>
-        ) : null}
-      </Secao>
+      {aba === "peso" ? (
+        <Secao id="g-peso" titulo="Peso e tendência" nota="Pontos: pesagens do dia. Linha: tendência (média que suaviza água e sal). A tendência é uma estimativa.">
+          {pesoPeriodo.length >= 2 ? (
+            <GraficoLinhas
+              titulo="Peso e tendência no período"
+              unidade="kg"
+              linhaMeta={dados.meta?.pesoMetaKg ?? null}
+              rotulosX={rot(pesoPeriodo[0].data, pesoPeriodo.at(-1)!.data)}
+              series={[
+                { nome: "Peso", tipo: "pontos", pontos: pesoPeriodo.map((p) => ({ x: diasEntre(pesoPeriodo[0].data, p.data), y: p.peso })) },
+                { nome: "Tendência", tipo: "linha", pontos: pesoPeriodo.map((p) => ({ x: diasEntre(pesoPeriodo[0].data, p.data), y: p.tendencia })) },
+              ]}
+            />
+          ) : (
+            <p className="text-suave">O gráfico aparece a partir da segunda pesagem no período. <Link href="/progresso/pesagem" className="font-semibold text-marca underline">Registrar peso</Link></p>
+          )}
+        </Secao>
+      ) : null}
 
-      <Secao
-        id="g-deficit"
-        titulo="Déficit acumulado × perda real"
-        nota="Tracejada: perda esperada pelo déficit registrado (7.700 kcal ≈ 1 kg). Cheia: perda real pela tendência do peso. Uma diferença grande costuma indicar registro de comida incompleto ou gasto mal estimado."
-      >
-        {def.length >= 2 || real.length >= 2 ? (
-          <GraficoLinhas
-            titulo="Perda esperada pelo déficit e perda real"
-            unidade="kg"
-            rotulosX={rot(base, real.at(-1)?.data ?? defNoPeriodo.at(-1)?.data)}
-            series={[
-              { nome: "Esperada", tipo: "tracejada", pontos: defNoPeriodo.map((d) => ({ x: xDia(d.data), y: d.perdaEsperadaKg - (defNoPeriodo[0]?.perdaEsperadaKg ?? 0) })) },
-              { nome: "Real", tipo: "linha", pontos: real.map((r) => ({ x: xDia(r.data), y: r.perdaKg })) },
-            ]}
+      {aba === "calorias" ? (
+        <Secao id="g-consumo" titulo="Consumo × gasto" nota={`${semanal ? "Média de calorias por semana" : "Calorias por dia"}, só em dias com registro completo (a partir de 800 kcal). A linha é o gasto estimado de hoje; barras laranjas ficaram acima dele. Estimativa.`}>
+          <GraficoBarras
+            titulo="Calorias consumidas e gasto estimado"
+            unidade="kcal"
+            linha={gasto}
+            rotuloLinha="gasto"
+            acimaEmAtencao
+            barras={barrasKcal}
+            rotulosX={rot(kcalDias[0]?.data, kcalDias.at(-1)?.data)}
           />
-        ) : (
-          <p className="text-suave">Precisa de registros de comida e de pesagens no período.</p>
-        )}
-        {diferenca !== null && Math.abs(diferenca) >= 1 ? (
-          <p className="rounded-2xl border-2 border-aviso p-3 text-sm font-medium text-aviso">
-            <span aria-hidden="true">! </span>A diferença é de ≈ {dec(Math.abs(diferenca))} kg {diferenca > 0 ? "a menos perdidos do que o déficit indica" : "a mais perdidos do que o déficit indica"}. Pode ser registro incompleto de comida ou gasto estimado diferente do real.
-          </p>
-        ) : null}
-      </Secao>
+          {mediaKcal !== null && gasto !== null ? (
+            <p className="font-semibold">
+              Média: {n(mediaKcal)} kcal por dia.{" "}
+              {mediaKcal < gasto ? `Déficit médio de ≈ ${n(gasto - mediaKcal)} kcal.` : `Superávit médio de ≈ ${n(mediaKcal - gasto)} kcal.`}
+            </p>
+          ) : null}
+        </Secao>
+      ) : null}
 
-      <Secao id="g-comp" titulo="Composição corporal" nota="Massa gorda = peso − massa magra, a cada avaliação com massa magra. Estimativa de balança.">
-        {comp.length >= 2 ? (
-          <GraficoLinhas
-            titulo="Peso, massa magra e massa gorda"
-            unidade="kg"
-            rotulosX={rot(comp[0].data, comp.at(-1)!.data)}
-            series={[
-              { nome: "Peso", tipo: "pontos", pontos: comp.map((p) => ({ x: diasEntre(compBase!, p.data), y: p.peso })) },
-              { nome: "Massa magra", tipo: "linha", pontos: comp.map((p) => ({ x: diasEntre(compBase!, p.data), y: p.massaMagraKg as number })) },
-              { nome: "Massa gorda", tipo: "tracejada", pontos: comp.map((p) => ({ x: diasEntre(compBase!, p.data), y: Math.round((p.peso - (p.massaMagraKg as number)) * 10) / 10 })) },
-            ]}
+      {aba === "deficit" ? (
+        <Secao
+          id="g-deficit"
+          titulo="Déficit acumulado × perda real"
+          nota="Tracejada: perda esperada pelo déficit registrado (7.700 kcal ≈ 1 kg). Cheia: perda real pela tendência do peso. Uma diferença grande costuma indicar registro de comida incompleto ou gasto mal estimado."
+        >
+          {def.length >= 2 || real.length >= 2 ? (
+            <GraficoLinhas
+              titulo="Perda esperada pelo déficit e perda real"
+              unidade="kg"
+              rotulosX={rot(base, real.at(-1)?.data ?? defNoPeriodo.at(-1)?.data)}
+              series={[
+                { nome: "Esperada", tipo: "tracejada", pontos: defNoPeriodo.map((d) => ({ x: xDia(d.data), y: d.perdaEsperadaKg - (defNoPeriodo[0]?.perdaEsperadaKg ?? 0) })) },
+                { nome: "Real", tipo: "linha", pontos: real.map((r) => ({ x: xDia(r.data), y: r.perdaKg })) },
+              ]}
+            />
+          ) : (
+            <p className="text-suave">Precisa de registros de comida e de pesagens no período.</p>
+          )}
+          {diferenca !== null && Math.abs(diferenca) >= 1 ? (
+            <p className="rounded-2xl border-2 border-aviso p-3 text-sm font-medium text-aviso">
+              <span aria-hidden="true">! </span>A diferença é de ≈ {dec(Math.abs(diferenca))} kg {diferenca > 0 ? "a menos perdidos do que o déficit indica" : "a mais perdidos do que o déficit indica"}. Pode ser registro incompleto de comida ou gasto estimado diferente do real.
+            </p>
+          ) : null}
+        </Secao>
+      ) : null}
+
+      {aba === "composicao" ? (
+        <Secao id="g-comp" titulo="Composição corporal" nota="Massa gorda = peso − massa magra, a cada avaliação com massa magra. Estimativa de balança.">
+          {comp.length >= 2 ? (
+            <GraficoLinhas
+              titulo="Peso, massa magra e massa gorda"
+              unidade="kg"
+              rotulosX={rot(comp[0].data, comp.at(-1)!.data)}
+              series={[
+                { nome: "Peso", tipo: "pontos", pontos: comp.map((p) => ({ x: diasEntre(compBase!, p.data), y: p.peso })) },
+                { nome: "Massa magra", tipo: "linha", pontos: comp.map((p) => ({ x: diasEntre(compBase!, p.data), y: p.massaMagraKg as number })) },
+                { nome: "Massa gorda", tipo: "tracejada", pontos: comp.map((p) => ({ x: diasEntre(compBase!, p.data), y: Math.round((p.peso - (p.massaMagraKg as number)) * 10) / 10 })) },
+              ]}
+            />
+          ) : (
+            <p className="text-suave">Registre a massa magra em pelo menos duas pesagens para ver a composição.</p>
+          )}
+        </Secao>
+      ) : null}
+
+      {aba === "proteina" ? (
+        <Secao id="g-prot" titulo="Proteína × meta" nota={semanal ? "Média diária de proteína por semana." : "Proteína por dia."}>
+          <GraficoBarras titulo="Proteína consumida e meta" unidade="g" linha={metaProt} rotuloLinha="meta" barras={barrasProt} rotulosX={rot(protDias[0]?.data, protDias.at(-1)?.data)} />
+          {mediaProt !== null ? (
+            <p className="font-semibold">
+              Média: {n(mediaProt)} g por dia{metaProt ? ` (meta ${n(metaProt)} g)` : ""}.
+            </p>
+          ) : null}
+        </Secao>
+      ) : null}
+
+      {aba === "treinos" ? (
+        <Secao id="g-treino" titulo="Treinos por semana">
+          <GraficoBarras
+            titulo="Treinos feitos por semana"
+            unidade="treinos"
+            barras={semanas.map((s, i) => ({ x: i, y: s.total }))}
+            rotulosX={rot(semanas[0]?.inicio, semanas.at(-1)?.inicio)}
           />
-        ) : (
-          <p className="text-suave">Registre a massa magra em pelo menos duas pesagens para ver a composição.</p>
-        )}
-      </Secao>
-
-      <Secao id="g-prot" titulo="Proteína × meta" nota={semanal ? "Média diária de proteína por semana." : "Proteína por dia."}>
-        <GraficoBarras titulo="Proteína consumida e meta" unidade="g" linha={metaProt} rotuloLinha="meta" barras={barrasProt} rotulosX={rot(protDias[0]?.data, protDias.at(-1)?.data)} />
-        {mediaProt !== null ? (
-          <p className="font-semibold">
-            Média: {n(mediaProt)} g por dia{metaProt ? ` (meta ${n(metaProt)} g)` : ""}.
-          </p>
-        ) : null}
-      </Secao>
-
-      <Secao id="g-treino" titulo="Treinos por semana">
-        <GraficoBarras
-          titulo="Treinos feitos por semana"
-          unidade="treinos"
-          barras={semanas.map((s, i) => ({ x: i, y: s.total }))}
-          rotulosX={rot(semanas[0]?.inicio, semanas.at(-1)?.inicio)}
-        />
-      </Secao>
-    </div>
+        </Secao>
+      ) : null}
+    </section>
   );
 }

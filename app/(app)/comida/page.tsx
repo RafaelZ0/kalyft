@@ -3,12 +3,14 @@ import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { totalAguaDoDia } from "@/lib/dal/agua";
 import { metaVigente } from "@/lib/dal/metas";
+import { listarPlanejados } from "@/lib/dal/planejamento";
 import { listarDia } from "@/lib/dal/registros";
 import { hojeSaoPaulo, rotuloDia, somarDias } from "@/lib/datas";
 import { compararComMeta, formatarGramas, formatarKcal, somarDia, type CampoTotal } from "@/lib/nutricao";
 import { dataDiario, REFEICOES, ROTULOS_REFEICAO } from "@/lib/validacao/comida";
 import { MenuRefeicao } from "./menu-refeicao";
 import { PainelAgua } from "./painel-agua";
+import { ItemPlanejado } from "./planejar/item-planejado";
 
 export const metadata = { title: "Alimentação · Kalyft" };
 
@@ -27,7 +29,8 @@ export default async function PaginaComida(props: PageProps<"/comida">) {
   const r = dataDiario.safeParse(typeof pedido === "string" ? pedido : hoje);
   const data = r.success ? r.data : hoje;
 
-  const [registros, meta, aguaMl] = await Promise.all([listarDia(userId, data), metaVigente(userId, data), totalAguaDoDia(userId, data)]);
+  const [registros, meta, aguaMl, planejados] = await Promise.all([listarDia(userId, data), metaVigente(userId, data), totalAguaDoDia(userId, data), listarPlanejados(userId, data, data)]);
+  const pendentes = planejados.filter((p) => !p.consumido);
   const totais = somarDia(registros);
 
   return (
@@ -45,6 +48,9 @@ export default async function PaginaComida(props: PageProps<"/comida">) {
           </Link>
           <Link href={`/comida/refeicoes?data=${data}`} className="flex min-h-11 items-center whitespace-nowrap rounded-xl border border-linha px-4 text-suave">
             Refeições salvas
+          </Link>
+          <Link href="/comida/planejar" className="flex min-h-11 items-center whitespace-nowrap rounded-xl border border-linha px-4 text-suave">
+            Planejar a semana
           </Link>
         </div>
         <nav aria-label="Dia" className="app-card flex items-center justify-between">
@@ -68,6 +74,17 @@ export default async function PaginaComida(props: PageProps<"/comida">) {
           )}
         </nav>
       </header>
+
+      {pendentes.length ? (
+        <section aria-labelledby="planejado" className="app-card space-y-2">
+          <div className="flex items-center justify-between gap-3">
+            <h2 id="planejado" className="section-heading">Planejado</h2>
+            <Link href="/comida/planejar" className="action-link">Ver semana</Link>
+          </div>
+          <p className="text-sm text-suave">Ainda não conta no diário. Toque em &quot;Comi isso&quot; quando comer.</p>
+          <ul>{pendentes.map((p) => <ItemPlanejado key={p.id} p={p} hoje={hoje} />)}</ul>
+        </section>
+      ) : null}
 
       <section aria-labelledby="totais" className="app-card grid gap-5 sm:grid-cols-3">
         <h2 id="totais" className="section-heading sm:col-span-3">Resumo do dia</h2>

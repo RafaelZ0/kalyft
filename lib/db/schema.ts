@@ -1127,3 +1127,68 @@ export const passosSemana = pgTable(
 );
 
 export type PassoSemanaRow = typeof passosSemana.$inferSelect;
+
+// ───────────────────────── Fase 9E: planejamento da semana e lista de compras ─────────────────────────
+
+// Refeição planejada: receita (porções), refeição salva (vezes) ou alimento (gramas). Planejado não é consumido:
+// "Comi isso" cria o registro (nutrientes recalculados na hora) e marca consumido_em.
+export const refeicoesPlanejadas = pgTable(
+  "refeicoes_planejadas",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: dono(),
+    data: date("data").notNull(),
+    refeicao: text("refeicao").notNull(),
+    tipo: text("tipo").notNull(),
+    receitaId: uuid("receita_id"),
+    refeicaoSalvaId: uuid("refeicao_salva_id"),
+    alimentoBaseId: uuid("alimento_base_id").references(() => alimentosBase.id, { onDelete: "cascade" }),
+    alimentoUsuarioId: uuid("alimento_usuario_id"),
+    quantidade: numeric("quantidade", { precision: 6, scale: 1, mode: "number" }).notNull(),
+    consumidoEm: timestamp("consumido_em", { withTimezone: true }),
+    criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("refeicoes_planejadas_id_user_key").on(t.id, t.userId),
+    foreignKey({ columns: [t.receitaId, t.userId], foreignColumns: [receitas.id, receitas.userId] }).onDelete("cascade"),
+    foreignKey({ columns: [t.refeicaoSalvaId, t.userId], foreignColumns: [refeicoesSalvas.id, refeicoesSalvas.userId] }).onDelete("cascade"),
+    foreignKey({ columns: [t.alimentoUsuarioId, t.userId], foreignColumns: [alimentosUsuario.id, alimentosUsuario.userId] }).onDelete("cascade"),
+    index("refeicoes_planejadas_user_data").on(t.userId, t.data),
+    check("refeicoes_planejadas_data_check", sql`${t.data} >= date '2000-01-01'`),
+    check("refeicoes_planejadas_refeicao_check", sql`${t.refeicao} in ('cafe', 'almoco', 'lanche', 'jantar', 'ceia')`),
+    // "is not null" explícito: um CHECK que dá NULL passa no Postgres.
+    check(
+      "refeicoes_planejadas_tipo_check",
+      sql`(${t.tipo} = 'receita' and ${t.receitaId} is not null and num_nonnulls(${t.refeicaoSalvaId}, ${t.alimentoBaseId}, ${t.alimentoUsuarioId}) = 0 and ${t.quantidade} between 0.5 and 10)
+        or (${t.tipo} = 'salva' and ${t.refeicaoSalvaId} is not null and num_nonnulls(${t.receitaId}, ${t.alimentoBaseId}, ${t.alimentoUsuarioId}) = 0 and ${t.quantidade} between 0.5 and 10)
+        or (${t.tipo} = 'alimento' and num_nonnulls(${t.alimentoBaseId}, ${t.alimentoUsuarioId}) = 1 and num_nonnulls(${t.receitaId}, ${t.refeicaoSalvaId}) = 0 and ${t.quantidade} between 1 and 5000)`,
+    ),
+  ],
+);
+
+// Lista de compras da semana: marcação de "comprado" dos itens calculados (chave = alimento) e itens avulsos.
+export const comprasItens = pgTable(
+  "compras_itens",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: dono(),
+    semana: date("semana").notNull(),
+    chave: text("chave"),
+    texto: text("texto"),
+    comprado: boolean("comprado").notNull().default(false),
+    criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("compras_itens_id_user_key").on(t.id, t.userId),
+    uniqueIndex("compras_itens_chave_key").on(t.userId, t.semana, t.chave).where(sql`${t.chave} is not null`),
+    index("compras_itens_user_semana").on(t.userId, t.semana),
+    check("compras_itens_segunda_check", sql`extract(isodow from ${t.semana}) = 1`),
+    check(
+      "compras_itens_conteudo_check",
+      sql`(${t.chave} is not null and ${t.texto} is null and ${t.chave} ~ '^(base|usuario):[0-9a-f-]{36}$')
+        or (${t.chave} is null and ${t.texto} is not null and char_length(${t.texto}) between 1 and 80)`,
+    ),
+  ],
+);
+
+export type RefeicaoPlanejadaRow = typeof refeicoesPlanejadas.$inferSelect;

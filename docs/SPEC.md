@@ -91,6 +91,8 @@ Detalhes:
 
 **Implementado (Fase 9D) — "O que posso fazer com o que tenho?":** `/comida/sugestoes` recebe ingredientes, tempo (10–45 min), refeição, preferências fixas e, se marcado, o quanto falta da meta (calculado no servidor). A IA devolve até 3 opções (ingredientes com gramas, até 6 passos, trocas); os ingredientes são casados com o banco e as calorias calculadas pelo app. Registrar passa pela revisão da Fase 5; salvar como receita abre o editor da Fase 7B preenchido. Limite diário próprio (`sugestao`, 10). Só na conta própria.
 
+**Implementado (Fase 9E) — planejamento da semana e lista de compras:** `/comida/planejar` permite planejar receitas (porções), refeições salvas (vezes) e alimentos (gramas) por dia e refeição (até 4 por refeição; 8 semanas para trás e 4 para frente). Planejado não conta como consumido: "Comi isso" cria o registro com nutrientes recalculados e marca o item (sem duplicar). A lista de compras soma os ingredientes por alimento (receitas pela proporção das porções), agrupa por grupo da TACO, permite marcar comprado e itens avulsos. "Repetir a semana passada" copia para uma semana vazia.
+
 ### 3.5 Código de barras
 
 - Leitura pela câmera do iPhone no navegador, com `@zxing/browser` (JavaScript puro, sem WebAssembly). **A confirmar no aparelho:** não foi possível testar o Safari do iOS fora do iPhone. Há sempre a opção de digitar os números.

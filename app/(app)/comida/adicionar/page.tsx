@@ -1,4 +1,4 @@
-import { ScanBarcode, Sparkles, Plus } from "lucide-react";
+import { ChefHat, ScanBarcode, Sparkles, Plus } from "lucide-react";
 import { SomenteContaPropria } from "@/components/contexto-dados";
 import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
@@ -28,7 +28,7 @@ export default async function PaginaAdicionar(props: PageProps<"/comida/adiciona
       <Voltar href={`/comida?data=${data}`} />
       <h1 className="page-heading">{ROTULOS_REFEICAO[ref]}</h1>
       <p className="page-intro">Busque um alimento ou escolha como quer registrar.</p>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
       <SomenteContaPropria><Link
         href={`/comida/ia${volta}`}
         className="action-secondary gap-2"
@@ -47,6 +47,12 @@ export default async function PaginaAdicionar(props: PageProps<"/comida/adiciona
       >
         <Plus size={19} aria-hidden="true" /> Cadastrar pelo rótulo
       </Link>
+      <SomenteContaPropria><Link
+        href={`/comida/sugestoes?refeicao=${ref}`}
+        className="action-secondary gap-2"
+      >
+        <ChefHat size={19} aria-hidden="true" /> O que posso fazer com o que tenho?
+      </Link></SomenteContaPropria>
       </div>
       <Busca volta={volta}>
         {favs.length > 0 ? (

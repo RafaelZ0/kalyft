@@ -21,8 +21,8 @@ import {
   type ItemRascunho,
 } from "./actions";
 
-type Cand = { tipo: "base" | "usuario"; id: string; nome: string; marca: string | null; kcal: number | null; cobertura?: number };
-type ItemEditavel = Omit<ItemRascunho, "candidatos"> & { chave: number; candidatos: Cand[]; escolhido: Cand | null };
+export type Cand = { tipo: "base" | "usuario"; id: string; nome: string; marca: string | null; kcal: number | null; cobertura?: number };
+export type ItemEditavel = Omit<ItemRascunho, "candidatos"> & { chave: number; candidatos: Cand[]; escolhido: Cand | null };
 
 const passoDeGramas = (g: number) => (g < 60 ? 5 : g < 300 ? 10 : 25);
 const fmt = (n: number) => n.toLocaleString("pt-BR", { maximumFractionDigits: 0 });
@@ -203,9 +203,10 @@ function Passo({ valor, onMenos, onMais, rotulo }: { valor: string; onMenos: () 
   );
 }
 
-function Revisao({ data, refeicao, rotuloRefeicao, restanteEstimativa, origem, itens, setItens, descartados, aoVoltar }: {
+/** Revisão dos itens antes de salvar (também usada pelas sugestões de refeição). */
+export function Revisao({ data, refeicao, rotuloRefeicao, restanteEstimativa, origem, itens, setItens, descartados, aoVoltar, rotuloVoltar = "Voltar e escrever de novo" }: {
   data: string; refeicao: string; rotuloRefeicao: string; restanteEstimativa: number; origem: "ia_texto" | "ia_foto";
-  itens: ItemEditavel[]; setItens: (f: (l: ItemEditavel[] | null) => ItemEditavel[] | null) => void; descartados: number; aoVoltar: () => void;
+  itens: ItemEditavel[]; setItens: (f: (l: ItemEditavel[] | null) => ItemEditavel[] | null) => void; descartados: number; aoVoltar: () => void; rotuloVoltar?: string;
 }) {
   const [estado, acao] = useActionState<EstadoSalvar, FormData>(salvarRefeicaoIa, {});
   const mudar = (chave: number, parte: Partial<ItemEditavel>) => setItens((l) => (l ?? []).map((i) => (i.chave === chave ? { ...i, ...parte } : i)));
@@ -265,7 +266,7 @@ function Revisao({ data, refeicao, rotuloRefeicao, restanteEstimativa, origem, i
       {faltam > 0 ? <p role="status" className="font-medium text-aviso"><span aria-hidden="true">! </span>{faltam} {faltam === 1 ? "item ainda precisa" : "itens ainda precisam"} de um alimento (escolha na busca, peça uma estimativa ou remova).</p> : null}
       {estado.erro ? <Aviso>{estado.erro}</Aviso> : null}
       <SalvarBotao desabilitado={itens.length === 0 || faltam > 0} rotulo={`Salvar no ${rotuloRefeicao.toLowerCase()}`} />
-      <BotaoSecundario onClick={aoVoltar}>Voltar e escrever de novo</BotaoSecundario>
+      <BotaoSecundario onClick={aoVoltar}>{rotuloVoltar}</BotaoSecundario>
     </FormDados>
   );
 }

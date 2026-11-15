@@ -148,6 +148,13 @@
       "when": 1794714651021,
       "tag": "0020_fase9c_passo_semana_checks",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1794715180875,
+      "tag": "0021_fase9d_uso_sugestao",
+      "breakpoints": true
     }
   ]
 }

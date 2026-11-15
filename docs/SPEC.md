@@ -89,6 +89,8 @@ Detalhes:
 
 **Implementado (Fase 5, registro por texto):** tela `/comida/ia`. O texto digitado é mostrado antes do envio; o Gemini devolve itens (nome genérico, quantidade, gramas e confiança); cada item é casado com a TACO e os alimentos do próprio usuário por **palavras que importam** (sem "de", "filé" etc.), com cobertura mínima de 50% para pré-escolher e preferência por alimento não cru; o usuário confere, troca (busca) e ajusta as gramas (− e +). Item sem correspondência: busca, cadastro pelo rótulo ou **estimativa da IA sob demanda** (valores por 100 g e medidas caseiras, com limites físicos e conta calorias × macros), que só vira alimento do usuário (origem `ia_estimativa`) depois de conferida e confirmada. A refeição é sempre a escolhida pelo usuário. Os registros guardam o snapshot calculado pelo servidor (origem `ia_texto`). Limites diários: 20 interpretações e 10 estimativas. O registro por foto continua na Fase 7.
 
+**Implementado (Fase 9D) — "O que posso fazer com o que tenho?":** `/comida/sugestoes` recebe ingredientes, tempo (10–45 min), refeição, preferências fixas e, se marcado, o quanto falta da meta (calculado no servidor). A IA devolve até 3 opções (ingredientes com gramas, até 6 passos, trocas); os ingredientes são casados com o banco e as calorias calculadas pelo app. Registrar passa pela revisão da Fase 5; salvar como receita abre o editor da Fase 7B preenchido. Limite diário próprio (`sugestao`, 10). Só na conta própria.
+
 ### 3.5 Código de barras
 
 - Leitura pela câmera do iPhone no navegador, com `@zxing/browser` (JavaScript puro, sem WebAssembly). **A confirmar no aparelho:** não foi possível testar o Safari do iOS fora do iPhone. Há sempre a opção de digitar os números.

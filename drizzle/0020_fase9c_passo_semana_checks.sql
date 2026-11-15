@@ -1,0 +1,5 @@
+ALTER TABLE "passos_semana" DROP CONSTRAINT "passos_semana_coerencia_check";--> statement-breakpoint
+ALTER TABLE "passos_semana" DROP CONSTRAINT "passos_semana_refeicao_check";--> statement-breakpoint
+ALTER TABLE "passos_semana" ADD CONSTRAINT "passos_semana_coerencia_check" CHECK (("passos_semana"."tipo" = 'livre' and "passos_semana"."alvo" is null and "passos_semana"."texto" is not null and char_length("passos_semana"."texto") between 1 and 120)
+        or ("passos_semana"."tipo" <> 'livre' and "passos_semana"."alvo" is not null and "passos_semana"."alvo" between 1 and 7 and "passos_semana"."texto" is null));--> statement-breakpoint
+ALTER TABLE "passos_semana" ADD CONSTRAINT "passos_semana_refeicao_check" CHECK (("passos_semana"."tipo" = 'refeicao_dias' and "passos_semana"."refeicao" is not null and "passos_semana"."refeicao" in ('cafe', 'almoco', 'lanche', 'jantar', 'ceia')) or ("passos_semana"."tipo" <> 'refeicao_dias' and "passos_semana"."refeicao" is null));

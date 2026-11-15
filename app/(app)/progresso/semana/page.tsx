@@ -1,10 +1,15 @@
 import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
+import { FormDados } from "@/components/contexto-dados";
+import { dadosDaSemana, obterPassoSemana } from "@/lib/dal/passos-semana";
 import { carregarRelatorio } from "@/lib/dal/relatorio";
 import { formatarDataBr, hojeSaoPaulo } from "@/lib/datas";
 import { verificarAcessoIa } from "@/lib/ia/acesso";
+import { fraseDoResultado, lacunasDaSemana, leiturasDaSemana, medirPasso, sugerirPassos, textoDoPasso } from "@/lib/proximo-passo";
 import { resumoFixo, semanaAnterior, semanaSeguinte, semanaValida } from "@/lib/relatorio";
 import { BotaoResumo } from "./botao-resumo";
+import { EscolherPasso } from "./escolher-passo";
+import { removerPassoSemanaAcao } from "./passo-actions";
 
 export const metadata = { title: "Resumo da semana · Kalyft" };
 
@@ -28,6 +33,18 @@ export default async function PaginaSemana(props: PageProps<"/progresso/semana">
   const inicio = semanaValida(sp.inicio, hoje);
   const [{ relatorio: r, textoIa }, acesso] = await Promise.all([carregarRelatorio(userId, inicio, hoje, modo === "proprio"), modo === "proprio" ? verificarAcessoIa(userId, admin !== null) : Promise.resolve({ ok: false, precisaAceite: false })]);
   const ehAtual = semanaSeguinte(inicio) > hoje;
+  const ate = hoje < r.fim ? hoje : r.fim;
+  const [dados, passo, passoProxima] = await Promise.all([
+    dadosDaSemana(userId, inicio, ate),
+    obterPassoSemana(userId, inicio),
+    ehAtual ? obterPassoSemana(userId, semanaSeguinte(inicio)) : Promise.resolve(null),
+  ]);
+  const medicao = passo ? medirPasso(passo, dados) : null;
+  const leituras = leiturasDaSemana(r);
+  const lacunas = lacunasDaSemana(r);
+  const sugestoes = sugerirPassos(r, dados, { proteina: dados.diasProteinaNaMeta !== null, agua: dados.diasAguaNaMeta !== null });
+  // Na semana atual: sem passo ainda, escolhe para esta semana; com passo, escolhe o da próxima.
+  const semanaDaEscolha = ehAtual ? (passo ? "proxima" : "atual") : null;
 
   return (
     <div className="page-stack">
@@ -54,6 +71,48 @@ export default async function PaginaSemana(props: PageProps<"/progresso/semana">
             <li key={a} className="rounded-2xl border-2 border-aviso p-3 text-sm font-medium text-aviso"><span aria-hidden="true">! </span>{a}</li>
           ))}
         </ul>
+      ) : null}
+
+      {leituras.length || lacunas.length ? (
+        <section aria-labelledby="leitura" className="app-card space-y-4">
+          {leituras.length ? (
+            <div className="space-y-2">
+              <h2 id="leitura" className="section-heading">O que dá para dizer</h2>
+              <ul className="list-disc space-y-1 pl-5">{leituras.map((l) => <li key={l}>{l}</li>)}</ul>
+            </div>
+          ) : null}
+          {lacunas.length ? (
+            <div className="space-y-2">
+              <h2 id={leituras.length ? undefined : "leitura"} className="font-semibold">O que ainda não dá para concluir</h2>
+              <ul className="list-disc space-y-1 pl-5 text-sm text-suave">{lacunas.map((l) => <li key={l}>{l}</li>)}</ul>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
+      {passo ? (
+        <section aria-labelledby="passo-semana" className="app-card space-y-2 border-marca">
+          <h2 id="passo-semana" className="section-heading">Passo {ehAtual ? "desta semana" : "da semana"}</h2>
+          <p className="font-semibold">{textoDoPasso(passo)}</p>
+          {medicao ? <p className="text-sm text-suave">{fraseDoResultado(medicao, hoje > r.fim)}</p> : <p className="text-sm text-suave">Passo escrito por você: o app não mede, só lembra.</p>}
+          {ehAtual ? (
+            <FormDados action={removerPassoSemanaAcao}>
+              <input type="hidden" name="semana" value="atual" />
+              <button type="submit" className="min-h-11 text-sm font-semibold text-suave underline">Tirar o passo desta semana</button>
+            </FormDados>
+          ) : null}
+        </section>
+      ) : null}
+
+      {semanaDaEscolha ? (
+        <section aria-labelledby="proximo-passo" className="app-card space-y-3">
+          <div className="space-y-1">
+            <h2 id="proximo-passo" className="section-heading">{semanaDaEscolha === "atual" ? "Um passo para esta semana" : "Próximo passo para a semana que vem"}</h2>
+            <p className="text-sm text-suave">Escolha uma coisa só, pequena e possível. Na semana, o app mostra como foi.</p>
+          </div>
+          {semanaDaEscolha === "proxima" && passoProxima ? <p className="text-sm">Escolhido: <span className="font-semibold">{textoDoPasso(passoProxima)}</span></p> : null}
+          <EscolherPasso semana={semanaDaEscolha} sugestoes={sugestoes} atual={semanaDaEscolha === "atual" ? passo : passoProxima} />
+        </section>
       ) : null}
 
       <section aria-labelledby="resumo" className="app-card space-y-4">

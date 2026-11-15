@@ -1094,3 +1094,36 @@ export const adaptacoesTreino = pgTable(
 );
 
 export type AdaptacaoTreinoRow = typeof adaptacoesTreino.$inferSelect;
+
+// ───────────────────────── Fase 9C: próximo passo da semana ─────────────────────────
+
+// Um passo escolhido pela pessoa por semana (segunda-feira). Mensurável (tipo + alvo de 1 a 7) ou livre (texto).
+export const passosSemana = pgTable(
+  "passos_semana",
+  {
+    userId: dono(),
+    inicio: date("inicio").notNull(),
+    tipo: text("tipo").notNull(),
+    alvo: integer("alvo"),
+    refeicao: text("refeicao"),
+    texto: text("texto"),
+    criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.inicio] }),
+    check("passos_semana_segunda_check", sql`extract(isodow from ${t.inicio}) = 1`),
+    check("passos_semana_tipo_check", sql`${t.tipo} in ('registrar_dias', 'refeicao_dias', 'pesar_dias', 'treinos', 'proteina_dias', 'agua_dias', 'livre')`),
+    check(
+      "passos_semana_coerencia_check",
+      // "is not null" explícito: um CHECK que dá NULL passa no Postgres.
+      sql`(${t.tipo} = 'livre' and ${t.alvo} is null and ${t.texto} is not null and char_length(${t.texto}) between 1 and 120)
+        or (${t.tipo} <> 'livre' and ${t.alvo} is not null and ${t.alvo} between 1 and 7 and ${t.texto} is null)`,
+    ),
+    check(
+      "passos_semana_refeicao_check",
+      sql`(${t.tipo} = 'refeicao_dias' and ${t.refeicao} is not null and ${t.refeicao} in ('cafe', 'almoco', 'lanche', 'jantar', 'ceia')) or (${t.tipo} <> 'refeicao_dias' and ${t.refeicao} is null)`,
+    ),
+  ],
+);
+
+export type PassoSemanaRow = typeof passosSemana.$inferSelect;

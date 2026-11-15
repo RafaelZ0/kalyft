@@ -134,6 +134,20 @@
       "when": 1794713589006,
       "tag": "0018_fase9b_adaptar_treino",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1794714453487,
+      "tag": "0019_fase9c_passo_semana",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1794714651021,
+      "tag": "0020_fase9c_passo_semana_checks",
+      "breakpoints": true
     }
   ]
 }

@@ -127,6 +127,13 @@
       "when": 1794708246232,
       "tag": "0017_fase9a_rotina_pausas",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1794713589006,
+      "tag": "0018_fase9b_adaptar_treino",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
+import { datasAdaptadas } from "@/lib/dal/adaptacoes";
 import { pausasNoPeriodo } from "@/lib/dal/pausas";
 import { listarSessoes, obterAgenda, obterTrocas, planoAtivo, ultimasSessoes } from "@/lib/dal/treino";
 import { hojeSaoPaulo } from "@/lib/datas";
@@ -40,13 +41,14 @@ export default async function PaginaCalendario(props: PageProps<"/treino/calenda
   const primeiro = `${ano}-${String(mes).padStart(2, "0")}-01`;
   const ultimo = `${ano}-${String(mes).padStart(2, "0")}-${String(new Date(Date.UTC(ano, mes, 0)).getUTCDate()).padStart(2, "0")}`;
 
-  const [plano, sessoes, agenda, trocas, recentes, pausas] = await Promise.all([
+  const [plano, sessoes, agenda, trocas, recentes, pausas, adaptadas] = await Promise.all([
     planoAtivo(userId),
     listarSessoes(userId, primeiro, ultimo),
     obterAgenda(userId),
     obterTrocas(userId, primeiro, ultimo),
     ultimasSessoes(userId),
     pausasNoPeriodo(userId, primeiro, ultimo),
+    datasAdaptadas(userId, primeiro, ultimo),
   ]);
   const resumo = (l: typeof sessoes) => l.map((s) => ({ data: s.data, status: s.status as "feito" | "faltou", motivo: s.motivo }));
   const dias = calendarioDoMes(ano, mes, hoje, resumo(sessoes), (d) => (!plano || d >= plano.inicio) && treinoDoDia(d, agenda, trocas) !== null, (d) => emPausa(d, pausas));
@@ -82,10 +84,12 @@ export default async function PaginaCalendario(props: PageProps<"/treino/calenda
         ))}
         {dias.map((d) => {
           const numero = Number(d.data.slice(8));
-          const celula = `flex aspect-square items-center justify-center rounded-xl text-sm ${CLASSE[d.status]}`;
+          const adaptado = adaptadas.has(d.data) && d.status === "feito";
+          const celula = `relative flex aspect-square items-center justify-center rounded-xl text-sm ${CLASSE[d.status]}`;
           return d.data <= hoje ? (
-            <Link key={d.data} href={`/treino?data=${d.data}`} className={celula} aria-label={`${numero}: ${d.status.replace("_", " ")}`}>
+            <Link key={d.data} href={`/treino?data=${d.data}`} className={celula} aria-label={`${numero}: ${d.status.replace("_", " ")}${adaptado ? " (adaptado)" : ""}`}>
               {numero}
+              {adaptado ? <span aria-hidden="true" className="absolute right-1 top-1 size-1.5 rounded-full bg-sobre-destaque" /> : null}
             </Link>
           ) : (
             <span key={d.data} className={celula}>
@@ -102,6 +106,10 @@ export default async function PaginaCalendario(props: PageProps<"/treino/calenda
             {rotulo}
           </li>
         ))}
+        <li className="flex items-center gap-1.5">
+          <span className="relative inline-block h-3 w-3 rounded-sm bg-destaque"><span className="absolute right-0.5 top-0.5 size-1 rounded-full bg-sobre-destaque" /></span>
+          Adaptado
+        </li>
       </ul>
 
       <section aria-labelledby="estatisticas" className="app-card space-y-3">

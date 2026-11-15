@@ -120,6 +120,7 @@ O plano tem:
 - Treino feito, falta com motivo (trabalho, cansaço, dor ou lesão, doente, imprevisto, outro) e observação.
 - Calendário mensal: feito, faltou, planejado, sem registro. Estatísticas: treinos no mês, faltas, sequência atual, motivos mais comuns.
 - Evolução por exercício: gráfico da maior carga por sessão e histórico.
+- **Implementado (Fase 9B) — adaptar o treino de hoje:** escolher 15, 20, 30, 45 ou 60 minutos gera uma versão que cabe no tempo (reduz séries até 2, depois pula exercícios do fim); pular ou trocar exercício por substituto do plano ou exercício próprio do mesmo grupo. Vale só para o dia, o plano não muda, e só é usada depois de "Usar esta versão hoje"; "Voltar ao treino completo" desfaz. Duração sempre apresentada como estimativa. O calendário marca os dias adaptados. Calendário também mostra "pausa" (Fase 9A).
 
 ### 3.8 Corpo
 

@@ -1069,3 +1069,28 @@ export const pausas = pgTable(
 );
 
 export type PausaRow = typeof pausas.$inferSelect;
+
+// ───────────────────────── Fase 9B: adaptar o treino de hoje ─────────────────────────
+
+// Uma adaptação por dia (só aquele dia; o plano não muda). `itens`: [{ itemId, series, pular, exercicioId }],
+// conferidos no servidor contra o treino real antes de gravar.
+export const adaptacoesTreino = pgTable(
+  "adaptacoes_treino",
+  {
+    userId: dono(),
+    data: date("data").notNull(),
+    treinoId: uuid("treino_id").notNull(),
+    minutos: integer("minutos"),
+    itens: jsonb("itens").$type<Array<{ itemId: string; series: number; pular: boolean; exercicioId: string | null }>>().notNull(),
+    atualizadoEm: timestamp("atualizado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.userId, t.data] }),
+    foreignKey({ columns: [t.treinoId, t.userId], foreignColumns: [treinos.id, treinos.userId] }).onDelete("cascade"),
+    check("adaptacoes_treino_data_check", sql`${t.data} >= date '2000-01-01'`),
+    check("adaptacoes_treino_minutos_check", sql`${t.minutos} is null or ${t.minutos} in (15, 20, 30, 45, 60)`),
+    check("adaptacoes_treino_itens_check", sql`jsonb_typeof(${t.itens}) = 'array' and jsonb_array_length(${t.itens}) between 1 and 60`),
+  ],
+);
+
+export type AdaptacaoTreinoRow = typeof adaptacoesTreino.$inferSelect;

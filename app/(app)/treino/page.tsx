@@ -1,10 +1,12 @@
-import { ChevronLeft, ChevronRight, Dumbbell, Moon, Play, Plus, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Dumbbell, Moon, Play, Plus, Sparkles } from "lucide-react";
 import { FormDados, SomenteContaPropria } from "@/components/contexto-dados";
 import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
-import { listarItensDoTreino, listarTreinos, obterAgenda, obterSessao, obterTrocas, planoAtivo } from "@/lib/dal/treino";
+import { listarTreinos, obterAgenda, obterSessao, obterTrocas, planoAtivo } from "@/lib/dal/treino";
+import { carregarTreinoDoDia } from "@/lib/dal/treino-do-dia";
 import { hojeSaoPaulo, rotuloDia, somarDias } from "@/lib/datas";
-import { formatarTempo, seriesDoExercicio, treinoDoDia } from "@/lib/treino";
+import { formatarTempo, treinoDoDia } from "@/lib/treino";
+import { minutosEstimados } from "@/lib/treino-adaptado";
 import { ROTULOS_MOTIVO, dataAteHoje, MOTIVOS } from "@/lib/validacao/treino";
 import { desfazerRegistroDoDia, trocarTreinoDoDia } from "./actions";
 
@@ -59,8 +61,14 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
     obterSessao(userId, data),
   ]);
   const treinoId = treinoDoDia(data, agenda, trocas);
-  const treino = treinoId ? (treinos.find((t) => t.id === treinoId) ?? null) : null;
-  const itens = treino ? await listarItensDoTreino(userId, treino.id) : [];
+  const dia = treinoId ? await carregarTreinoDoDia(userId, plano, data) : null;
+  const treino = dia?.treino ?? null;
+  // Itens do dia já com a adaptação aplicada (séries reduzidas, pulados fora, trocas).
+  const itens = (dia?.doDia ?? []).map((i) => ({
+    ...i,
+    nomeDoDia: i.exercicioEscolhido ? (dia!.exercicios.find((e) => e.id === i.exercicioEscolhido)?.nome ?? i.exercicio.nome) : i.exercicio.nome,
+  }));
+  const pulados = dia ? dia.completos.length - dia.doDia.length : 0;
 
   return (
     <div className="page-stack">
@@ -115,6 +123,12 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
             <p className="mb-2 flex items-center gap-2 text-sm font-medium text-suave"><Dumbbell size={18} aria-hidden="true" />Seu treino do dia</p>
             <h2 id="treino-dia" className="text-2xl font-semibold tracking-tight">{treino.nome}</h2>
             {treino.foco ? <p className="text-suave">{treino.foco}</p> : null}
+            {itens.length ? (
+              <p className="mt-2 text-sm text-suave">
+                {dia?.adaptacao ? <span className="mr-2 rounded-full bg-marca-suave px-2 py-0.5 text-xs font-semibold text-marca">Adaptado para hoje</span> : null}
+                cerca de {minutosEstimados(itens)} min (estimativa){pulados > 0 ? ` · ${pulados} ${pulados === 1 ? "exercício pulado" : "exercícios pulados"}` : ""}
+              </p>
+            ) : null}
           </div>
           {itens.length === 0 ? (
             <p className="text-suave">
@@ -124,9 +138,10 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
             <ol className="divide-y divide-linha">
               {itens.map((i) => (
                 <li key={i.id} className="py-4">
-                  <p className="font-semibold">{i.exercicio.nome}</p>
+                  <p className="font-semibold">{i.nomeDoDia}</p>
+                  {i.exercicioEscolhido ? <p className="text-xs text-suave">no lugar de {i.exercicio.nome}</p> : null}
                   <p className="text-sm text-suave">
-                    {seriesDoExercicio(i.series, plano, data)} × {i.repsMin === i.repsMax ? i.repsMin : `${i.repsMin}–${i.repsMax}`}
+                    {i.series} × {i.repsMin === i.repsMax ? i.repsMin : `${i.repsMin}–${i.repsMax}`}
                     {i.exercicio.medida === "segundos" ? " s" : ""} · descanso {formatarTempo(i.descansoS)}
                     {i.exercicio.unilateral ? " · cada lado" : ""}
                   </p>
@@ -142,6 +157,11 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
             >
               <Play size={18} aria-hidden="true" />{sessao?.status === "feito" ? "Continuar treino" : "Começar treino"}
             </Link>
+            {sessao?.status !== "faltou" ? (
+              <Link href={`/treino/adaptar?data=${data}`} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-borda font-semibold">
+                <Clock size={18} aria-hidden="true" />{dia?.adaptacao ? "Ajustar a adaptação" : "Adaptar o treino de hoje"}
+              </Link>
+            ) : null}
             {!sessao ? (
               <Link href={`/treino/falta?data=${data}`} className="flex min-h-12 items-center justify-center rounded-xl border border-borda font-semibold">
                 Não vou treinar

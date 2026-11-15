@@ -60,11 +60,12 @@ export default async function PaginaAjustes() {
       <PainelMetas meta={meta ? paraTela(meta) : null} historico={historico.map(paraTela)} />
 
       <section aria-labelledby="atalhos" className="app-card space-y-3">
-        <h2 id="atalhos" className="section-heading">Gasto, meta e passos</h2>
+        <h2 id="atalhos" className="section-heading">Gasto, meta, passos e lembretes</h2>
         {[
           ["/progresso/meta", "Meta e plano", "Gasto estimado, opções de calorias e projeção do peso"],
           ["/ajustes/atividade", "Nível de atividade", "Conte sua rotina e a IA sugere o nível"],
           ["/ajustes/passos", "Passos do iPhone", "Chave e automação do app Atalhos"],
+          ["/ajustes/lembretes", "Lembretes", "Avisos no celular para refeição, água, pesagem e treino"],
         ].filter(([href]) => modo === "proprio" || href === "/progresso/meta").map(([href, titulo, texto]) => (
           <Link key={href} href={href} className="block rounded-2xl border border-linha p-4 active:border-marca">
             <span className="block text-lg font-bold">{titulo}</span>

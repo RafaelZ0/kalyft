@@ -1192,3 +1192,87 @@ export const comprasItens = pgTable(
 );
 
 export type RefeicaoPlanejadaRow = typeof refeicoesPlanejadas.$inferSelect;
+
+// ───────────────────────── Fase 9F: lembretes ─────────────────────────
+
+// Inscrição de notificação de um aparelho (Web Push). O endpoint é único: um aparelho que troca de conta passa a
+// pertencer à conta nova. Só serviços de push conhecidos (conferido no app antes de gravar).
+export const inscricoesPush = pgTable(
+  "inscricoes_push",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: dono(),
+    endpoint: text("endpoint").notNull(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("inscricoes_push_id_user_key").on(t.id, t.userId),
+    uniqueIndex("inscricoes_push_endpoint_key").on(t.endpoint),
+    index("inscricoes_push_user").on(t.userId),
+    check("inscricoes_push_endpoint_check", sql`${t.endpoint} like 'https://%' and char_length(${t.endpoint}) <= 1000`),
+    check(
+      "inscricoes_push_chaves_check",
+      sql`char_length(${t.p256dh}) between 20 and 200 and char_length(${t.auth}) between 8 and 100`,
+    ),
+  ],
+);
+
+export type InscricaoPushRow = typeof inscricoesPush.$inferSelect;
+
+// Lembrete escolhido pela pessoa. `minuto`: minuto do dia em São Paulo (passos de 15). `dias`: bits seg=1 … dom=64.
+// `pausado_ate`: inclusive. `adiado_para`: "lembrar de novo em 30 min".
+export const lembretes = pgTable(
+  "lembretes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: dono(),
+    tipo: text("tipo").notNull(),
+    refeicao: text("refeicao"),
+    minuto: integer("minuto").notNull(),
+    dias: integer("dias").notNull().default(127),
+    ativo: boolean("ativo").notNull().default(true),
+    silenciarFeito: boolean("silenciar_feito").notNull().default(true),
+    pausadoAte: date("pausado_ate"),
+    adiadoPara: timestamp("adiado_para", { withTimezone: true }),
+    criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("lembretes_id_user_key").on(t.id, t.userId),
+    unique("lembretes_unico_key").on(t.userId, t.tipo, t.refeicao, t.minuto).nullsNotDistinct(),
+    index("lembretes_user").on(t.userId),
+    // "is not null" explícito: um CHECK que dá NULL passa no Postgres.
+    check(
+      "lembretes_tipo_check",
+      sql`(${t.tipo} = 'refeicao' and ${t.refeicao} is not null and ${t.refeicao} in ('cafe', 'almoco', 'lanche', 'jantar', 'ceia'))
+        or (${t.tipo} in ('agua', 'peso', 'treino') and ${t.refeicao} is null)`,
+    ),
+    check("lembretes_minuto_check", sql`${t.minuto} between 0 and 1425 and ${t.minuto} % 15 = 0`),
+    check("lembretes_dias_check", sql`${t.dias} between 1 and 127`),
+    check("lembretes_pausado_check", sql`${t.pausadoAte} is null or ${t.pausadoAte} >= date '2000-01-01'`),
+  ],
+);
+
+export type LembreteRow = typeof lembretes.$inferSelect;
+
+// Reserva de envio: gravada ANTES de enviar; a chave primária impede enviar o mesmo lembrete duas vezes no mesmo
+// horário, mesmo com duas execuções do agendador ao mesmo tempo. Apagada depois de 30 dias.
+export const lembretesEnvios = pgTable(
+  "lembretes_envios",
+  {
+    lembreteId: uuid("lembrete_id").notNull(),
+    userId: dono(),
+    data: date("data").notNull(),
+    minuto: integer("minuto").notNull(),
+    adiado: boolean("adiado").notNull().default(false),
+    enviadoEm: timestamp("enviado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.lembreteId, t.data, t.minuto, t.adiado] }),
+    foreignKey({ columns: [t.lembreteId, t.userId], foreignColumns: [lembretes.id, lembretes.userId] }).onDelete("cascade"),
+    index("lembretes_envios_enviado").on(t.enviadoEm),
+    check("lembretes_envios_minuto_check", sql`${t.minuto} between 0 and 1439`),
+    check("lembretes_envios_data_check", sql`${t.data} >= date '2000-01-01'`),
+  ],
+);

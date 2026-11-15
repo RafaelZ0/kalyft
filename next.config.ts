@@ -19,7 +19,18 @@ const nextConfig: NextConfig = {
   // Server Actions, que continuam exigindo sessão e validando a entrada.
   experimental: { serverActions: { bodySizeLimit: "7mb" } },
   async headers() {
-    return [{ source: "/:path*", headers: cabecalhosSeguranca }];
+    return [
+      { source: "/:path*", headers: cabecalhosSeguranca },
+      {
+        // Service worker das notificações: sempre a versão mais nova e CSP própria (ele não passa pelo proxy).
+        source: "/sw.js",
+        headers: [
+          { key: "Content-Type", value: "application/javascript; charset=utf-8" },
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self'" },
+        ],
+      },
+    ];
   },
 };
 

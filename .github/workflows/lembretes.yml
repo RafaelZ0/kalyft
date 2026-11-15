@@ -1,0 +1,34 @@
+# Agendador dos lembretes (Fase 9F): chama a rota protegida do app a cada 15 minutos.
+# O plano Hobby do Vercel só permite cron diário; por isso o agendamento fica aqui.
+# Segredos (Settings → Secrets and variables → Actions): CRON_SECRET e LEMBRETES_URL.
+# O GitHub pode atrasar execuções agendadas; a rota aceita até 60 min de atraso e nunca envia duas vezes.
+name: Lembretes
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: lembretes
+  cancel-in-progress: false
+
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Enviar lembretes vencidos
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          LEMBRETES_URL: ${{ secrets.LEMBRETES_URL }}
+        run: |
+          if [ -z "$CRON_SECRET" ] || [ -z "$LEMBRETES_URL" ]; then
+            echo "Segredos não configurados; nada a fazer."
+            exit 0
+          fi
+          curl --fail --silent --show-error --max-time 90 --retry 2 --retry-delay 10 \
+            -X POST -H "Authorization: Bearer $CRON_SECRET" -o resposta.json -w "HTTP %{http_code}\n" "$LEMBRETES_URL"
+          cat resposta.json; echo

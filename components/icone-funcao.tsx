@@ -1,5 +1,5 @@
 import {
-  Activity, Bookmark, CalendarDays, CalendarRange, CalendarX, Camera, ChartColumn, ChefHat, Copy, Droplet, Dumbbell,
+  Activity, Bell, Bookmark, CalendarDays, CalendarRange, CalendarX, Camera, ChartColumn, ChefHat, Copy, Droplet, Dumbbell,
   Footprints, History, ListChecks, PersonStanding, Plus, Scale, ScanBarcode, Settings2, ShieldCheck, Sparkles,
   Syringe, Target, Users, Utensils, type LucideIcon,
 } from "lucide-react";
@@ -11,7 +11,7 @@ const ICONES: Record<IconeFuncao, LucideIcon> = {
   aplicacao: Syringe, graficos: ChartColumn, adicionar: Plus, agua: Droplet, barras: ScanBarcode, ia: Sparkles,
   receitas: ChefHat, salvas: Bookmark, copiar: Copy, "meus-alimentos": Utensils, treino: Dumbbell, plano: ListChecks,
   exercicios: Activity, calendario: CalendarRange, falta: CalendarX, "treino-ia": Sparkles, atividade: Footprints,
-  passos: Footprints, acompanhamento: ShieldCheck, alunos: Users, conta: Settings2,
+  passos: Footprints, lembretes: Bell, acompanhamento: ShieldCheck, alunos: Users, conta: Settings2,
 };
 
 export function IconeFuncao({ icone, size = 22 }: { icone: IconeFuncao; size?: number }) {

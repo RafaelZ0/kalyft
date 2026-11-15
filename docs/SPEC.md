@@ -148,6 +148,8 @@ Primeira tela do app: calorias consumidas × meta, proteína, água, treino do d
 
 **Implementado (Fase 9A):** busca "O que você quer fazer?" (funções e dados próprios). **Sua rotina**: alimentos registrados em pelo menos 3 dias diferentes nos últimos 30 naquela refeição (refeição escolhida pelo horário de São Paulo, trocável), com a porção mediana, − e + e registro em um toque; nutrientes recalculados do banco no registro; "Não mostrar" por refeição, reversível em Meus alimentos. **Retomar de hoje**: após 3 dias ou mais sem refeição, pesagem ou treino feito, um cartão oferece recomeçar sem preencher os dias passados e permite marcar o período como pausa (até 90 dias), que o calendário de treino mostra como "pausa".
 
+**Implementado (Fase 9F) — lembretes:** Conta → Lembretes ativa notificações no aparelho (app instalado; no iPhone, iOS 16.4+) e permite até 10 lembretes de refeição, água, pesagem ou treino, com horário (passos de 15 min), dias da semana, "não avisar se já fiz" (refeição registrada, pesagem, treino do dia, meta de água atingida) e pausa geral de 1, 3 ou 7 dias. Dias marcados como pausa não recebem lembretes. Tocar na notificação abre a tela certa com "Lembrar em 30 min" e "Hoje não". Textos neutros, sem números de saúde. Envio a cada 15 min pelo GitHub Actions; o aviso pode atrasar alguns minutos.
+
 ### 3.11 Relatório semanal (fase final)
 
 - Resumo automático: média de calorias e proteína, dias registrados, treinos feitos e faltas, variação da tendência de peso e gasto adaptativo atualizado.

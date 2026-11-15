@@ -4,6 +4,8 @@ import { FaixaAcompanhamento } from "./faixa-acompanhamento";
 import Link from "next/link";
 import { Logotipo } from "@/lib/marca";
 import { BarraAbas } from "./barra-abas";
+import { Suspense } from "react";
+import { FaixaLembrete } from "./faixa-lembrete";
 
 export default async function LayoutApp({ children }: LayoutProps<"/">) {
   // Barreira de UX. Cada página e Server Action verifica a sessão de novo.
@@ -20,6 +22,7 @@ export default async function LayoutApp({ children }: LayoutProps<"/">) {
           <Link href="/hoje" aria-label="Kalyft, início" className="mobile-brand inline-flex min-h-11 items-center"><Logotipo /></Link>
           <p className="eyebrow hidden lg:block">{contexto.modo === "proprio" ? "Seu acompanhamento" : `Acompanhando ${contexto.nome}`}</p>
         </header>
+        {contexto.modo === "proprio" ? <Suspense fallback={null}><FaixaLembrete /></Suspense> : null}
         {children}
       </main>
     </div>

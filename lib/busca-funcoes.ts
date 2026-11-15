@@ -7,7 +7,7 @@ export type IconeFuncao =
   | "peso" | "semana" | "fotos" | "meta" | "historico" | "composicao" | "aplicacao" | "graficos"
   | "adicionar" | "agua" | "barras" | "ia" | "receitas" | "salvas" | "copiar" | "meus-alimentos"
   | "treino" | "plano" | "exercicios" | "calendario" | "falta" | "treino-ia"
-  | "atividade" | "passos" | "acompanhamento" | "alunos" | "conta";
+  | "atividade" | "passos" | "lembretes" | "acompanhamento" | "alunos" | "conta";
 
 export type Escopo = "todos" | "proprio" | "admin";
 
@@ -53,6 +53,7 @@ export const FUNCOES: readonly Funcao[] = [
 
   { id: "atividade", titulo: "Nível de atividade", descricao: "Quanto você se movimenta no dia a dia", href: "/ajustes/atividade", icone: "atividade", area: "Conta", termos: ["sedentario", "ativo", "perfil", "altura", "idade"], escopo: "todos" },
   { id: "passos", titulo: "Passos do iPhone", descricao: "Enviar os passos pelo app Atalhos", href: "/ajustes/passos", icone: "passos", area: "Conta", termos: ["passos", "atalhos", "saude", "caminhada"], escopo: "proprio" },
+  { id: "lembretes", titulo: "Lembretes", descricao: "Avisos no celular nos horários que você escolher", href: "/ajustes/lembretes", icone: "lembretes", area: "Conta", termos: ["lembrete", "notificacao", "aviso", "alarme", "horario", "lembrar"], escopo: "proprio" },
   { id: "acompanhamento", titulo: "Permissões de acompanhamento", descricao: "Quem pode ver ou editar seus dados", href: "/ajustes/acompanhamento", icone: "acompanhamento", area: "Conta", termos: ["permissao", "autorizar", "professor", "nutricionista", "revogar"], escopo: "proprio" },
   { id: "alunos", titulo: "Alunos", descricao: "Acompanhar contas aprovadas", href: "/ajustes/alunos", icone: "alunos", area: "Conta", termos: ["aluno", "acompanhar", "admin"], escopo: "admin" },
   { id: "conta", titulo: "Conta e aparência", descricao: "Perfil, tema claro ou escuro e sair", href: "/ajustes", icone: "conta", area: "Conta", termos: ["configuracoes", "ajustes", "tema", "modo escuro", "sair", "perfil"], escopo: "todos" },

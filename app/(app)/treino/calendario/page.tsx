@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
+import { pausasNoPeriodo } from "@/lib/dal/pausas";
 import { listarSessoes, obterAgenda, obterTrocas, planoAtivo, ultimasSessoes } from "@/lib/dal/treino";
 import { hojeSaoPaulo } from "@/lib/datas";
 import { calendarioDoMes, diaDaSemana, estatisticasDoMes, sequenciaAtual, treinoDoDia, type StatusDia } from "@/lib/treino";
+import { emPausa } from "@/lib/retomar";
 import { ROTULOS_MOTIVO, type MOTIVOS } from "@/lib/validacao/treino";
 
 export const metadata = { title: "Calendário de treino · Kalyft" };
@@ -13,6 +15,7 @@ const CLASSE: Record<StatusDia, string> = {
   faltou: "bg-aviso text-fundo font-bold",
   planejado: "border border-marca",
   sem_registro: "border-2 border-dashed border-aviso",
+  pausa: "bg-linha text-suave",
   livre: "text-suave",
 };
 const LEGENDA: Array<[StatusDia, string]> = [
@@ -20,6 +23,7 @@ const LEGENDA: Array<[StatusDia, string]> = [
   ["faltou", "Faltou"],
   ["planejado", "Planejado"],
   ["sem_registro", "Sem registro"],
+  ["pausa", "Pausa"],
 ];
 
 function mesAdjacente(ano: number, mes: number, delta: number) {
@@ -36,15 +40,16 @@ export default async function PaginaCalendario(props: PageProps<"/treino/calenda
   const primeiro = `${ano}-${String(mes).padStart(2, "0")}-01`;
   const ultimo = `${ano}-${String(mes).padStart(2, "0")}-${String(new Date(Date.UTC(ano, mes, 0)).getUTCDate()).padStart(2, "0")}`;
 
-  const [plano, sessoes, agenda, trocas, recentes] = await Promise.all([
+  const [plano, sessoes, agenda, trocas, recentes, pausas] = await Promise.all([
     planoAtivo(userId),
     listarSessoes(userId, primeiro, ultimo),
     obterAgenda(userId),
     obterTrocas(userId, primeiro, ultimo),
     ultimasSessoes(userId),
+    pausasNoPeriodo(userId, primeiro, ultimo),
   ]);
   const resumo = (l: typeof sessoes) => l.map((s) => ({ data: s.data, status: s.status as "feito" | "faltou", motivo: s.motivo }));
-  const dias = calendarioDoMes(ano, mes, hoje, resumo(sessoes), (d) => (!plano || d >= plano.inicio) && treinoDoDia(d, agenda, trocas) !== null);
+  const dias = calendarioDoMes(ano, mes, hoje, resumo(sessoes), (d) => (!plano || d >= plano.inicio) && treinoDoDia(d, agenda, trocas) !== null, (d) => emPausa(d, pausas));
   const est = estatisticasDoMes(resumo(sessoes), ano, mes);
   const seq = sequenciaAtual(resumo(recentes));
   const vazios = diaDaSemana(primeiro);

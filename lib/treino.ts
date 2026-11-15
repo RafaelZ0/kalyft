@@ -105,15 +105,19 @@ export function sequenciaAtual(sessoes: ReadonlyArray<SessaoResumo>): number {
   return n;
 }
 
-export type StatusDia = "feito" | "faltou" | "planejado" | "sem_registro" | "livre";
+export type StatusDia = "feito" | "faltou" | "planejado" | "sem_registro" | "pausa" | "livre";
 
-/** Estado de cada dia do mês: feito, faltou, planejado (futuro), sem registro (passado planejado) ou livre. */
+/**
+ * Estado de cada dia do mês: feito, faltou, planejado (futuro), sem registro (passado planejado), pausa (passado
+ * planejado dentro de um período que a pessoa marcou como pausa) ou livre.
+ */
 export function calendarioDoMes(
   ano: number,
   mes: number,
   hoje: string,
   sessoes: ReadonlyArray<SessaoResumo>,
   planejado: (data: string) => boolean,
+  emPausa: (data: string) => boolean = () => false,
 ): Array<{ data: string; status: StatusDia }> {
   const porData = new Map(sessoes.map((s) => [s.data, s.status]));
   const total = new Date(Date.UTC(ano, mes, 0)).getUTCDate();
@@ -124,7 +128,8 @@ export function calendarioDoMes(
     let status: StatusDia;
     if (reg) status = reg;
     else if (!planejado(data)) status = "livre";
-    else status = data >= hoje ? "planejado" : "sem_registro";
+    else if (data >= hoje) status = "planejado";
+    else status = emPausa(data) ? "pausa" : "sem_registro";
     dias.push({ data, status });
   }
   return dias;

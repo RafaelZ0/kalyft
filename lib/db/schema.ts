@@ -1025,3 +1025,47 @@ export const acompanhamentoEventos = pgTable("acompanhamento_eventos", {
   check("acompanhamento_eventos_recurso_check", sql`char_length(${t.recurso}) between 1 and 80`),
   check("acompanhamento_eventos_recurso_id_check", sql`char_length(${t.recursoId}) <= 200`),
 ]);
+
+// ───────────────────────── Fase 9A: minha rotina e retomar de hoje ─────────────────────────
+
+// Alimentos que a pessoa pediu para não aparecer na rotina de uma refeição ("Não mostrar mais").
+export const rotinaOcultos = pgTable(
+  "rotina_ocultos",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: dono(),
+    refeicao: text("refeicao").notNull(),
+    alimentoBaseId: uuid("alimento_base_id").references(() => alimentosBase.id, { onDelete: "cascade" }),
+    alimentoUsuarioId: uuid("alimento_usuario_id"),
+    criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.alimentoUsuarioId, t.userId],
+      foreignColumns: [alimentosUsuario.id, alimentosUsuario.userId],
+    }).onDelete("cascade"),
+    uniqueIndex("rotina_ocultos_base_key").on(t.userId, t.refeicao, t.alimentoBaseId).where(sql`${t.alimentoBaseId} is not null`),
+    uniqueIndex("rotina_ocultos_usuario_key").on(t.userId, t.refeicao, t.alimentoUsuarioId).where(sql`${t.alimentoUsuarioId} is not null`),
+    check("rotina_ocultos_alimento_check", sql`num_nonnulls(${t.alimentoBaseId}, ${t.alimentoUsuarioId}) = 1`),
+    check("rotina_ocultos_refeicao_check", sql`${t.refeicao} in ('cafe', 'almoco', 'lanche', 'jantar', 'ceia')`),
+  ],
+);
+
+// Dias marcados como pausa: o calendário mostra "pausa" (neutro) em vez de "sem registro". Até 90 dias por pausa.
+export const pausas = pgTable(
+  "pausas",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: dono(),
+    inicio: date("inicio").notNull(),
+    fim: date("fim").notNull(),
+    criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique("pausas_id_user_unique").on(t.id, t.userId),
+    uniqueIndex("pausas_user_inicio_key").on(t.userId, t.inicio),
+    check("pausas_periodo_check", sql`${t.fim} >= ${t.inicio} and ${t.fim} - ${t.inicio} < 90 and ${t.inicio} >= date '2000-01-01'`),
+  ],
+);
+
+export type PausaRow = typeof pausas.$inferSelect;

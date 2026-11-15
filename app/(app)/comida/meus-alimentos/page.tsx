@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
+import { FormDados } from "@/components/contexto-dados";
 import { listarMeusAlimentos } from "@/lib/dal/alimentos";
+import { listarOcultos } from "@/lib/dal/rotina";
+import { ROTULOS_REFEICAO } from "@/lib/validacao/comida";
+import { reexibirNaRotinaAcao } from "../../hoje/actions";
 import { formatarKcal } from "@/lib/nutricao";
 import { Voltar } from "../comum";
 
@@ -8,7 +12,7 @@ export const metadata = { title: "Meus alimentos · Kalyft" };
 
 export default async function PaginaMeusAlimentos() {
   const { userId } = await exigirUsuario();
-  const alimentos = await listarMeusAlimentos(userId);
+  const [alimentos, ocultos] = await Promise.all([listarMeusAlimentos(userId), listarOcultos(userId)]);
   return (
     <div className="page-stack">
       <Voltar href="/comida" />
@@ -33,6 +37,23 @@ export default async function PaginaMeusAlimentos() {
           ))}
         </ul>
       )}
+      {ocultos.length ? (
+        <section aria-labelledby="ocultos" className="app-card space-y-2">
+          <h2 id="ocultos" className="section-heading">Escondidos da rotina</h2>
+          <p className="text-sm text-suave">Estes alimentos não aparecem em &quot;Sua rotina&quot;, no Hoje.</p>
+          <ul>
+            {ocultos.map((o) => (
+              <li key={o.id} className="flex min-h-12 items-center justify-between gap-3 border-b border-linha text-sm last:border-b-0">
+                <span><span className="font-semibold">{o.nome}</span> <span className="text-suave">· {ROTULOS_REFEICAO[o.refeicao]}</span></span>
+                <FormDados action={reexibirNaRotinaAcao}>
+                  <input type="hidden" name="id" value={o.id} />
+                  <button type="submit" className="min-h-11 px-2 font-semibold text-marca underline">Mostrar de novo</button>
+                </FormDados>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 }

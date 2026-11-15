@@ -141,6 +141,8 @@ O plano tem:
 
 Primeira tela do app: calorias consumidas × meta, proteína, água, treino do dia (com acesso direto), peso de hoje e gasto estimado.
 
+**Implementado (Fase 9A):** busca "O que você quer fazer?" (funções e dados próprios). **Sua rotina**: alimentos registrados em pelo menos 3 dias diferentes nos últimos 30 naquela refeição (refeição escolhida pelo horário de São Paulo, trocável), com a porção mediana, − e + e registro em um toque; nutrientes recalculados do banco no registro; "Não mostrar" por refeição, reversível em Meus alimentos. **Retomar de hoje**: após 3 dias ou mais sem refeição, pesagem ou treino feito, um cartão oferece recomeçar sem preencher os dias passados e permite marcar o período como pausa (até 90 dias), que o calendário de treino mostra como "pausa".
+
 ### 3.11 Relatório semanal (fase final)
 
 - Resumo automático: média de calorias e proteína, dias registrados, treinos feitos e faltas, variação da tendência de peso e gasto adaptativo atualizado.

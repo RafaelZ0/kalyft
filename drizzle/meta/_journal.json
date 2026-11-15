@@ -120,6 +120,13 @@
       "when": 1794593758984,
       "tag": "0016_acompanhamento",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1794708246232,
+      "tag": "0017_fase9a_rotina_pausas",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,10 @@
 import Link from "next/link";
 import { CampoBusca } from "@/components/campo-busca";
+import { pausasNoPeriodo, ultimaAtividade } from "@/lib/dal/pausas";
+import { historicoDaRotina, ocultosDaRotina } from "@/lib/dal/rotina";
+import { detectarPausa, emPausa, limitarPausa } from "@/lib/retomar";
+import { horaSaoPaulo, itensHabituais, refeicaoDoHorario } from "@/lib/rotina";
+import { CartaoRetomar, CartaoRotina } from "./cartoes-rotina";
 import { Apple, ArrowRight, CalendarDays, CheckCircle2, ChevronRight, Coffee, Dumbbell, Footprints, Moon, Plus, Scale, ShieldCheck, Sun, TrendingUp } from "lucide-react";
 import { ResumoCalorias } from "@/components/resumo-calorias";
 import { PainelAgua } from "../comida/painel-agua";
@@ -22,7 +27,8 @@ const dec = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 
 const ICONES_REFEICAO = { cafe: Coffee, almoco: Sun, lanche: Apple, jantar: Moon, ceia: Moon };
 
 export default async function PaginaHoje(props: PageProps<"/hoje">) {
-  const aviso = (await props.searchParams).acompanhamento;
+  const sp = await props.searchParams;
+  const aviso = sp.acompanhamento;
   const mensagens: Record<string, string> = { contexto: "A conta acompanhada mudou. Atualize a página antes de continuar.", leitura: "Você está apenas acompanhando. Solicite autorização para alterar.", pessoal: "Volte para sua conta para usar este recurso." };
   const contexto = await exigirUsuario();
   const { userId, modo } = contexto;
@@ -30,6 +36,13 @@ export default async function PaginaHoje(props: PageProps<"/hoje">) {
   const [energia, registros, aguaMl, passos, plano, sessao, perfil, pedidos] = await Promise.all([
     carregarEnergia(userId, hoje, 60), listarDia(userId, hoje), totalAguaDoDia(userId, hoje), passosDoPeriodo(userId, hoje, hoje), planoAtivo(userId), obterSessao(userId, hoje), obterPerfil(userId), modo === "proprio" ? listarAutorizacoes(userId) : Promise.resolve([]),
   ]);
+  const [historico, ocultos, ultima] = await Promise.all([historicoDaRotina(userId, hoje), ocultosDaRotina(userId), ultimaAtividade(userId, hoje)]);
+  const refeicaoRotina = (REFEICOES as readonly string[]).includes(String(sp.rotina)) ? (sp.rotina as (typeof REFEICOES)[number]) : refeicaoDoHorario(horaSaoPaulo());
+  const itensRotina = itensHabituais(historico, refeicaoRotina, { hoje, ocultos });
+  const outrasRotina = REFEICOES.filter((r) => r !== refeicaoRotina && itensHabituais(historico, r, { hoje, ocultos }).length > 0);
+  const detectada = detectarPausa(ultima ? [ultima] : [], hoje);
+  const pausa = detectada ? limitarPausa(detectada) : null;
+  const pausaMarcada = pausa ? emPausa(pausa.inicio, await pausasNoPeriodo(userId, pausa.inicio, pausa.fim)) : false;
   const pendentes = pedidos.filter((p) => p.estado === "pendente").length;
   const meta = energia.meta;
   const painel = energia.painel;
@@ -49,9 +62,11 @@ export default async function PaginaHoje(props: PageProps<"/hoje">) {
     <CampoBusca />
     {typeof aviso === "string" && mensagens[aviso] ? <p role="alert" className="app-card border-aviso text-sm text-aviso">{mensagens[aviso]}</p> : null}
     {pendentes > 0 ? <Link href="/ajustes/acompanhamento" className="app-card flex items-center gap-3 border-marca text-sm font-semibold"><ShieldCheck size={23} className="shrink-0 text-marca" aria-hidden="true" /><span>Você tem {pendentes} {pendentes === 1 ? "solicitação" : "solicitações"} de acompanhamento. Ver permissões</span><ChevronRight size={20} className="ml-auto shrink-0" aria-hidden="true" /></Link> : null}
+    {pausa ? <CartaoRetomar pausa={pausa} hoje={hoje} temPlano={plano !== null} editavel={contexto.podeEditar} marcada={pausaMarcada} /> : null}
     <div className="dashboard-grid">
       <div className="dashboard-stack">
         <ResumoCalorias totais={totais} meta={meta} temRegistros={registros.length > 0} />
+        <CartaoRotina refeicao={refeicaoRotina} itens={itensRotina} temOutras={outrasRotina} />
         <section className="app-card" aria-labelledby="refeicoes"><div className="flex items-center justify-between gap-3"><h2 id="refeicoes" className="section-heading">Refeições do dia</h2><Link href="/comida" className="action-link">Ver diário</Link></div><ul className="mt-2 divide-y divide-linha">{REFEICOES.map((ref) => {
           const itens = registros.filter((r) => r.refeicao === ref);
           const kcal = itens.reduce((total, item) => total + item.kcal, 0);

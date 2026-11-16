@@ -59,3 +59,5 @@ Nenhum segredo novo. O texto do passo livre não vai para logs nem para a IA.
 
 - **Produção (precisa de aprovação):** migrations 0017 a 0020 e deploy.
 - Fases 9D e 9E em sequência.
+
+> **Atualização:** publicada em produção em 15/11/2026 (migrations aplicadas antes do deploy).

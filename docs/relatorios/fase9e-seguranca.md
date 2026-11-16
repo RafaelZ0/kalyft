@@ -69,3 +69,5 @@ Nenhum segredo novo.
 
 - **Produção (precisa de aprovação):** migrations 0017 a 0022 e deploy (migrations antes do push).
 - **9F (lembretes)** fica só no plano até o dono decidir as dependências externas.
+
+> **Atualização:** publicada em produção em 15/11/2026 (migrations aplicadas antes do deploy).

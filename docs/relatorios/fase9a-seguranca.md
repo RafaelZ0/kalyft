@@ -55,3 +55,5 @@ Nenhum segredo novo. Nenhum dado de saúde em log; erros registram só contexto 
 
 - **Produção (precisa de aprovação):** aplicar a migration 0017 e fazer o deploy (migration antes do push).
 - Próximas fases aprovadas: 9B (adaptar o treino de hoje), 9C, 9D, 9E, 9F. Primeiro uso guiado fica com o Codex.
+
+> **Atualização:** publicada em produção em 14/11/2026 (migrations aplicadas antes do deploy).

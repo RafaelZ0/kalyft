@@ -88,5 +88,5 @@ pesagem, treino, água × meta).
 
 ## 7. Pendências
 
-- Cadastrar as variáveis no Vercel (Production) antes do deploy; migration 0023 em produção antes do push.
+- Publicado em 16/11/2026: variáveis no Vercel (Production), migration 0023 em produção, deploy e rota conferida (200 com segredo, 401 sem).
 - Primeira execução manual do workflow "Lembretes" no GitHub para conferir a resposta da rota.

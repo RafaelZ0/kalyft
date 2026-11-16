@@ -60,3 +60,5 @@ Nenhum segredo novo; logs só com contexto e tipo de erro.
 
 - **Produção (precisa de aprovação):** aplicar a migration 0018 (junto com as seguintes) e fazer o deploy.
 - Fases 9C, 9D e 9E em sequência (planos em `docs/superpowers/plans/2026-11-15-fases-9c-9f.md`).
+
+> **Atualização:** publicada em produção em 15/11/2026 (migrations aplicadas antes do deploy).

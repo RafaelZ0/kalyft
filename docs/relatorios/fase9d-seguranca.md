@@ -65,3 +65,5 @@ Nenhum segredo novo. Logs da IA só com contexto e tipo do erro, sem o texto do 
 
 - **Produção (precisa de aprovação):** migrations 0017 a 0021 e deploy.
 - Fase 9E (planejamento da semana e lista de compras).
+
+> **Atualização:** publicada em produção em 15/11/2026 (migrations aplicadas antes do deploy).

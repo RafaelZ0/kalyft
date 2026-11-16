@@ -31,6 +31,7 @@ import {
 } from "@/lib/jornada";
 import { dataOpcional, decimalOpcional, errosPorCampo, inteiroOpcional, opcaoOpcional, textoOpcional, type ErrosCampos } from "./comum";
 import { NIVEIS_ATIVIDADE } from "./perfil";
+import { CAMPOS_PERFIL_JORNADA } from "@/lib/jornada-aplicacao";
 
 // Números podem chegar como número (JSON) ou texto (formulário): os validadores do app esperam texto.
 const comoTexto = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? String(v) : v);
@@ -217,3 +218,19 @@ export const rascunhoSchema = z.strictObject({
     })
     .optional(),
 });
+
+// ── finalização (revisão confirmada) ──
+
+/**
+ * O que a pessoa escolheu na revisão. Os VALORES aplicados vêm do rascunho guardado no servidor, nunca daqui;
+ * `vistos` são os valores atuais que a tela mostrou, para recusar se mudaram em outra aba.
+ */
+export const finalizarSchema = z.strictObject({
+  versao: z.literal(VERSAO_JORNADA),
+  revisaoEsperada: z.number().int().min(0).max(1_000_000_000),
+  aplicar: z.array(z.enum(CAMPOS_PERFIL_JORNADA)).max(CAMPOS_PERFIL_JORNADA.length).refine((l) => new Set(l).size === l.length),
+  vistos: z.partialRecord(z.enum(CAMPOS_PERFIL_JORNADA), z.union([z.string().max(80), z.number(), z.null()])),
+  pesagem: z.enum(["registrar", "substituir", "manter", "nenhuma"]),
+  pesoVisto: z.number().min(0).max(400).nullable(),
+});
+export type EntradaFinalizar = z.infer<typeof finalizarSchema>;

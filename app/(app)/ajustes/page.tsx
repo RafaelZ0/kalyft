@@ -66,6 +66,7 @@ export default async function PaginaAjustes() {
           ["/ajustes/atividade", "Nível de atividade", "Conte sua rotina e a IA sugere o nível"],
           ["/ajustes/passos", "Passos do iPhone", "Chave e automação do app Atalhos"],
           ["/ajustes/lembretes", "Lembretes", "Avisos no celular para refeição, água, pesagem e treino"],
+          ["/comecar", "Seu começo", "Cadastro guiado com o Kalu: continuar ou rever suas escolhas"],
         ].filter(([href]) => modo === "proprio" || href === "/progresso/meta").map(([href, titulo, texto]) => (
           <Link key={href} href={href} className="block rounded-2xl border border-linha p-4 active:border-marca">
             <span className="block text-lg font-bold">{titulo}</span>

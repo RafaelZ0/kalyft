@@ -46,10 +46,10 @@ export const config = {
   matcher: [
     {
       // Fora do proxy: arquivos estáticos, os arquivos que o iPhone busca para instalar o app
-      // (manifest e ícones), o service worker das notificações (sw.js), /api/passos (token pessoal) e
+      // (manifest e ícones), as imagens públicas do Kalu (kalu/), o service worker das notificações (sw.js), /api/passos (token pessoal) e
       // /api/lembretes (segredo do agendador). Nenhum deles usa cookie de sessão.
       source:
-        "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|robots.txt|sw.js|api/passos|api/lembretes).*)",
+        "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon|apple-icon|robots.txt|sw.js|kalu/|api/passos|api/lembretes).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

@@ -118,4 +118,5 @@ Seguir `docs/SEGURANCA.md`, incluindo relatório por endpoint, isolamento, `npm 
 - [x] Definir arquivos, tabela, contratos e aceitação da 2A.
 - [x] Separar 2B e 2C para execução posterior.
 - [x] Implementar 2A após aprovação do plano, conforme regra local. (16/11/2026, Claude Code: migration 0025, `lib/jornada.ts`, `lib/validacao/jornada.ts`, `lib/dal/jornada.ts`, testes; relatório `docs/relatorios/fase11a-seguranca.md`. Só dev/test.)
-- [ ] 2B — cadastro real e primeira ação (aguarda aprovação).
+- [x] 2B — cadastro real e primeira ação (16/11/2026, Claude Code: `/comecar`, revisão com finalização atômica, convite no Hoje, acesso em Conta; Kalu em poses estáticas; relatório `docs/relatorios/fase11b-seguranca.md`. Só dev/test.)
+- [ ] 2C — tutorial nas telas reais.

@@ -19,6 +19,8 @@ import { formatarDataBr, hojeSaoPaulo } from "@/lib/datas";
 import { somarDia } from "@/lib/nutricao";
 import { treinoDoDia } from "@/lib/treino";
 import { listarAutorizacoes } from "@/lib/dal/acompanhamento";
+import { obterJornada } from "@/lib/dal/jornada";
+import { ConviteJornada } from "./convite-jornada";
 import { REFEICOES, ROTULOS_REFEICAO } from "@/lib/validacao/comida";
 
 export const metadata = { title: "Hoje · Kalyft" };
@@ -33,8 +35,8 @@ export default async function PaginaHoje(props: PageProps<"/hoje">) {
   const contexto = await exigirUsuario();
   const { userId, modo } = contexto;
   const hoje = hojeSaoPaulo();
-  const [energia, registros, aguaMl, passos, plano, sessao, perfil, pedidos] = await Promise.all([
-    carregarEnergia(userId, hoje, 60), listarDia(userId, hoje), totalAguaDoDia(userId, hoje), passosDoPeriodo(userId, hoje, hoje), planoAtivo(userId), obterSessao(userId, hoje), obterPerfil(userId), modo === "proprio" ? listarAutorizacoes(userId) : Promise.resolve([]),
+  const [energia, registros, aguaMl, passos, plano, sessao, perfil, pedidos, jornada] = await Promise.all([
+    carregarEnergia(userId, hoje, 60), listarDia(userId, hoje), totalAguaDoDia(userId, hoje), passosDoPeriodo(userId, hoje, hoje), planoAtivo(userId), obterSessao(userId, hoje), obterPerfil(userId), modo === "proprio" ? listarAutorizacoes(userId) : Promise.resolve([]), modo === "proprio" ? obterJornada(userId) : Promise.resolve(null),
   ]);
   const [historico, ocultos, ultima] = await Promise.all([historicoDaRotina(userId, hoje), ocultosDaRotina(userId), ultimaAtividade(userId, hoje)]);
   const refeicaoRotina = (REFEICOES as readonly string[]).includes(String(sp.rotina)) ? (sp.rotina as (typeof REFEICOES)[number]) : refeicaoDoHorario(horaSaoPaulo());
@@ -62,6 +64,7 @@ export default async function PaginaHoje(props: PageProps<"/hoje">) {
     <CampoBusca />
     {typeof aviso === "string" && mensagens[aviso] ? <p role="alert" className="app-card border-aviso text-sm text-aviso">{mensagens[aviso]}</p> : null}
     {pendentes > 0 ? <Link href="/ajustes/acompanhamento" className="app-card flex items-center gap-3 border-marca text-sm font-semibold"><ShieldCheck size={23} className="shrink-0 text-marca" aria-hidden="true" /><span>Você tem {pendentes} {pendentes === 1 ? "solicitação" : "solicitações"} de acompanhamento. Ver permissões</span><ChevronRight size={20} className="ml-auto shrink-0" aria-hidden="true" /></Link> : null}
+    {modo === "proprio" && (!jornada || jornada.estado === "em_andamento") ? <ConviteJornada continuar={jornada !== null} /> : null}
     {pausa ? <CartaoRetomar pausa={pausa} hoje={hoje} temPlano={plano !== null} editavel={contexto.podeEditar} marcada={pausaMarcada} /> : null}
     <div className="dashboard-grid">
       <div className="dashboard-stack">

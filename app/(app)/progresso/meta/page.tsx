@@ -169,8 +169,8 @@ export default async function PaginaMeta(props: PageProps<"/progresso/meta">) {
               <GraficoLinhas
                 titulo="Projeção do peso por semana"
                 unidade="kg"
-                linhaMeta={pesoMeta}
-                rotulosX={["hoje", `${semanasGrafico - 1} semanas`]}
+                referencia={pesoMeta}
+                eixoX={{ tipo: "semanas" }}
                 series={[
                   { nome: "Plano", tipo: "tracejada", pontos: recorte(projPlano.pontos).map((q) => ({ x: q.semana, y: q.peso })) },
                   ...(p.projecaoReal ? [{ nome: "Seu consumo atual", tipo: "linha" as const, pontos: recorte(p.projecaoReal.pontos).map((q) => ({ x: q.semana, y: q.peso })) }] : []),

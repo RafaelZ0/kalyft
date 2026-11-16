@@ -2,11 +2,13 @@ import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FotoExercicio } from "@/components/foto-exercicio";
+import { CartaoGrafico, PoucosDados } from "@/components/cartao-grafico";
 import { GraficoLinhas } from "@/components/graficos";
+import { PERIODOS, ROTULOS_PERIODO, type Periodo } from "@/lib/painel-energia";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
 import { evolucaoDoExercicio, obterExercicio } from "@/lib/dal/treino";
 import { diasEntre } from "@/lib/treino";
-import { formatarDataBr } from "@/lib/datas";
+import { formatarDataBr, hojeSaoPaulo, somarDias } from "@/lib/datas";
 import { id as idSchema } from "@/lib/validacao/treino";
 import { apagarExercicio } from "../../actions";
 import { FormExercicio } from "../form-exercicio";
@@ -19,8 +21,14 @@ export default async function PaginaExercicio(props: PageProps<"/treino/exercici
   if (!id.success) notFound();
   const ex = await obterExercicio(userId, id.data);
   if (!ex) notFound();
-  const evolucao = await evolucaoDoExercicio(userId, ex.id);
+  const todas = await evolucaoDoExercicio(userId, ex.id);
+  const sp = await props.searchParams;
+  const periodo: Periodo = sp.periodo === "4s" || sp.periodo === "3m" ? sp.periodo : "tudo";
+  const desde = somarDias(hojeSaoPaulo(), -PERIODOS[periodo]);
+  const evolucao = todas.filter((e) => e.data >= desde);
   const primeira = evolucao[0]?.data;
+  const recorde = todas.length ? Math.max(...todas.map((e) => e.cargaMax)) : null;
+  const kg = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
 
   return (
     <div className="page-stack">
@@ -32,16 +40,36 @@ export default async function PaginaExercicio(props: PageProps<"/treino/exercici
 
       <section aria-labelledby="evolucao" className="app-card space-y-4">
         <h2 id="evolucao" className="section-heading">Evolução</h2>
-        {evolucao.length >= 2 ? (
-          <GraficoLinhas
-            titulo={`Maior carga por sessão de ${ex.nome}`}
-            unidade="kg"
-            rotulosX={[formatarDataBr(evolucao[0].data), formatarDataBr(evolucao.at(-1)!.data)]}
-            series={[{ nome: "Maior carga", tipo: "linha", pontos: evolucao.map((e) => ({ x: diasEntre(primeira!, e.data), y: e.cargaMax })) }]}
-          />
-        ) : (
-          <p className="text-suave">O gráfico aparece a partir da segunda sessão com este exercício.</p>
-        )}
+        <nav aria-label="Período" className="flex gap-2">
+          {(Object.keys(PERIODOS) as Periodo[]).map((p) => (
+            <Link
+              key={p}
+              href={`/treino/exercicios/${ex.id}?periodo=${p}`}
+              aria-current={p === periodo ? "true" : undefined}
+              className={`flex min-h-11 flex-1 items-center justify-center rounded-xl border text-sm font-semibold ${p === periodo ? "border-marca bg-marca-suave text-marca" : "border-borda text-suave"}`}
+            >
+              {ROTULOS_PERIODO[p]}
+            </Link>
+          ))}
+        </nav>
+        <CartaoGrafico
+          id="g-carga"
+          rotulo="Maior carga · última sessão"
+          valor={evolucao.length ? kg(evolucao.at(-1)!.cargaMax) : null}
+          unidade="kg"
+          contexto={recorde !== null ? `recorde ${kg(recorde)} kg` : null}
+        >
+          {evolucao.length >= 3 ? (
+            <GraficoLinhas
+              titulo={`Maior carga por sessão de ${ex.nome}`}
+              unidade="kg"
+              eixoX={{ tipo: "dias", inicio: primeira! }}
+              series={[{ nome: "Maior carga", tipo: "linha", pontos: evolucao.map((e) => ({ x: diasEntre(primeira!, e.data), y: e.cargaMax })) }]}
+            />
+          ) : (
+            <PoucosDados itens={[]} mensagem="O gráfico aparece a partir da terceira sessão com este exercício no período." />
+          )}
+        </CartaoGrafico>
         {evolucao.length > 0 ? (
           <ul>
             {[...evolucao].reverse().slice(0, 20).map((e) => (

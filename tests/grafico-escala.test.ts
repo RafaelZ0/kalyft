@@ -28,3 +28,60 @@ describe("escala do gráfico", () => {
     for (const m of escalaBonita(0.1, 0.7).marcas) expect(String(m).length).toBeLessThan(6);
   });
 });
+
+import { escalaComReferencia, indiceMaisPerto, marcasEixoX, rotuloEixoX } from "@/lib/grafico-escala";
+
+describe("escalaComReferencia", () => {
+  it("meta longe dos dados não entra no desenho (não esmaga a variação)", () => {
+    const { escala, referenciaNoDesenho } = escalaComReferencia([150.2, 152.1, 151.3, 153.8], 95);
+    expect(referenciaNoDesenho).toBe(false);
+    expect(escala.min).toBeGreaterThanOrEqual(148);
+    expect(escala.max).toBeLessThanOrEqual(156);
+    expect(escala.marcas.length).toBeGreaterThanOrEqual(2);
+  });
+  it("meta perto dos dados entra e a escala a contém", () => {
+    const { escala, referenciaNoDesenho } = escalaComReferencia([82, 83.5, 84], 80);
+    expect(referenciaNoDesenho).toBe(true);
+    expect(escala.min).toBeLessThanOrEqual(80);
+  });
+  it("sem referência, com folga: os dados nunca encostam na borda", () => {
+    const { escala } = escalaComReferencia([100, 110], null);
+    expect(escala.min).toBeLessThan(100);
+    expect(escala.max).toBeGreaterThan(110);
+  });
+  it("barras começam em zero e incluem a linha de referência próxima", () => {
+    const { escala, referenciaNoDesenho } = escalaComReferencia([1800, 2100, 2500], 2300, { zero: true });
+    expect(escala.min).toBe(0);
+    expect(referenciaNoDesenho).toBe(true);
+    expect(escala.max).toBeGreaterThanOrEqual(2500);
+  });
+  it("valores iguais não quebram", () => {
+    const { escala } = escalaComReferencia([70, 70], null);
+    expect(escala.max).toBeGreaterThan(escala.min);
+  });
+});
+
+describe("eixo X", () => {
+  it("até 4 marcas, sempre em pontos reais, com o primeiro e o último", () => {
+    expect(marcasEixoX([0, 3, 7, 10, 14, 20, 27])).toEqual([0, 10, 20, 27]);
+    expect(marcasEixoX([0, 5, 9])).toEqual([0, 5, 9]);
+    expect(marcasEixoX([4, 4, 4])).toEqual([4]);
+  });
+  it("ponto mais perto do toque", () => {
+    expect(indiceMaisPerto([0, 3, 7, 10], 6)).toBe(2);
+    expect(indiceMaisPerto([0, 3, 7, 10], -5)).toBe(0);
+  });
+  it("rótulos por data e por semana", () => {
+    expect(rotuloEixoX({ tipo: "dias", inicio: "2026-10-24" }, 0)).toBe("24/10");
+    expect(rotuloEixoX({ tipo: "dias", inicio: "2026-10-24" }, 23)).toBe("16/11");
+    expect(rotuloEixoX({ tipo: "semanas" }, 0)).toBe("hoje");
+    expect(rotuloEixoX({ tipo: "semanas" }, 6)).toBe("sem. 6");
+  });
+});
+
+describe("escala sem folga negativa", () => {
+  it("dados a partir de zero não mostram valores negativos no eixo", () => {
+    const { escala } = escalaComReferencia([0, 0.4, 1.2, 2], null);
+    expect(escala.min).toBe(0);
+  });
+});

@@ -70,7 +70,7 @@ export default async function PaginaHoje(props: PageProps<"/hoje">) {
       <div className="dashboard-stack">
         <ResumoCalorias totais={totais} meta={meta} temRegistros={registros.length > 0} />
         <CartaoRotina refeicao={refeicaoRotina} itens={itensRotina} temOutras={outrasRotina} />
-        <section className="app-card" aria-labelledby="refeicoes"><div className="flex items-center justify-between gap-3"><h2 id="refeicoes" className="section-heading">Refeições do dia</h2><Link href="/comida" className="action-link">Ver diário</Link></div><ul className="mt-2 divide-y divide-linha">{REFEICOES.map((ref) => {
+        <section className="app-card" aria-labelledby="refeicoes" data-tour="hoje-refeicoes"><div className="flex items-center justify-between gap-3"><h2 id="refeicoes" className="section-heading">Refeições do dia</h2><Link href="/comida" className="action-link">Ver diário</Link></div><ul className="mt-2 divide-y divide-linha">{REFEICOES.map((ref) => {
           const itens = registros.filter((r) => r.refeicao === ref);
           const kcal = itens.reduce((total, item) => total + item.kcal, 0);
           const Icone = ICONES_REFEICAO[ref];

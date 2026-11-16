@@ -37,7 +37,7 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
     return (
       <div className="page-stack">
         <h1 className="page-heading">Treino</h1>
-        <section className="app-card space-y-5">
+        <section className="app-card space-y-5" data-tour="treino">
           <span className="icon-badge"><Dumbbell size={22} aria-hidden="true" /></span>
           <div className="space-y-2">
             <h2 className="section-heading">Seu próximo passo começa aqui</h2>
@@ -72,7 +72,7 @@ export default async function PaginaTreino(props: PageProps<"/treino">) {
 
   return (
     <div className="page-stack">
-      <header className="space-y-4">
+      <header className="space-y-4" data-tour="treino">
         <h1 className="page-heading">Treino</h1>
         <p className="page-intro">Movimento que cabe na sua rotina.</p>
         <nav aria-label="Dia" className="app-card flex items-center justify-between">

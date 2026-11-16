@@ -71,7 +71,7 @@ export default async function PaginaProgresso(props: PageProps<"/progresso">) {
                 : "Seu primeiro registro é o começo do acompanhamento."}
             </p>
           </div>
-          <Link href="/progresso/pesagem" className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-destaque px-4 text-sm font-bold text-sobre-destaque">
+          <Link href="/progresso/pesagem" data-tour="progresso-peso" className="flex min-h-11 shrink-0 items-center gap-2 rounded-xl bg-destaque px-4 text-sm font-bold text-sobre-destaque">
             <Scale size={18} aria-hidden="true" />{ultima && resumo.diasSemPesar === 0 ? "Editar" : "Registrar"}
           </Link>
         </div>

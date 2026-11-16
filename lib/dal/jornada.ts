@@ -15,6 +15,7 @@ import {
 } from "@/lib/jornada";
 import { planoDeAplicacao, preferenciasDoRascunho, type CampoPerfilJornada, type PerfilAtual, type PlanoAplicacao } from "@/lib/jornada-aplicacao";
 import { finalizarSchema, rascunhoSchema, salvarEtapaSchema, validarRespostas } from "@/lib/validacao/jornada";
+import { lerTutorial, tutorialSchema, type EstadoTutorial } from "@/lib/tutorial-inicial";
 import type { ErrosCampos } from "@/lib/validacao/comum";
 import { errosPorCampo } from "@/lib/validacao/comum";
 import { exigirId } from "./util";
@@ -275,4 +276,34 @@ export async function finalizarJornada(userId: string, entrada: unknown): Promis
   if (depois.estado === "concluida") return { status: "encerrada" };
   if (depois.revisao !== revisaoEsperada) return { status: "conflito", revisao: depois.revisao };
   return { status: "desatualizado" };
+}
+
+// ───────────── passeio pelo app (2C) ─────────────
+
+/** Estado do passeio e a área escolhida na jornada (para montar o roteiro). Sem jornada: não iniciado. */
+export async function obterTutorial(userId: string): Promise<{ tutorial: EstadoTutorial; area: "comida" | "treino" | "ambos" | undefined }> {
+  exigirId(userId);
+  const [r] = await db
+    .select({ tutorial: jornadasIniciais.tutorial, rascunho: jornadasIniciais.rascunho })
+    .from(jornadasIniciais)
+    .where(eq(jornadasIniciais.userId, userId))
+    .limit(1);
+  if (!r) return { tutorial: { estado: "nao_iniciado" }, area: undefined };
+  const rascunho = rascunhoSchema.safeParse(r.rascunho);
+  return { tutorial: lerTutorial(r.tutorial), area: rascunho.success ? rascunho.data.foco?.area : undefined };
+}
+
+/**
+ * Guarda o estado do passeio (validado). Quem nunca fez a jornada ganha uma linha "adiada" só para guardar o
+ * passeio (o convite do Hoje não reaparece; a jornada continua disponível em Conta). Não mexe no rascunho.
+ */
+export async function atualizarTutorial(userId: string, tutorial: EstadoTutorial): Promise<boolean> {
+  exigirId(userId);
+  const t = tutorialSchema.safeParse(tutorial);
+  if (!t.success) return false;
+  await db
+    .insert(jornadasIniciais)
+    .values({ userId, estado: "adiada", tutorial: t.data })
+    .onConflictDoUpdate({ target: jornadasIniciais.userId, set: { tutorial: t.data, atualizadoEm: new Date() } });
+  return true;
 }

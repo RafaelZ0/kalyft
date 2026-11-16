@@ -153,7 +153,7 @@ export default async function PaginaComida(props: PageProps<"/comida">) {
               ))}
             </ul>
             <div className="flex items-center gap-3 pt-1">
-              <Link href={`/comida/adicionar?data=${data}&refeicao=${ref}`} className="action-secondary flex-1 gap-2">
+              <Link href={`/comida/adicionar?data=${data}&refeicao=${ref}`} className="action-secondary flex-1 gap-2" data-tour="comida-adicionar">
                 <Plus size={18} aria-hidden="true" /> Adicionar
               </Link>
               <MenuRefeicao data={data} refeicao={ref} temItens={itens.length > 0} />

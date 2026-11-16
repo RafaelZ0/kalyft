@@ -10,6 +10,7 @@ import { sair } from "../../acoes";
 import { decidirCadastro } from "./actions";
 import { PainelMetas, PainelPerfil, type MetaTela } from "./paineis";
 import { SeletorAparencia } from "@/components/aparencia";
+import { iniciarTutorialAcao } from "../tutorial-actions";
 
 export const metadata = { title: "Conta · Kalyft" };
 
@@ -44,6 +45,7 @@ export default async function PaginaAjustes() {
       {modo === "proprio" ? <section className="space-y-3" aria-label="Acompanhamento">
         {admin ? <Link href="/ajustes/alunos" className="block rounded-2xl border border-marca p-4 font-bold">Alunos <span className="block text-sm font-normal text-suave">Acompanhar alimentação, treino e evolução</span></Link> : null}
         <Link href="/ajustes/acompanhamento" className="block rounded-2xl border border-linha p-4 font-bold">Acompanhamento <span className="block text-sm font-normal text-suave">Solicitações, autorizações e histórico de alterações</span></Link>
+        <form action={iniciarTutorialAcao}><button type="submit" data-tour="conta-passeio" className="block w-full rounded-2xl border border-linha p-4 text-left font-bold">Passeio pelo app <span className="block text-sm font-normal text-suave">Conheça as telas principais em poucos passos</span></button></form>
       </section> : null}
 
       <PainelPerfil

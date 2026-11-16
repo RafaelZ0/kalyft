@@ -10,6 +10,8 @@ import { adiarJornadaAcao, iniciarJornadaAcao } from "./actions";
 import { FormularioEtapa } from "./formulario-etapa";
 import { Revisao, type SecaoResumo } from "./revisao";
 import { Trilha } from "./trilha";
+import { lerTutorial } from "@/lib/tutorial-inicial";
+import { iniciarTutorialAcao, pularTutorialAcao } from "../tutorial-actions";
 
 export const metadata = { title: "Seu começo · Kalyft" };
 
@@ -176,6 +178,18 @@ export default async function PaginaComecar(props: PageProps<"/comecar">) {
           </Link>
           {outra ? <p className="text-sm text-suave"><strong>{outra}</strong> continua como próximo passo. Você não precisa fazer tudo agora.</p> : null}
         </section>
+        {lerTutorial(jornada.tutorial).estado === "nao_iniciado" ? (
+          <section aria-labelledby="passeio" className="app-card space-y-3">
+            <h2 id="passeio" className="section-heading">Quer conhecer o app?</h2>
+            <p className="text-sm text-suave">Um passeio rápido pelas telas principais. Você pode pular agora e refazer quando quiser em Conta.</p>
+            <form action={iniciarTutorialAcao}>
+              <button type="submit" className="action-primary w-full">Mostrar em poucos passos</button>
+            </form>
+            <form action={pularTutorialAcao}>
+              <button type="submit" className="action-secondary w-full">Pular por agora</button>
+            </form>
+          </section>
+        ) : null}
         <Link href="/hoje" className="action-secondary w-full">Ir para o Hoje</Link>
       </div>
     );

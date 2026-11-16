@@ -231,6 +231,7 @@ Busca de alimentos em português: extensão `pg_trgm` (disponível no Neon) com 
 - **Alimentos do usuário:** cadastro manual a partir de rótulos (valores da porção do rótulo, convertidos para 100 g) ou estimativa da IA confirmada pelo usuário (seção 3.4).
 - **Cadastro assistido pela IA (fase da IA):** ao cadastrar um alimento que não veio do código de barras, a IA sugere as calorias e nutrientes por 100 g e as medidas comuns (unidade, fatia, colher...) com gramas. Tudo marcado como "estimativa da IA"; o usuário confere, ajusta e confirma antes de salvar.
 - **Medidas caseiras oficiais (IBGE, POF 2008-2009, "Tabela de Medidas Referidas"):** arquivo oficial em `dados/ibge/` (SHA-256 conferido). Importadas as 605 medidas canônicas (medida relatada = padrão, sem grama/quilo) para `medidas_ibge`, só leitura. Usadas como sugestões por alimento (mesmo alimento principal, preparo compatível). Os arquivos não trazem licença explícita: usar citando a fonte.
+- **Composição do IBGE (POF 2008-2009, "Tabelas de Composição Nutricional dos Alimentos Consumidos no Brasil")** — Fase 10A: 1.971 itens (alimentos e preparações como consumidos no Brasil, ex.: bolo de cenoura, rosquinha) importados em `alimentos_base` com fonte `ibge`, arquivo oficial com SHA-256 (`dados/ibge-pof/`). Cada item mostra o alimento de referência usado pelo IBGE (NDSR, TACO etc.); o sódio de adição fica à parte. Licença não explícita: usar citando a fonte; confirmar antes de uso comercial.
 
 ## 6. Ordem de construção (fases)
 

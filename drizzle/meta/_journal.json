@@ -169,6 +169,13 @@
       "when": 1794749253693,
       "tag": "0023_fase9f_lembretes",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794855676583,
+      "tag": "0024_fase10a_ibge_composicao",
+      "breakpoints": true
     }
   ]
 }

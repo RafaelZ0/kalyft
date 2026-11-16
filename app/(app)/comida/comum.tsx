@@ -26,7 +26,7 @@ export function ListaAlimentos({ itens, volta }: { itens: AlimentoResumo[]; volt
                 {a.nome}
               </span>
               <span className="text-sm text-suave">
-                {a.tipo === "usuario" ? `Meu alimento${a.marca ? ` · ${a.marca}` : ""}` : "TACO"}
+                {a.tipo === "usuario" ? `Meu alimento${a.marca ? ` · ${a.marca}` : ""}` : rotuloFonte(a.fonte)}
               </span>
             </span>
             <span className="shrink-0 text-sm text-suave">
@@ -39,9 +39,19 @@ export function ListaAlimentos({ itens, volta }: { itens: AlimentoResumo[]; volt
   );
 }
 
-export function CitacaoTaco({ citacao }: { citacao: string | null }) {
-  if (!citacao) return null;
-  return <p className="pt-6 text-xs text-suave">Fonte dos alimentos da TACO: {citacao}</p>;
+/** Nome curto da fonte oficial de um alimento da base. */
+export function rotuloFonte(fonte: string | null | undefined): string {
+  return fonte === "ibge" ? "IBGE (POF 2008-2009)" : "TACO";
+}
+
+export function CitacaoTaco({ citacao, citacaoIbge = null }: { citacao: string | null; citacaoIbge?: string | null }) {
+  if (!citacao && !citacaoIbge) return null;
+  return (
+    <div className="space-y-1 pt-6 text-xs text-suave">
+      {citacao ? <p>Fonte dos alimentos da TACO: {citacao}</p> : null}
+      {citacaoIbge ? <p>Fonte dos alimentos do IBGE: {citacaoIbge} Valores compilados pelo IBGE a partir de outras bases (principalmente NDSR e TACO).</p> : null}
+    </div>
+  );
 }
 
 export function Voltar({ href, rotulo = "Voltar" }: { href: string; rotulo?: string }) {

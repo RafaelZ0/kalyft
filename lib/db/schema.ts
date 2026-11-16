@@ -156,7 +156,8 @@ export const fontesAlimentos = pgTable(
   ],
 );
 
-// Base oficial (TACO). Valores por 100 g. null = desconhecido. Só leitura para o app.
+// Base oficial: TACO e, desde a Fase 10A, a tabela de composição do IBGE (POF 2008-2009). Valores por 100 g.
+// null = desconhecido. Só leitura para o app.
 export const alimentosBase = pgTable(
   "alimentos_base",
   {
@@ -174,6 +175,10 @@ export const alimentosBase = pgTable(
     fibraG: numeric("fibra_g", n62),
     sodioMg: numeric("sodio_mg", n82),
     marcacoes: jsonb("marcacoes").$type<Marcacoes>().notNull().default({}),
+    // IBGE: alimento de referência de onde vieram os valores (ex.: "TACO: Biscoito, doce, maisena"). TACO: null.
+    referencia: text("referencia"),
+    // IBGE: sódio estimado do sal adicionado no preparo (à parte do sódio do alimento, que fica em sodio_mg).
+    sodioAdicaoMg: numeric("sodio_adicao_mg", n82),
     atualizadoEm: timestamp("atualizado_em", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
@@ -182,7 +187,9 @@ export const alimentosBase = pgTable(
       columns: [t.fonte, t.edicao],
       foreignColumns: [fontesAlimentos.fonte, fontesAlimentos.edicao],
     }),
-    check("alimentos_base_fonte_check", sql`${t.fonte} in ('taco')`),
+    check("alimentos_base_fonte_check", sql`${t.fonte} in ('taco', 'ibge')`),
+    check("alimentos_base_referencia_check", sql`char_length(${t.referencia}) <= 300`),
+    check("alimentos_base_sodio_adicao_check", sql`${t.sodioAdicaoMg} between 0 and 40000`),
     check("alimentos_base_nome_check", sql`char_length(${t.nome}) between 1 and 200`),
     check("alimentos_base_kcal_check", sql`${t.kcal} between 0 and 900`),
     check("alimentos_base_proteina_check", sql`${t.proteinaG} between 0 and 100`),

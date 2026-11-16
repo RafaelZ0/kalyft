@@ -2,7 +2,7 @@ import { ChefHat, ScanBarcode, Sparkles, Plus } from "lucide-react";
 import { SomenteContaPropria } from "@/components/contexto-dados";
 import Link from "next/link";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
-import { citacaoTaco, listarFavoritos, listarRecentes } from "@/lib/dal/alimentos";
+import { citacaoDaFonte, citacaoTaco, listarFavoritos, listarRecentes } from "@/lib/dal/alimentos";
 import { hojeSaoPaulo } from "@/lib/datas";
 import { dataDiario, refeicao as refeicaoSchema, ROTULOS_REFEICAO } from "@/lib/validacao/comida";
 import { CitacaoTaco, ListaAlimentos, Voltar, voltaQuery } from "../comum";
@@ -17,10 +17,11 @@ export default async function PaginaAdicionar(props: PageProps<"/comida/adiciona
   const ref = refeicaoSchema.safeParse(sp.refeicao).data ?? "almoco";
   const volta = voltaQuery(data, ref);
 
-  const [recentes, favs, citacao] = await Promise.all([
+  const [recentes, favs, citacao, citacaoIbge] = await Promise.all([
     listarRecentes(userId),
     listarFavoritos(userId),
     citacaoTaco(),
+    citacaoDaFonte("ibge"),
   ]);
 
   return (
@@ -71,7 +72,7 @@ export default async function PaginaAdicionar(props: PageProps<"/comida/adiciona
           <p className="text-suave">Digite o nome do alimento. Ex.: arroz, feijão, frango.</p>
         ) : null}
       </Busca>
-      <CitacaoTaco citacao={citacao} />
+      <CitacaoTaco citacao={citacao} citacaoIbge={citacaoIbge} />
     </div>
   );
 }

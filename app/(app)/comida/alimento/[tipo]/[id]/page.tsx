@@ -3,7 +3,7 @@ import { FormDados } from "@/components/contexto-dados";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
-import { citacaoTaco, obterAlimento } from "@/lib/dal/alimentos";
+import { citacaoDaFonte, obterAlimento } from "@/lib/dal/alimentos";
 import { ehFavorito, listarMedidas } from "@/lib/dal/medidas";
 import { sugestoesIbge } from "@/lib/dal/medidas-ibge";
 import { hojeSaoPaulo } from "@/lib/datas";
@@ -11,7 +11,7 @@ import type { Marcacoes } from "@/lib/db/schema";
 import { formatarGramas, formatarKcal } from "@/lib/nutricao";
 import { comArtigo, dataDiario, id as idSchema, refeicao as refeicaoSchema, tipoAlimento } from "@/lib/validacao/comida";
 import { favoritar } from "../../../actions";
-import { CitacaoTaco, Voltar, voltaQuery } from "../../../comum";
+import { CitacaoTaco, rotuloFonte, Voltar, voltaQuery } from "../../../comum";
 import { FormAdicionar, Medidas } from "./formularios";
 
 export const metadata = { title: "Alimento · Kalyft" };
@@ -21,6 +21,7 @@ const ROTULO_MARCA: Record<string, string> = {
   NA: "não se aplica",
   "*": "em reavaliação na TACO",
   vazio: "não analisado",
+  limite: "ajustado ao limite físico",
   negativo: "≈ 0 (cálculo por diferença)",
 };
 
@@ -31,9 +32,11 @@ function Valor({ v, marca, unidade, kcal = false }: { v: number | null; marca?: 
       ? `valor da USDA (${marca.ref?.split(" (")[0]})`
       : marca?.fonte === "taco-semelhantes"
         ? "estimado de alimentos semelhantes da TACO"
-        : marca?.marca
-          ? ROTULO_MARCA[marca.marca]
-          : null;
+        : marca?.marca === "limite"
+          ? `ajustado ao limite físico (original ${marca.ref?.replace(".", ",")})`
+          : marca?.marca
+            ? ROTULO_MARCA[marca.marca]
+            : null;
   return (
     <dd className="text-right">
       <span className="text-lg font-semibold">{texto}</span>
@@ -58,7 +61,7 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
   const [medidasDb, favorito, citacao, sugestoesDb] = await Promise.all([
     listarMedidas(userId, tipo.data, id.data),
     ehFavorito(userId, tipo.data, id.data),
-    tipo.data === "base" ? citacaoTaco() : Promise.resolve(null),
+    tipo.data === "base" ? citacaoDaFonte(alimento.fonte === "ibge" ? "ibge" : "taco") : Promise.resolve(null),
     sugestoesIbge(alimento.nome),
   ]);
   // Só os campos necessários vão para o navegador.
@@ -91,7 +94,7 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
           </FormDados>
         </div>
         <p className="text-suave">
-          {alimento.tipo === "base" ? `TACO · ${alimento.grupo ?? ""}` : `Meu alimento${alimento.marca ? ` · ${alimento.marca}` : ""}`}
+          {alimento.tipo === "base" ? [rotuloFonte(alimento.fonte), alimento.grupo].filter(Boolean).join(" · ") : `Meu alimento${alimento.marca ? ` · ${alimento.marca}` : ""}`}
           {alimento.tipo === "usuario" ? (
             <>
               {" · "}
@@ -105,7 +108,7 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
 
       {alimento.kcal === null ? (
         <p role="alert" className="rounded-2xl border-2 border-erro p-4 font-medium text-erro"><CircleAlert size={18} aria-hidden="true" className="mr-2 inline" />
-          As calorias deste alimento estão em reavaliação na TACO, então ele não pode ser adicionado. Cadastre pelo rótulo do produto.
+          As calorias deste alimento não estão disponíveis na fonte, então ele não pode ser adicionado. Cadastre pelo rótulo do produto.
         </p>
       ) : (
         <FormAdicionar
@@ -132,7 +135,7 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
           {[
             ["Calorias", <Valor key="k" v={alimento.kcal} marca={m.kcal} unidade="kcal" kcal />],
             ["Proteína", <Valor key="p" v={alimento.proteinaG} marca={m.proteina_g} unidade="g" />],
-            [alimento.tipo === "base" ? "Carboidrato (inclui fibra)" : "Carboidrato", <Valor key="c" v={alimento.carboG} marca={m.carbo_g} unidade="g" />],
+            [alimento.fonte === "taco" ? "Carboidrato (inclui fibra)" : "Carboidrato", <Valor key="c" v={alimento.carboG} marca={m.carbo_g} unidade="g" />],
             ["Gordura", <Valor key="g" v={alimento.gorduraG} marca={m.gordura_g} unidade="g" />],
             ["Fibra", <Valor key="f" v={alimento.fibraG} marca={m.fibra_g} unidade="g" />],
             ["Sódio", <Valor key="s" v={alimento.sodioMg} marca={m.sodio_mg} unidade="mg" kcal />],
@@ -144,6 +147,21 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
           ))}
         </dl>
       </section>
+
+      {alimento.fonte === "ibge" ? (
+        <section aria-labelledby="origem" className="space-y-2 rounded-2xl border border-linha p-4 text-sm">
+          <h2 id="origem" className="font-semibold">De onde vêm estes valores</h2>
+          <p className="text-suave">
+            Tabela oficial do IBGE com os alimentos como consumidos no Brasil. O IBGE usou os valores de um alimento de referência:
+          </p>
+          <p className="font-medium">{alimento.referencia}</p>
+          {alimento.sodioAdicaoMg !== null ? (
+            <p className="text-suave">
+              Se preparado com sal, o IBGE estima mais ≈ {Math.round(alimento.sodioAdicaoMg).toLocaleString("pt-BR")} mg de sódio por 100 g (não somado acima).
+            </p>
+          ) : null}
+        </section>
+      ) : null}
 
       <Medidas tipo={alimento.tipo} alimentoId={alimento.id} medidas={medidas} sugestoes={sugestoes} />
       {alimento.origem === "codigo_barras" ? (
@@ -157,7 +175,7 @@ export default async function PaginaAlimento(props: PageProps<"/comida/alimento/
         </p>
       ) : null}
 
-      <CitacaoTaco citacao={citacao} />
+      {alimento.fonte === "ibge" ? <CitacaoTaco citacao={null} citacaoIbge={citacao} /> : <CitacaoTaco citacao={citacao} />}
     </div>
   );
 }

@@ -15,6 +15,8 @@ export type AlimentoResumo = {
   kcal: number | null;
   favorito: boolean;
   recente: boolean;
+  /** Fonte oficial do alimento da base ("taco" ou "ibge"); null nos alimentos do usuário. */
+  fonte: string | null;
 };
 
 export type AlimentoDetalhe = {
@@ -31,6 +33,11 @@ export type AlimentoDetalhe = {
   sodioMg: number | null;
   marcacoes: Marcacoes;
   origem: string | null;
+  fonte: string | null;
+  /** IBGE: alimento de referência de onde vieram os valores. */
+  referencia: string | null;
+  /** IBGE: sódio estimado do sal adicionado no preparo (não somado ao sódio do alimento). */
+  sodioAdicaoMg: number | null;
 };
 
 const RECENTES_DIAS = 60;
@@ -68,6 +75,7 @@ export async function buscarAlimentos(userId: string, termo: string): Promise<Al
     kcal: string | null;
     favorito: boolean;
     recente: boolean;
+    fonte: string | null;
   }>(sql`
     with recentes as (
       select alimento_base_id, alimento_usuario_id, max(criado_em) as ultimo
@@ -76,15 +84,15 @@ export async function buscarAlimentos(userId: string, termo: string): Promise<Al
       group by alimento_base_id, alimento_usuario_id
     ),
     candidatos as (
-      select 'base'::text as tipo, b.id, b.nome, null::text as marca, b.kcal, b.nome_busca, ${pontos(sql`b.nome_busca`)} as pontos
+      select 'base'::text as tipo, b.id, b.nome, null::text as marca, b.kcal, b.nome_busca, b.fonte, ${pontos(sql`b.nome_busca`)} as pontos
       from alimentos_base b
       where ${todas(sql`b.nome_busca`)}
       union all
-      select 'usuario'::text, u.id, u.nome, u.marca, u.kcal, u.nome_busca, ${pontos(sql`u.nome_busca`)}
+      select 'usuario'::text, u.id, u.nome, u.marca, u.kcal, u.nome_busca, null::text, ${pontos(sql`u.nome_busca`)}
       from alimentos_usuario u
       where u.user_id = ${userId} and ${todas(sql`u.nome_busca`)}
     )
-    select c.tipo, c.id, c.nome, c.marca, c.kcal,
+    select c.tipo, c.id, c.nome, c.marca, c.kcal, c.fonte,
       exists (
         select 1 from favoritos f where f.user_id = ${userId}
           and (f.alimento_base_id = c.id or f.alimento_usuario_id = c.id)
@@ -93,7 +101,9 @@ export async function buscarAlimentos(userId: string, termo: string): Promise<Al
     from candidatos c
     left join recentes r on (r.alimento_base_id = c.id or r.alimento_usuario_id = c.id)
     order by (r.ultimo is not null) desc, favorito desc, round(c.pontos::numeric, 1) desc,
-      (c.nome_busca like ${`${escaparLike(palavras[0])}%`}) desc, length(c.nome) asc
+      (c.nome_busca like ${`${escaparLike(palavras[0])}%`}) desc,
+      -- empate: a TACO (análise brasileira) antes da tabela do IBGE, que é compilada de outras bases
+      (c.fonte is distinct from 'ibge') desc, length(c.nome) asc
     limit ${BUSCA_LIMITE}
   `);
 
@@ -110,6 +120,7 @@ export async function listarRecentes(userId: string, limite = 15): Promise<Alime
     marca: string | null;
     kcal: string | null;
     favorito: boolean;
+    fonte: string | null;
   }>(sql`
     with ultimos as (
       select alimento_base_id, alimento_usuario_id, max(criado_em) as ultimo
@@ -120,7 +131,7 @@ export async function listarRecentes(userId: string, limite = 15): Promise<Alime
       limit ${limite}
     )
     select case when x.alimento_base_id is not null then 'base' else 'usuario' end as tipo,
-      coalesce(b.id, u.id) as id, coalesce(b.nome, u.nome) as nome, u.marca, coalesce(b.kcal, u.kcal) as kcal,
+      coalesce(b.id, u.id) as id, coalesce(b.nome, u.nome) as nome, u.marca, coalesce(b.kcal, u.kcal) as kcal, b.fonte,
       exists (
         select 1 from favoritos f where f.user_id = ${userId}
           and (f.alimento_base_id = x.alimento_base_id or f.alimento_usuario_id = x.alimento_usuario_id)
@@ -141,6 +152,7 @@ export async function listarFavoritos(userId: string): Promise<AlimentoResumo[]>
       baseId: alimentosBase.id,
       baseNome: alimentosBase.nome,
       baseKcal: alimentosBase.kcal,
+      baseFonte: alimentosBase.fonte,
       usuarioId: alimentosUsuario.id,
       usuarioNome: alimentosUsuario.nome,
       usuarioMarca: alimentosUsuario.marca,
@@ -159,7 +171,7 @@ export async function listarFavoritos(userId: string): Promise<AlimentoResumo[]>
     .filter((l) => l.baseId || l.usuarioId)
     .map((l) =>
       l.baseId
-        ? { tipo: "base", id: l.baseId, nome: l.baseNome!, marca: null, kcal: l.baseKcal, favorito: true, recente: false }
+        ? { tipo: "base", id: l.baseId, nome: l.baseNome!, marca: null, kcal: l.baseKcal, favorito: true, recente: false, fonte: l.baseFonte }
         : {
             tipo: "usuario",
             id: l.usuarioId!,
@@ -168,6 +180,7 @@ export async function listarFavoritos(userId: string): Promise<AlimentoResumo[]>
             kcal: l.usuarioKcal,
             favorito: true,
             recente: false,
+            fonte: null,
           },
     );
 }
@@ -193,6 +206,9 @@ export async function obterAlimento(userId: string, tipo: TipoAlimento, id: stri
       sodioMg: a.sodioMg,
       marcacoes: a.marcacoes,
       origem: null,
+      fonte: a.fonte,
+      referencia: a.referencia,
+      sodioAdicaoMg: a.sodioAdicaoMg,
     };
   }
   const [a] = await db
@@ -215,7 +231,21 @@ export async function obterAlimento(userId: string, tipo: TipoAlimento, id: stri
     sodioMg: a.sodioMg,
     marcacoes: {},
     origem: a.origem,
+    fonte: null,
+    referencia: null,
+    sodioAdicaoMg: null,
   };
+}
+
+/** Citação de uma fonte oficial da base (TACO ou a tabela de composição do IBGE). */
+export async function citacaoDaFonte(fonte: "taco" | "ibge"): Promise<string | null> {
+  const edicao = fonte === "taco" ? "4a-2011" : "pof-2008-2009-tcn";
+  const [f] = await db
+    .select({ citacao: fontesAlimentos.citacao })
+    .from(fontesAlimentos)
+    .where(and(eq(fontesAlimentos.fonte, fonte), eq(fontesAlimentos.edicao, edicao)))
+    .limit(1);
+  return f?.citacao ?? null;
 }
 
 export async function citacaoTaco(): Promise<string | null> {

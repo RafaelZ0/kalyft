@@ -176,6 +176,13 @@
       "when": 1794855676583,
       "tag": "0024_fase10a_ibge_composicao",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794857972647,
+      "tag": "0025_fase11a_jornada_inicial",
+      "breakpoints": true
     }
   ]
 }

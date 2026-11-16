@@ -1283,3 +1283,54 @@ export const lembretesEnvios = pgTable(
     check("lembretes_envios_data_check", sql`${t.data} >= date '2000-01-01'`),
   ],
 );
+
+// ───────────────────────── Fase 11A (2A do plano de integração): jornada inicial ─────────────────────────
+
+// Uma jornada por pessoa. `rascunho` guarda respostas AINDA NÃO APLICADAS (perfil/pesagem/metas só mudam na
+// finalização com revisão). `revisao` é o controle otimista entre abas: só salva quem conhece a revisão atual.
+// `preferencias` recebe apenas preferências confirmadas; `tutorial`, o estado do passeio pelo app.
+export const jornadasIniciais = pgTable(
+  "jornadas_iniciais",
+  {
+    userId: uuid("user_id")
+      .primaryKey()
+      .references(() => perfis.userId, { onDelete: "cascade" }),
+    versao: integer("versao").notNull().default(1),
+    revisao: integer("revisao").notNull().default(0),
+    estado: text("estado").notNull().default("em_andamento"),
+    etapa: text("etapa").notNull().default("foco"),
+    rascunho: jsonb("rascunho").notNull().default({}),
+    preferencias: jsonb("preferencias").notNull().default({}),
+    tutorial: jsonb("tutorial").notNull().default({ estado: "nao_iniciado" }),
+    criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
+    atualizadoEm: timestamp("atualizado_em", { withTimezone: true }).notNull().defaultNow(),
+    concluidoEm: timestamp("concluido_em", { withTimezone: true }),
+  },
+  (t) => [
+    check("jornadas_versao_check", sql`${t.versao} between 1 and 100`),
+    check("jornadas_revisao_check", sql`${t.revisao} >= 0`),
+    check("jornadas_estado_check", sql`${t.estado} in ('em_andamento', 'adiada', 'concluida')`),
+    check(
+      "jornadas_etapa_check",
+      sql`${t.etapa} in ('foco', 'perfil', 'objetivo', 'rotina', 'atividade', 'treino', 'alimentacao', 'revisao', 'inicio')`,
+    ),
+    // "is not null" explícito: um CHECK que dá NULL passa no Postgres.
+    check("jornadas_conclusao_check", sql`(${t.estado} = 'concluida') = (${t.concluidoEm} is not null)`),
+    check(
+      "jornadas_rascunho_check",
+      sql`jsonb_typeof(${t.rascunho}) = 'object' and octet_length(${t.rascunho}::text) <= 16384`,
+    ),
+    check(
+      "jornadas_preferencias_check",
+      sql`jsonb_typeof(${t.preferencias}) = 'object' and octet_length(${t.preferencias}::text) <= 8192`,
+    ),
+    check(
+      "jornadas_tutorial_check",
+      sql`jsonb_typeof(${t.tutorial}) = 'object' and octet_length(${t.tutorial}::text) <= 2048
+        and ${t.tutorial} ->> 'estado' is not null
+        and ${t.tutorial} ->> 'estado' in ('nao_iniciado', 'em_andamento', 'pulado', 'concluido')`,
+    ),
+  ],
+);
+
+export type JornadaInicialRow = typeof jornadasIniciais.$inferSelect;

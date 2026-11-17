@@ -1,16 +1,15 @@
 import { FormDados } from "@/components/contexto-dados";
 import { exigirContextoDados as exigirUsuario } from "@/lib/auth/acompanhamento";
-import { listarPendentes } from "@/lib/dal/acessos";
 import { historicoMetas, metaVigente } from "@/lib/dal/metas";
 import { obterPerfil } from "@/lib/dal/perfil";
-import { formatarDataBr, hojeSaoPaulo } from "@/lib/datas";
+import { hojeSaoPaulo } from "@/lib/datas";
 import type { Meta } from "@/lib/db/schema";
 import Link from "next/link";
 import { sair } from "../../acoes";
-import { decidirCadastro } from "./actions";
 import { PainelMetas, PainelPerfil, type MetaTela } from "./paineis";
 import { SeletorAparencia } from "@/components/aparencia";
 import { iniciarTutorialAcao } from "../tutorial-actions";
+import { AVISO_PRIVACIDADE } from "@/lib/aviso-privacidade";
 
 export const metadata = { title: "Conta · Kalyft" };
 
@@ -31,11 +30,10 @@ function paraTela(m: Meta): MetaTela {
 
 export default async function PaginaAjustes() {
   const { userId, admin, modo } = await exigirUsuario();
-  const [perfil, meta, historico, pendentes] = await Promise.all([
+  const [perfil, meta, historico] = await Promise.all([
     obterPerfil(userId),
     metaVigente(userId, hojeSaoPaulo()),
     historicoMetas(userId),
-    admin ? listarPendentes(admin) : Promise.resolve([]),
   ]);
 
   return (
@@ -45,6 +43,7 @@ export default async function PaginaAjustes() {
       {modo === "proprio" ? <section className="space-y-3" aria-label="Acompanhamento">
         {admin ? <Link href="/ajustes/alunos" className="block rounded-2xl border border-marca p-4 font-bold">Alunos <span className="block text-sm font-normal text-suave">Acompanhar alimentação, treino e evolução</span></Link> : null}
         <Link href="/ajustes/acompanhamento" className="block rounded-2xl border border-linha p-4 font-bold">Acompanhamento <span className="block text-sm font-normal text-suave">Solicitações, autorizações e histórico de alterações</span></Link>
+        {admin ? null : <p data-teste="aviso-privacidade" className="text-sm text-suave">{AVISO_PRIVACIDADE}</p>}
         <form action={iniciarTutorialAcao}><button type="submit" data-tour="conta-passeio" className="block w-full rounded-2xl border border-linha p-4 text-left font-bold">Passeio pelo app <span className="block text-sm font-normal text-suave">Conheça as telas principais em poucos passos</span></button></form>
       </section> : null}
 
@@ -76,33 +75,6 @@ export default async function PaginaAjustes() {
           </Link>
         ))}
       </section>
-
-      {admin ? (
-        <section aria-labelledby="cadastros">
-          <h2 id="cadastros" className="mb-2 section-heading">Cadastros pendentes</h2>
-          {pendentes.length === 0 ? (
-            <p className="text-suave">Nenhum cadastro aguardando.</p>
-          ) : (
-            <ul>
-              {pendentes.map((p) => (
-                <li key={p.userId} className="border-b border-linha py-4">
-                  <p className="font-semibold break-all">{p.email}</p>
-                  <p className="text-sm text-suave">pedido em {formatarDataBr(p.criadoEm.toISOString().slice(0, 10))}</p>
-                  <FormDados action={decidirCadastro} className="mt-3 flex gap-3">
-                    <input type="hidden" name="alvo" value={p.userId} />
-                    <button name="decisao" value="aprovar" className="min-h-12 flex-1 rounded-xl bg-destaque font-bold text-sobre-destaque">
-                      Aprovar
-                    </button>
-                    <button name="decisao" value="recusar" className="min-h-12 flex-1 rounded-xl border border-borda font-semibold">
-                      Recusar
-                    </button>
-                  </FormDados>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      ) : null}
 
       {modo === "proprio" ? <FormDados action={sair}>
         <button type="submit" className="min-h-12 w-full rounded-xl border border-borda font-semibold text-suave">

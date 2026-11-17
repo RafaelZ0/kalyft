@@ -86,14 +86,14 @@ export const metas = pgTable(
   ],
 );
 
-// Autorização de cadastro: todo usuário novo fica "pendente" até o
-// administrador aprovar.
+// Autorização de cadastro: desde a Fase 12A toda conta nova entra "aprovado"; "recusado" bloqueia.
+// "pendente" fica só por compatibilidade com linhas antigas.
 export const acessos = pgTable(
   "acessos",
   {
     userId: uuid("user_id").primaryKey(),
     email: text("email").notNull(),
-    status: text("status").notNull().default("pendente"),
+    status: text("status").notNull().default("aprovado"),
     criadoEm: timestamp("criado_em", { withTimezone: true }).notNull().defaultNow(),
     decididoEm: timestamp("decidido_em", { withTimezone: true }),
     // Sessões criadas antes deste instante são recusadas pelo app

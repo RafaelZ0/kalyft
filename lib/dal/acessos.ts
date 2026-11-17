@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, eq, ne, sql } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { acessos, type Acesso } from "@/lib/db/schema";
 import { exigirId } from "./util";
@@ -11,8 +11,9 @@ export type Administrador = { readonly userId: string; readonly __admin: true };
 export type StatusAcesso = "pendente" | "aprovado" | "recusado";
 
 /**
- * Registra o usuário no primeiro acesso como "pendente". Administradores são
- * aprovados automaticamente. Nunca altera a decisão já tomada para os demais.
+ * Registra o usuário no primeiro acesso. Desde a Fase 12A o cadastro é aberto: toda conta nova entra como
+ * "aprovado" (e uma "pendente" antiga passa a "aprovado"). Conta "recusado" continua bloqueada; só o
+ * administrador é reaprovado automaticamente.
  */
 export async function registrarAcesso(
   userId: string,
@@ -23,15 +24,18 @@ export async function registrarAcesso(
   const valores = {
     userId,
     email: email.toLowerCase().slice(0, 320),
-    status: administrador ? "aprovado" : "pendente",
-    decididoEm: administrador ? sql`now()` : null,
+    status: "aprovado",
+    decididoEm: sql`now()`,
   };
-  const consulta = db.insert(acessos).values(valores);
-  const [linha] = administrador
-    ? await consulta
-        .onConflictDoUpdate({ target: acessos.userId, set: { status: "aprovado" } })
-        .returning()
-    : await consulta.onConflictDoNothing({ target: acessos.userId }).returning();
+  const [linha] = await db
+    .insert(acessos)
+    .values(valores)
+    .onConflictDoUpdate({
+      target: acessos.userId,
+      set: { status: "aprovado", decididoEm: sql`now()` },
+      setWhere: administrador ? undefined : eq(acessos.status, "pendente"),
+    })
+    .returning();
   if (linha) return linha;
 
   const [existente] = await db.select().from(acessos).where(eq(acessos.userId, userId)).limit(1);
@@ -62,17 +66,7 @@ export async function encerrarSessoesPorEmail(email: string): Promise<number> {
   return linhas.length;
 }
 
-export async function listarPendentes(admin: Administrador): Promise<Acesso[]> {
-  exigirId(admin.userId);
-  return db
-    .select()
-    .from(acessos)
-    .where(eq(acessos.status, "pendente"))
-    .orderBy(asc(acessos.criadoEm))
-    .limit(50);
-}
-
-/** Aprova ou recusa outro usuário. O administrador não altera o próprio acesso. */
+/** Bloqueia ("recusado") ou libera ("aprovado") outro usuário. O administrador não altera o próprio acesso. */
 export async function decidirAcesso(
   admin: Administrador,
   alvoUserId: string,

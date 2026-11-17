@@ -256,4 +256,6 @@ Cada fase termina com o app funcionando, publicado no Vercel e testado no iPhone
 
 ## Acompanhamento de alunos
 
+**Cadastro aberto (Fase 12A):** qualquer pessoa cria conta e entra sem aprovação; o administrador vê toda conta pelo acompanhamento e só altera com autorização do titular. Conta recusada continua bloqueada.
+
 Administrador: Ajustes → Alunos → Acompanhar. Faixa permanente identifica o aluno e permite voltar. Aluno: Ajustes → Acompanhamento, onde aceita/recusa pedidos, escolhe prazo livre de edição, revoga e consulta histórico. Fotos precisam de aceite independente até revogação. Orientações pelo WhatsApp, sem chat interno. Implementação na branch codex/acompanhamento-alunos; publicação depende da validação e migration 0016.

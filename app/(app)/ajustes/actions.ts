@@ -1,10 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { z } from "zod";
-import { exigirAdmin } from "@/lib/auth/sessao";
-import { exigirContextoDados as exigirUsuario, executarAcaoAcompanhada, exigirContaPropria } from "@/lib/auth/acompanhamento";
-import { decidirAcesso } from "@/lib/dal/acessos";
+import { exigirContextoDados as exigirUsuario, executarAcaoAcompanhada } from "@/lib/auth/acompanhamento";
 import { carregarEnergia } from "@/lib/dal/energia";
 import { salvarMeta } from "@/lib/dal/metas";
 import { avisoDeMetaDigitada } from "@/lib/projecao";
@@ -63,23 +60,4 @@ export async function salvarMetas(_: EstadoForm, form: FormData): Promise<Estado
     return { ok: true, aviso };
 
   });
-}
-
-const decisaoSchema = z.object({
-  alvo: z.uuid(),
-  decisao: z.enum(["aprovar", "recusar"]),
-});
-
-export async function decidirCadastro(form: FormData): Promise<void> {
-  await exigirContaPropria();
-  const admin = await exigirAdmin();
-  const r = decisaoSchema.safeParse(formParaObjeto(form, ["alvo", "decisao"]));
-  if (!r.success) return;
-
-  try {
-    await decidirAcesso(admin, r.data.alvo, r.data.decisao === "aprovar" ? "aprovado" : "recusado");
-  } catch (e) {
-    registrarErro("decidirCadastro", e);
-  }
-  revalidatePath("/ajustes");
 }

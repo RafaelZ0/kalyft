@@ -6,7 +6,6 @@ import { acessos, metas, perfis } from "@/lib/db/schema";
 import {
   decidirAcesso,
   encerrarSessoesPorEmail,
-  listarPendentes,
   registrarAcesso,
   sessoesValidasDesde,
   type Administrador,
@@ -98,7 +97,6 @@ describe("isolamento entre usuários: A não altera dados de B", () => {
     const adminA: Administrador = { userId: A, __admin: true };
     expect(await decidirAcesso(adminA, B, "recusado")).toBe(true);
     expect((await registrarAcesso(B, "b@teste.invalid", false)).status).toBe("recusado");
-    expect((await listarPendentes(adminA)).some((p) => p.userId === B)).toBe(false);
   });
 });
 

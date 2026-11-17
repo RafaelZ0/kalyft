@@ -183,6 +183,13 @@
       "when": 1794857972647,
       "tag": "0025_fase11a_jornada_inicial",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794880167332,
+      "tag": "0026_fase12a_cadastro_aberto",
+      "breakpoints": true
     }
   ]
 }
